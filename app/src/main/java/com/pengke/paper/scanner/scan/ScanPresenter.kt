@@ -4,10 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
-import android.graphics.Point
-import android.graphics.Rect
-import android.graphics.YuvImage
+import android.graphics.*
 import android.hardware.Camera
 import android.media.MediaActionSound
 import android.util.Base64
@@ -165,35 +162,56 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     Log.i(TAG, "picture size: " + pictureSize.toString())
                     val mat = Mat(Size(pictureSize?.width?.toDouble() ?: 1920.toDouble(),
                             pictureSize?.height?.toDouble() ?: 1080.toDouble()), CvType.CV_8U)
+                    val bitmap = BitmapFactory.decodeByteArray(p0, 0, p0!!.size)
+                    grayScale(mat, bitmap)
+
                     mat.put(0, 0, p0)
                     val pic = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
                     Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE)
-                    mat.release()
                     SourceManager.corners = processPicture(pic)
-                    Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA)
+                    mat.release()
+
                     SourceManager.pic = pic
 
                     // 矩形編集画面に遷移
 //                    context.startActivity(Intent(context, CropActivity::class.java))
-                    val current = sp.getStringSet("imageArray", null)
-                    println("current size: ${current?.size}")
 
-                    val editor = sp.edit()
-                    // Base64形式でSharedPrefに保存
-                    // 取り出す時->Base64.decode(image, Base64.DEFAULT)
-                    val image = Base64.encodeToString(p0, Base64.DEFAULT)
-//                println("image: $image")
-                    // 1枚目の場合はSharedPrefが空なので、空のコレクションを生成
-                    val set = current ?: HashSet<String>()
-                    set.add(image)
-                    println("after update size: ${set.size}")
-                    editor.putStringSet("imageArray", set).apply()
-//                println("set: $set")
+                    saveImage(bitmap)
 
-                    editor.putBoolean("isBusy", false).apply()
                     busy = false
                     start()
                 }
+    }
+
+    private fun grayScale(mat: Mat, bm: Bitmap) {
+        Utils.bitmapToMat(bm, mat)
+        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY)
+
+        // 記事ではこの記述も必要と書かれているが、クラッシュする
+//        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2RGBA, 4)
+        Utils.matToBitmap(mat, bm)
+    }
+
+    private fun saveImage(bm: Bitmap) {
+        val current = sp.getStringSet("imageArray", null)
+        println("current size: ${current?.size}")
+
+        val baos = ByteArrayOutputStream()
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val b = baos.toByteArray()
+        // Base64形式でSharedPrefに保存
+        // 取り出す時->Base64.decode(image, Base64.DEFAULT)
+        val image = Base64.encodeToString(b, Base64.DEFAULT)
+//                println("image: $image")
+        // 1枚目の場合はSharedPrefが空なので、空のコレクションを生成
+        val set = current ?: HashSet<String>()
+        set.add(image)
+        println("after update size: ${set.size}")
+        val editor = sp.edit()
+        editor.putStringSet("imageArray", set).apply()
+//                println("set: $set")
+
+        editor.putBoolean("isBusy", false).apply()
     }
 
 
