@@ -17,4 +17,6 @@
     <string name="black">Black_White</string>
     <string name="reset">Reset</string>
     <string name="scan">Scan</string>
+    <string name="complete">完了</string>
+    <string name="image_list_title">画像一覧</string>
 </resources>

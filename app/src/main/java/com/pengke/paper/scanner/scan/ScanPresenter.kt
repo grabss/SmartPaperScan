@@ -2,6 +2,7 @@ package com.pengke.paper.scanner.scan
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Point
@@ -9,6 +10,7 @@ import android.graphics.Rect
 import android.graphics.YuvImage
 import android.hardware.Camera
 import android.media.MediaActionSound
+import android.util.Base64
 import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.Toast
@@ -41,11 +43,13 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private val executor: ExecutorService
     private val proxySchedule: Scheduler
     private var busy: Boolean = false
+    private var sp: SharedPreferences
 
     init {
         mSurfaceHolder.addCallback(this)
         executor = Executors.newSingleThreadExecutor()
         proxySchedule = Schedulers.from(executor)
+        sp = context.getSharedPreferences("images", Context.MODE_PRIVATE)
     }
 
     fun start() {
@@ -58,6 +62,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
     fun shut() {
         busy = true
+        val editor = sp.edit()
+        editor.putBoolean("isBusy", true).apply()
         Log.i(TAG, "try to focus")
         mCamera?.autoFocus { b, _ ->
             Log.i(TAG, "focus result: " + b)
@@ -166,8 +172,27 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     SourceManager.corners = processPicture(pic)
                     Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA)
                     SourceManager.pic = pic
-                    context.startActivity(Intent(context, CropActivity::class.java))
+
+                    // 矩形編集画面に遷移
+//                    context.startActivity(Intent(context, CropActivity::class.java))
+                    val current = sp.getStringSet("imageArray", null)
+                    println("current size: ${current?.size}")
+
+                    val editor = sp.edit()
+                    // Base64形式でSharedPrefに保存
+                    // 取り出す時->Base64.decode(image, Base64.DEFAULT)
+                    val image = Base64.encodeToString(p0, Base64.DEFAULT)
+//                println("image: $image")
+                    // 1枚目の場合はSharedPrefが空なので、空のコレクションを生成
+                    val set = current ?: HashSet<String>()
+                    set.add(image)
+                    println("after update size: ${set.size}")
+                    editor.putStringSet("imageArray", set).apply()
+//                println("set: $set")
+
+                    editor.putBoolean("isBusy", false).apply()
                     busy = false
+                    start()
                 }
     }
 

@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-
     package="com.pengke.paper.scanner">
 
     <uses-permission android:name="android.permission.CAMERA" />
@@ -10,18 +10,18 @@
         android:icon="@drawable/ic_donut_small_light_blue_500_24dp"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_donut_small_light_blue_500_24dp"
-        android:supportsRtl="true"
         android:screenOrientation="portrait"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
-
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+        <activity android:name=".ImageListActivity"></activity>
         <activity
             android:name=".scan.ScanActivity"
             android:label="@string/scan"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -29,8 +29,7 @@
             android:name=".crop.CropActivity"
             android:label="@string/crop"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

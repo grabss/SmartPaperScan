@@ -1,11 +1,15 @@
 package com.pengke.paper.scanner.scan
 
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.Display
 import android.view.SurfaceView
+import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.BaseActivity
 import com.pengke.paper.scanner.view.PaperRectangle
@@ -17,15 +21,18 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     private val REQUEST_CAMERA_PERMISSION = 0
     private val EXIT_TIME = 2000
+    private var count = 0
 
     private lateinit var mPresenter: ScanPresenter
     private var latestBackPressTime: Long = 0
+    private lateinit var sp: SharedPreferences
 
 
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this)
+        sp = getSharedPreferences("images", Context.MODE_PRIVATE)
     }
 
     override fun prepare() {
@@ -42,9 +49,24 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
         }
 
+        shut.text = count.toString()
+
         shut.setOnClickListener {
-            mPresenter.shut()
+            val isBusy = sp.getBoolean("isBusy", false)
+            println("isBusy: $isBusy")
+            if(!isBusy) {
+                mPresenter.shut()
+                count++
+                shut.text = count.toString()
+            }
         }
+
+        complete.setOnClickListener {
+            sp.edit().clear().apply()
+            val intent = Intent(application, ImageListActivity::class.java)
+            startActivity(intent)
+        }
+
         latestBackPressTime = System.currentTimeMillis()
     }
 
