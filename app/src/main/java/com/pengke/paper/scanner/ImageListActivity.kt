@@ -1,30 +1,39 @@
 package com.pengke.paper.scanner
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Base64
+import android.view.View
+import android.widget.ImageView
+import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_image_list.*
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
+import kotlinx.android.synthetic.main.fragment_image_list.*
 
-class ImageListActivity : AppCompatActivity() {
+private const val NUM_PAGES = 5
+
+class ImageListActivity : FragmentActivity() {
+
+    private lateinit var viewPager: ViewPager2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_list)
-        setImages()
+
+        viewPager = findViewById(R.id.pager)
+
+        val pagerAdapter = ImageListPagerAdapter(this)
+        viewPager.adapter = pagerAdapter
     }
 
-    private fun setImages() {
-        val sp = getSharedPreferences("images", Context.MODE_PRIVATE)
-        val images = sp.getStringSet("imageArray", null)
-        println("images size: ${images?.size}")
-        if (images == null) {
-            return
-        }
-        val imageBytes = Base64.decode(images.toList()[0], Base64.DEFAULT)
-        val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        imageView.setImageBitmap(decodedImg)
+
+    private inner class ImageListPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
+        override fun getItemCount(): Int = NUM_PAGES
+
+        override fun createFragment(position: Int): Fragment = ImageListFragment()
     }
 }
