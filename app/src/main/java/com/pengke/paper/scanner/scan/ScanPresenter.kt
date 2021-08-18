@@ -139,15 +139,15 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         mCamera?.setDisplayOrientation(90)
     }
 
-    override fun surfaceCreated(p0: SurfaceHolder?) {
+    override fun surfaceCreated(holder: SurfaceHolder) {
         initCamera()
     }
 
-    override fun surfaceChanged(p0: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
+    override fun surfaceChanged(holder: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
         updateCamera()
     }
 
-    override fun surfaceDestroyed(p0: SurfaceHolder?) {
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
         synchronized(this) {
             mCamera?.stopPreview()
             mCamera?.setPreviewCallback(null)
