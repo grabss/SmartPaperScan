@@ -201,12 +201,12 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         if (busy) {
             return
         }
-        Log.i(TAG, "on process start")
+//        Log.i(TAG, "on process start")
         busy = true
         Observable.just(p0)
                 .observeOn(proxySchedule)
                 .subscribe {
-                    Log.i(TAG, "start prepare paper")
+//                    Log.i(TAG, "start prepare paper")
                     val parameters = p1?.parameters
                     val width = parameters?.previewSize?.width
                     val height = parameters?.previewSize?.height

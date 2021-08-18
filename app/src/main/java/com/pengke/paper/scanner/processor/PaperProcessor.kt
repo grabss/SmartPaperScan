@@ -15,7 +15,7 @@ fun processPicture(previewFrame: Mat): Corners? {
 
 fun cropPicture(picture: Mat, pts: List<Point>): Mat {
 
-    pts.forEach { Log.i(TAG, "point: " + it.toString()) }
+//    pts.forEach { Log.i(TAG, "point: " + it.toString()) }
     val tl = pts[0]
     val tr = pts[1]
     val br = pts[2]

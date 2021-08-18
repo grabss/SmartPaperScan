@@ -65,7 +65,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
 
         complete.setOnClickListener {
-            sp.edit().clear().apply()
             val intent = Intent(application, ImageListActivity::class.java)
             startActivity(intent)
         }

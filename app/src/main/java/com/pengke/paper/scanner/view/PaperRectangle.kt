@@ -59,7 +59,7 @@ class PaperRectangle : View {
         br = corners.corners[2] ?: Point()
         bl = corners.corners[3] ?: Point()
 
-        Log.i(TAG, "POINTS ------>  ${tl.toString()} corners")
+//        Log.i(TAG, "POINTS ------>  ${tl.toString()} corners")
 
         resize()
         path.reset()
