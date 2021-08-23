@@ -43,7 +43,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private val proxySchedule: Scheduler
     private var busy: Boolean = false
     private var sp: SharedPreferences
-    private var strList: List<String> = mutableListOf()
+    private var jsons = JSONArray()
 
     init {
         mSurfaceHolder.addCallback(this)
@@ -74,22 +74,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
     fun complete() {
         println("completeタップ")
-        println("strList size: ${strList.size}")
-        val editor = sp.edit()
-        var jsons = JSONArray()
-
-        // String -> JSON
-        for (imgStr in strList) {
-            jsons.put(imgStr)
-            println("========jsons==============")
-            println(jsons)
-        }
-        if (strList.isEmpty()) {
-            editor.putString("imageArray", null);
-        } else {
-            editor.putString("imageArray", jsons.toString());
-        }
-        editor.apply()
     }
 
     fun updateCamera() {
@@ -238,11 +222,18 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         val image = Base64.encodeToString(b, Base64.DEFAULT)
 
         // 画像の配列に追加
-        strList += image
-        println("strList size: ${strList.size}")
+        jsons.put(image)
 
         val editor = sp.edit()
-        editor.putBoolean("isBusy", false).apply()
+
+        if (jsons.length() == 0) {
+            editor.putString("imageArray", null);
+        } else {
+            editor.putString("imageArray", jsons.toString());
+        }
+
+        editor.putBoolean("isBusy", false)
+        editor.apply()
     }
 
     override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
