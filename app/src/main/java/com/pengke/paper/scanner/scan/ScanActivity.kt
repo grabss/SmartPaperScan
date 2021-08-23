@@ -66,9 +66,12 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
 
         complete.setOnClickListener {
-            mPresenter.complete()
-            val intent = Intent(application, ImageListActivity::class.java)
-            startActivity(intent)
+            val isBusy = sp.getBoolean("isBusy", false)
+            if (!isBusy) {
+                mPresenter.complete()
+                val intent = Intent(application, ImageListActivity::class.java)
+                startActivity(intent)
+            }
         }
 
         latestBackPressTime = System.currentTimeMillis()
