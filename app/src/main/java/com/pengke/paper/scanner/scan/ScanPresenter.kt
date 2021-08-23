@@ -193,11 +193,23 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
     private fun saveImage(bm: Bitmap) {
+        // 画像を回転
+        val matrix = Matrix()
+        matrix.postRotate(90F)
+        val rotatedBm = Bitmap.createBitmap(
+            bm,
+            0,
+            0,
+            bm.width,
+            bm.height,
+            matrix,
+            true
+        )
         val current = sp.getStringSet("imageArray", null)
         println("current size: ${current?.size}")
 
         val baos = ByteArrayOutputStream()
-        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val b = baos.toByteArray()
         // Base64形式でSharedPrefに保存
         // 取り出す時->Base64.decode(image, Base64.DEFAULT)
