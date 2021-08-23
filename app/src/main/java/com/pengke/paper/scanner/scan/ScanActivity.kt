@@ -23,14 +23,20 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     private val EXIT_TIME = 2000
 
     private lateinit var mPresenter: ScanPresenter
+    private lateinit var imageListAtv: ImageListActivity
+
     private var latestBackPressTime: Long = 0
     private lateinit var sp: SharedPreferences
+
+    private var count = 0
 
 
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this)
+        imageListAtv = ImageListActivity()
+
         sp = getSharedPreferences("images", Context.MODE_PRIVATE)
         sp.edit().clear().apply()
     }
@@ -49,22 +55,18 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
         }
 
-        var count = 1
-
         shut.setOnClickListener {
             val isBusy = sp.getBoolean("isBusy", false)
             println("isBusy: $isBusy")
             if(!isBusy) {
                 mPresenter.shut()
-                val set = sp.getStringSet("imageArray", null)
-                if (set != null) {
-                    count = set.size + 1
-                }
+                count++
                 shut.text = count.toString()
             }
         }
 
         complete.setOnClickListener {
+            mPresenter.complete()
             val intent = Intent(application, ImageListActivity::class.java)
             startActivity(intent)
         }

@@ -11,6 +11,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.Toast
+import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.crop.CropActivity
 import com.pengke.paper.scanner.processor.Corners
@@ -19,6 +20,7 @@ import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import org.json.JSONArray
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -41,6 +43,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private val proxySchedule: Scheduler
     private var busy: Boolean = false
     private var sp: SharedPreferences
+    private var strList: List<String> = mutableListOf()
 
     init {
         mSurfaceHolder.addCallback(this)
@@ -67,6 +70,26 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             mCamera?.takePicture(null, null, this)
             MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
         }
+    }
+
+    fun complete() {
+        println("completeタップ")
+        println("strList size: ${strList.size}")
+        val editor = sp.edit()
+        var jsons = JSONArray()
+
+        // String -> JSON
+        for (imgStr in strList) {
+            jsons.put(imgStr)
+            println("========jsons==============")
+            println(jsons)
+        }
+        if (strList.isEmpty()) {
+            editor.putString("imageArray", null);
+        } else {
+            editor.putString("imageArray", jsons.toString());
+        }
+        editor.apply()
     }
 
     fun updateCamera() {
@@ -205,8 +228,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             matrix,
             true
         )
-        val current = sp.getStringSet("imageArray", null)
-        println("current size: ${current?.size}")
+//        val current = sp.getStringSet("imageArray", null)
 
         val baos = ByteArrayOutputStream()
         rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
@@ -214,18 +236,14 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         // Base64形式でSharedPrefに保存
         // 取り出す時->Base64.decode(image, Base64.DEFAULT)
         val image = Base64.encodeToString(b, Base64.DEFAULT)
-//                println("image: $image")
-        // 1枚目の場合はSharedPrefが空なので、空のコレクションを生成
-        val set = current ?: HashSet<String>()
-        set.add(image)
-        println("after update size: ${set.size}")
-        val editor = sp.edit()
-        editor.putStringSet("imageArray", set).apply()
-//                println("set: $set")
 
+        // 画像の配列に追加
+        strList += image
+        println("strList size: ${strList.size}")
+
+        val editor = sp.edit()
         editor.putBoolean("isBusy", false).apply()
     }
-
 
     override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
         if (busy) {

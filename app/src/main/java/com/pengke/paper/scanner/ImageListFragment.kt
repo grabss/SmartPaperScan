@@ -43,11 +43,6 @@ class ImageListFragment : Fragment() {
 
 
     private fun setImages() {
-        val images = sp.getStringSet("imageArray", null)
-        println("images size: ${images?.size}")
-        if (images == null) {
-            return
-        }
         val imageBytes = Base64.decode(b64Image, Base64.DEFAULT)
         val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         imageView.setImageBitmap(decodedImg)
