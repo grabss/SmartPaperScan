@@ -1,6 +1,7 @@
 package com.pengke.paper.scanner
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,8 +14,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import kotlinx.android.synthetic.main.fragment_image_list.*
-
-private const val NUM_PAGES = 5
 
 class ImageListActivity : FragmentActivity() {
 
@@ -32,7 +31,10 @@ class ImageListActivity : FragmentActivity() {
 
 
     private inner class ImageListPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
-        override fun getItemCount(): Int = NUM_PAGES
+        val sp = getSharedPreferences("images", Context.MODE_PRIVATE)!!
+        val images: MutableSet<String>? = sp.getStringSet("imageArray", null)
+        val imagesLength = images?.size ?: 0
+        override fun getItemCount(): Int = imagesLength
 
         override fun createFragment(position: Int): Fragment = ImageListFragment()
     }
