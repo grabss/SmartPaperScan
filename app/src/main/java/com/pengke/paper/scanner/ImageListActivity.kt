@@ -1,19 +1,11 @@
 package com.pengke.paper.scanner
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.graphics.BitmapFactory
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Base64
-import android.view.View
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.activity_image_list.*
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import kotlinx.android.synthetic.main.fragment_image_list.*
 
 class ImageListActivity : FragmentActivity() {
 
@@ -34,8 +26,11 @@ class ImageListActivity : FragmentActivity() {
         val sp = getSharedPreferences("images", Context.MODE_PRIVATE)!!
         val images: MutableSet<String>? = sp.getStringSet("imageArray", null)
         val imagesLength = images?.size ?: 0
+
+        // 要素数
         override fun getItemCount(): Int = imagesLength
 
-        override fun createFragment(position: Int): Fragment = ImageListFragment()
+        // base64形式の画像を引数で渡す
+        override fun createFragment(position: Int): Fragment = ImageListFragment.newInstance(images!!.toList()[position])
     }
 }
