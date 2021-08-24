@@ -12,6 +12,7 @@ import android.view.SurfaceView
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.BaseActivity
+import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.view.PaperRectangle
 
 import kotlinx.android.synthetic.main.activity_scan.*
@@ -23,7 +24,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     private val EXIT_TIME = 2000
 
     private lateinit var mPresenter: ScanPresenter
-    private lateinit var imageListAtv: ImageListActivity
 
     private var latestBackPressTime: Long = 0
     private lateinit var sp: SharedPreferences
@@ -35,9 +35,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this)
-        imageListAtv = ImageListActivity()
 
-        sp = getSharedPreferences("images", Context.MODE_PRIVATE)
+        sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         sp.edit().clear().apply()
     }
 
@@ -57,7 +56,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
         shut.setOnClickListener {
             val isBusy = sp.getBoolean("isBusy", false)
-            println("isBusy: $isBusy")
             if(!isBusy) {
                 mPresenter.shut()
                 count++

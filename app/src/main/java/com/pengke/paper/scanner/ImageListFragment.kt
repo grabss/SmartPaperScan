@@ -11,10 +11,8 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_image_list.*
 import android.content.SharedPreferences
 import android.widget.ImageView
+import com.pengke.paper.scanner.base.SPNAME
 
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "params"
 
 class ImageListFragment : Fragment() {
@@ -24,7 +22,7 @@ class ImageListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sp = this.requireActivity().getSharedPreferences("images", Context.MODE_PRIVATE)
+        sp = this.requireActivity().getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         arguments?.let {
             b64Image = it.getString(ARG_PARAM1)
         }

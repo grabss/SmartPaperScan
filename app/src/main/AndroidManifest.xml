@@ -17,8 +17,7 @@
         <activity
             android:name=".scan.ScanActivity"
             android:label="@string/scan"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,8 +27,7 @@
         <activity
             android:name=".crop.CropActivity"
             android:label="@string/crop"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:launchMode="singleTask" />
     </application>
 
 </manifest>

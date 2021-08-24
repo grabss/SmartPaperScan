@@ -2,12 +2,15 @@ package com.pengke.paper.scanner
 
 import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.pengke.paper.scanner.base.SPKEY
+import com.pengke.paper.scanner.base.SPNAME
 import kotlinx.android.synthetic.main.activity_image_list.*
 import org.json.JSONArray
 
@@ -19,11 +22,12 @@ class ImageListActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_list)
 
+
+        val imageCount = getImageCount()
+
+        val pagerAdapter = ImageListPagerAdapter(this, imageCount)
+
         viewPager = findViewById(R.id.pager)
-
-        val imageSize = getImageSize()
-
-        val pagerAdapter = ImageListPagerAdapter(this, imageSize)
         viewPager.adapter = pagerAdapter
 
         setListener()
@@ -31,18 +35,10 @@ class ImageListActivity : FragmentActivity() {
         TabLayoutMediator(indicator, viewPager) { _, _ -> }.attach()
     }
 
-    private fun setListener() {
-        trash_btn.setOnClickListener { println("tapped trash_btn") }
-        rect_btn.setOnClickListener { println("tapped rotate_btn") }
-        rotate_btn.setOnClickListener { println("tapped rotate_btn") }
-        contrast_btn.setOnClickListener { println("tapped contrast_btn") }
-        sort_btn.setOnClickListener { println("tapped sort_btn") }
-        upload_btn.setOnClickListener { println("tapped upload_btn") }
-    }
 
-    private fun getImageSize() : Int {
-        val sp = getSharedPreferences("images", Context.MODE_PRIVATE)
-        val images: String? = sp.getString("imageArray", null)
+    private fun getImageCount() : Int {
+        val sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
+        val images: String? = sp.getString(SPKEY, null)
         return if (images != null) {
             val a = JSONArray(images)
             a.length()
@@ -51,14 +47,24 @@ class ImageListActivity : FragmentActivity() {
         }
     }
 
+    private fun setListener() {
+        trash_btn.setOnClickListener { println("tapped trash_btn") }
+        rect_btn.setOnClickListener { println("tapped rect_btn") }
+        rotate_btn.setOnClickListener { println("tapped rotate_btn") }
+        contrast_btn.setOnClickListener { println("tapped contrast_btn") }
+        sort_btn.setOnClickListener { println("tapped sort_btn") }
+        upload_btn.setOnClickListener { println("tapped upload_btn") }
+    }
 
-    private inner class ImageListPagerAdapter(fa: FragmentActivity, imageSize: Int) : FragmentStateAdapter(fa) {
-        val sp = getSharedPreferences("images", Context.MODE_PRIVATE)!!
-        val images: String? = sp.getString("imageArray", null)
-        val imageSize = imageSize
+
+
+    private inner class ImageListPagerAdapter(fa: FragmentActivity, imageCount: Int) : FragmentStateAdapter(fa) {
+        val sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)!!
+        val images: String? = sp.getString(SPKEY, null)
+        val imageCount = imageCount
 
         // 要素数
-        override fun getItemCount(): Int = imageSize
+        override fun getItemCount(): Int = imageCount
 
         // base64形式の画像を引数で渡す
         override fun createFragment(position: Int): Fragment {

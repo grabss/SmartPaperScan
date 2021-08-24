@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
 
+const val SPNAME = "images"
+const val SPKEY = "imageArray"
+
 abstract class BaseActivity : AppCompatActivity() {
 
     protected val TAG = this.javaClass.simpleName
