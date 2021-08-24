@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import kotlinx.android.synthetic.main.activity_image_list.*
 import org.json.JSONArray
 
 class ImageListActivity : FragmentActivity() {
@@ -22,6 +23,17 @@ class ImageListActivity : FragmentActivity() {
 
         val pagerAdapter = ImageListPagerAdapter(this, imageSize)
         viewPager.adapter = pagerAdapter
+
+        setListener()
+    }
+
+    private fun setListener() {
+        trash_btn.setOnClickListener { println("tapped trash_btn") }
+        rect_btn.setOnClickListener { println("tapped rotate_btn") }
+        rotate_btn.setOnClickListener { println("tapped rotate_btn") }
+        contrast_btn.setOnClickListener { println("tapped contrast_btn") }
+        sort_btn.setOnClickListener { println("tapped sort_btn") }
+        upload_btn.setOnClickListener { println("tapped upload_btn") }
     }
 
     private fun getImageSize() : Int {
