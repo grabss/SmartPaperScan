@@ -16,76 +16,98 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pager">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            app:tabBackground="@drawable/indicator_selector"
+            app:tabGravity="center"
+            app:tabIndicatorFullWidth="true"
+            app:tabIndicatorHeight="0dp"
+            app:tabRippleColor="@null" />
+
+    </FrameLayout>
+
     <ImageButton
         android:id="@+id/trash_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="15dp"
         android:background="@drawable/circle_border"
+        android:contentDescription="削除ボタン"
         android:padding="20dp"
         android:src="@drawable/ic_icon__trash"
-        android:contentDescription="削除ボタン"
         app:layout_constraintEnd_toStartOf="@+id/rect_btn"
-        app:layout_constraintTop_toBottomOf="@+id/pager" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
 
     <ImageButton
         android:id="@+id/rect_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="15dp"
         android:background="@drawable/circle_border"
         android:padding="20dp"
         android:src="@drawable/ic_icon__rectangle"
         android:contentDescription="矩形編集ボタン"
         app:layout_constraintEnd_toStartOf="@+id/rotate_btn"
-        app:layout_constraintTop_toBottomOf="@+id/pager" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
 
     <ImageButton
         android:id="@+id/rotate_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/circle_border"
         android:padding="20dp"
         android:src="@drawable/ic_icon__rotate"
         android:contentDescription="回転ボタン"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pager" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
 
     <ImageButton
         android:id="@+id/contrast_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/circle_border"
         android:padding="20dp"
         android:src="@drawable/ic_icon__contrast"
         android:contentDescription="コントラストボタン"
         app:layout_constraintStart_toEndOf="@+id/rotate_btn"
-        app:layout_constraintTop_toBottomOf="@+id/pager" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
 
     <ImageButton
         android:id="@+id/sort_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/circle_border"
         android:padding="20dp"
         android:src="@drawable/ic_icon__sort"
         android:contentDescription="ソートボタン"
         app:layout_constraintStart_toEndOf="@+id/contrast_btn"
-        app:layout_constraintTop_toBottomOf="@+id/pager" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
 
     <Button
         android:id="@+id/upload_btn"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:backgroundTint="#4284E4"
+        android:layout_height="60dp"
+        android:backgroundTint="@color/colorMain"
         android:drawableLeft="@mipmap/upload_icon_foreground"
         android:maxLines="1"
         android:paddingHorizontal="70dp"
