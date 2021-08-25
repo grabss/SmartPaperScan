@@ -12,11 +12,15 @@ import android.view.SurfaceView
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.BaseActivity
+import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.view.PaperRectangle
 
 import kotlinx.android.synthetic.main.activity_scan.*
+import org.json.JSONArray
 import org.opencv.android.OpenCVLoader
+
+const val IMAGE_COUNT_RESULT = 1000
 
 class ScanActivity : BaseActivity(), IScanView.Proxy {
 
@@ -67,26 +71,41 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             val isBusy = sp.getBoolean("isBusy", false)
             if (!isBusy) {
                 mPresenter.complete()
-                val intent = Intent(application, ImageListActivity::class.java)
-                startActivity(intent)
+                val intent = Intent(this, ImageListActivity::class.java)
+                startActivityForResult(intent, IMAGE_COUNT_RESULT)
             }
         }
 
         latestBackPressTime = System.currentTimeMillis()
     }
 
+    // 撮影済み画像枚数取得
+    private fun getImageCount(): Int {
+        val images: String? = sp.getString(SPKEY, null)
+        return if (images == null) {
+            0
+        } else {
+            JSONArray(images).length()
+        }
+    }
 
     override fun onStart() {
+        println("onStart")
         super.onStart()
+        count = getImageCount()
+        shut.text = count.toString()
         mPresenter.start()
     }
 
     override fun onStop() {
+        println("onStop")
+
         super.onStop()
         mPresenter.stop()
     }
 
     override fun exit() {
+        println("exit")
         finish()
     }
 
@@ -114,4 +133,5 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     override fun getSurfaceView(): SurfaceView = surface
 
     override fun getPaperRect(): PaperRectangle = paper_rect
+
 }

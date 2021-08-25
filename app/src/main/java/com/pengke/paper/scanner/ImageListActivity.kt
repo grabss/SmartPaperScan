@@ -106,9 +106,8 @@ class ImageListActivity : FragmentActivity() {
             jsons.remove(index)
             notifyItemRangeChanged(index, jsons.length())
             notifyDataSetChanged()
-//            val editor = sp.edit()
-//            editor.putString(SPKEY, jsons.toString()).apply()
+            val editor = sp.edit()
+            editor.putString(SPKEY, jsons.toString()).apply()
         }
-
     }
 }
