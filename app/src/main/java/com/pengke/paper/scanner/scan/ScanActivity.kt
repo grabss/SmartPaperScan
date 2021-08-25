@@ -89,11 +89,13 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
     }
 
+    // 初回カメラ起動時、画像一覧画面から戻ってきた場合にのみ呼ばれる
     override fun onStart() {
         println("onStart")
         super.onStart()
         count = getImageCount()
         shut.text = count.toString()
+        mPresenter.initJsonArray()
         mPresenter.start()
     }
 

@@ -55,6 +55,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
     fun start() {
+        Log.i(TAG, "start")
         mCamera?.startPreview() ?: Log.i(TAG, "camera null")
     }
 
@@ -145,6 +146,15 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         mCamera?.setDisplayOrientation(90)
     }
 
+    // SharedPrefに画像がある場合、変数に初期として代入
+    fun initJsonArray() {
+        Log.i(TAG, "initJsonArray")
+        val images = sp.getString(SPKEY, null)
+        if (images != null) {
+            jsons = JSONArray(images)
+        }
+    }
+
     override fun surfaceCreated(holder: SurfaceHolder) {
         initCamera()
     }
@@ -227,11 +237,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
         val editor = sp.edit()
 
-        if (jsons.length() == 0) {
-            editor.putString(SPKEY, null);
-        } else {
-            editor.putString(SPKEY, jsons.toString())
-        }
+        editor.putString(SPKEY, jsons.toString())
 
         editor.putBoolean("isBusy", false)
         editor.apply()
