@@ -230,7 +230,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         if (jsons.length() == 0) {
             editor.putString(SPKEY, null);
         } else {
-            editor.putString(SPKEY, jsons.toString());
+            editor.putString(SPKEY, jsons.toString())
         }
 
         editor.putBoolean("isBusy", false)

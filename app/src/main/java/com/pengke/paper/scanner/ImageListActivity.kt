@@ -9,6 +9,7 @@ import android.util.Base64
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.DiffUtil
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
@@ -21,6 +22,7 @@ class ImageListActivity : FragmentActivity() {
 
     private lateinit var viewPager: ViewPager2
     private lateinit var sp: SharedPreferences
+    private lateinit var pagerAdapter: ImageListPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,11 +30,9 @@ class ImageListActivity : FragmentActivity() {
 
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
-        val imageCount = getImageCount()
+        pagerAdapter = ImageListPagerAdapter(this)
 
-        val pagerAdapter = ImageListPagerAdapter(this, imageCount)
-
-        viewPager = findViewById(R.id.pager)
+        viewPager = pager
         viewPager.adapter = pagerAdapter
 
         setListener()
@@ -41,20 +41,9 @@ class ImageListActivity : FragmentActivity() {
     }
 
 
-    private fun getImageCount() : Int {
-        val images: String? = sp.getString(SPKEY, null)
-        return if (images != null) {
-            val a = JSONArray(images)
-            a.length()
-        } else {
-            0
-        }
-    }
-
     private fun setListener() {
         trash_btn.setOnClickListener {
             showAlertDlg()
-            println("currentItem: ${viewPager.currentItem}")
         }
         rect_btn.setOnClickListener { println("tapped rect_btn") }
         rotate_btn.setOnClickListener { println("tapped rotate_btn") }
@@ -70,6 +59,7 @@ class ImageListActivity : FragmentActivity() {
             .setTitle("削除してよろしいですか")
             .setPositiveButton("はい") { _, _ ->
                 println("tapped yes btn")
+                pagerAdapter.removeImage(viewPager.currentItem)
             }
             .setNegativeButton("キャンセル") { _, _ ->
                 println("tapped cancel btn")
@@ -85,21 +75,39 @@ class ImageListActivity : FragmentActivity() {
     }
 
 
-
-
-
-
-    private inner class ImageListPagerAdapter(fa: FragmentActivity, imageCount: Int) : FragmentStateAdapter(fa) {
+    private inner class ImageListPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
         val sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)!!
         val images: String? = sp.getString(SPKEY, null)
-        val imageCount = imageCount
+        var jsons = JSONArray(images)
+
+        private fun getPageIds(): Array<Long> {
+            return Array(jsons.length()) { i -> jsons.optString(i).hashCode().toLong() }
+        }
 
         // 要素数
-        override fun getItemCount(): Int = imageCount
+        override fun getItemCount(): Int = jsons.length()
 
         // base64形式の画像を引数で渡す
         override fun createFragment(position: Int): Fragment {
-            return ImageListFragment.newInstance(JSONArray(images).optString(position))
+            return ImageListFragment.newInstance(jsons.optString(position))
+        }
+
+        override fun getItemId(position: Int): Long {
+            return jsons[position].hashCode().toLong()
+        }
+
+        override fun containsItem(itemId: Long): Boolean {
+            val pageIds = getPageIds()
+            return pageIds.contains(itemId)
+        }
+
+        // 画像削除
+        fun removeImage(index: Int) {
+            jsons.remove(index)
+            notifyItemRangeChanged(index, jsons.length())
+            notifyDataSetChanged()
+//            val editor = sp.edit()
+//            editor.putString(SPKEY, jsons.toString()).apply()
         }
 
     }
