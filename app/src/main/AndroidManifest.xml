@@ -13,7 +13,8 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".ImageListActivity"></activity>
+        <activity android:name=".RotateActivity"></activity>
+        <activity android:name=".ImageListActivity" />
         <activity
             android:name=".scan.ScanActivity"
             android:label="@string/scan"

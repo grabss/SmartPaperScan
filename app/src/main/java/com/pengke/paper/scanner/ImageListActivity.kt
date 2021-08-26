@@ -1,7 +1,9 @@
 package com.pengke.paper.scanner
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.AttributeSet
@@ -25,7 +27,6 @@ class ImageListActivity : FragmentActivity() {
     private lateinit var pagerAdapter: ImageListPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        print("ddddddddddddddd")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_list)
 
@@ -39,18 +40,20 @@ class ImageListActivity : FragmentActivity() {
         viewPager = pager
         viewPager.adapter = pagerAdapter
 
-        setListener()
+        setBtnListener()
 
         TabLayoutMediator(indicator, viewPager) { _, _ -> }.attach()
     }
 
 
-    private fun setListener() {
+    private fun setBtnListener() {
         trash_btn.setOnClickListener {
             showAlertDlg()
         }
         rect_btn.setOnClickListener { println("tapped rect_btn") }
-        rotate_btn.setOnClickListener { println("tapped rotate_btn") }
+        rotate_btn.setOnClickListener {
+            navToRotateScrn()
+        }
         contrast_btn.setOnClickListener { println("tapped contrast_btn") }
         sort_btn.setOnClickListener { println("tapped sort_btn") }
         upload_btn.setOnClickListener {
@@ -77,6 +80,14 @@ class ImageListActivity : FragmentActivity() {
                 println("tapped cancel btn")
             }
             .show()
+    }
+
+    // finish()で画像一覧画面をスタックから除外しないとエラー発生。
+    // 画像をスタックに積んだままの遷移はNG。
+    private fun navToRotateScrn() {
+        val intent = Intent(this, RotateActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     // アップロード実行。Flutterに2次元配列のbyte配列を渡す
@@ -126,5 +137,9 @@ class ImageListActivity : FragmentActivity() {
             val editor = sp.edit()
             editor.putString(SPKEY, jsons.toString()).apply()
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }
