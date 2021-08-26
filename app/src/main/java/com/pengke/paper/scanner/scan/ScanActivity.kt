@@ -69,7 +69,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
         complete.setOnClickListener {
             val isBusy = sp.getBoolean("isBusy", false)
-            if (!isBusy) {
+            if (!isBusy && count != 0) {
                 mPresenter.complete()
                 val intent = Intent(this, ImageListActivity::class.java)
                 startActivityForResult(intent, IMAGE_COUNT_RESULT)
