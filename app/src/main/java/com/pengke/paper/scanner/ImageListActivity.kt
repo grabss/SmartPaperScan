@@ -86,6 +86,7 @@ class ImageListActivity : FragmentActivity() {
     // 画像をスタックに積んだままの遷移はNG。
     private fun navToRotateScrn() {
         val intent = Intent(this, RotateActivity::class.java)
+        intent.putExtra("INDEX", viewPager.currentItem)
         startActivity(intent)
         finish()
     }
