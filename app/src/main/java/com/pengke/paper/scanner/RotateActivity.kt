@@ -28,7 +28,7 @@ class RotateActivity : AppCompatActivity() {
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
         // タップされた画像のインデックスを取得
-        index = intent.getIntExtra("INDEX", 0)
+        index = intent.getIntExtra(INDEX, 0)
 
         val images = sp.getString(SPKEY, null)
         jsons = JSONArray(images)
@@ -75,7 +75,8 @@ class RotateActivity : AppCompatActivity() {
 
     private fun navToImageListScrn() {
         val intent = Intent(this, ImageListActivity::class.java)
-        startActivity(intent)
+        intent.putExtra(INDEX, index)
+        startActivityForResult(intent, 100)
         finish()
     }
 }

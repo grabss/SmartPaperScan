@@ -20,6 +20,8 @@ import com.pengke.paper.scanner.base.SPNAME
 import kotlinx.android.synthetic.main.activity_image_list.*
 import org.json.JSONArray
 
+const val INDEX = "INDEX"
+
 class ImageListActivity : FragmentActivity() {
 
     private lateinit var viewPager: ViewPager2
@@ -37,12 +39,19 @@ class ImageListActivity : FragmentActivity() {
 
         pagerAdapter = ImageListPagerAdapter(this, jsons)
 
+        // 編集画面からインデックスを取得
+        val index = intent.getIntExtra(INDEX, 0)
+
         viewPager = pager
         viewPager.adapter = pagerAdapter
+        viewPager.post {
+            viewPager.setCurrentItem(index, true)
+        }
 
         setBtnListener()
 
         TabLayoutMediator(indicator, viewPager) { _, _ -> }.attach()
+
     }
 
 
@@ -86,7 +95,7 @@ class ImageListActivity : FragmentActivity() {
     // 画像をスタックに積んだままの遷移はNG。
     private fun navToRotateScrn() {
         val intent = Intent(this, RotateActivity::class.java)
-        intent.putExtra("INDEX", viewPager.currentItem)
+        intent.putExtra(INDEX, viewPager.currentItem)
         startActivity(intent)
         finish()
     }
@@ -140,7 +149,12 @@ class ImageListActivity : FragmentActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-    }
+//    今後使わなかったら削除
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if(resultCode == RESULT_OK && requestCode == 100 && intent != null) {
+//            val index = intent.getIntExtra("INDEX", 0)
+//            println(index)
+//        }
+//    }
 }
