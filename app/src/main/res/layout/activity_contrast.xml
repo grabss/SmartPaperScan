@@ -63,10 +63,13 @@
     <SeekBar
         android:id="@+id/slider"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="10dp"
+        android:foregroundTint="@color/colorLightGray"
+        android:progressTint="@color/colorLightGray"
+        android:thumbTint="@color/colorLightGray"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
