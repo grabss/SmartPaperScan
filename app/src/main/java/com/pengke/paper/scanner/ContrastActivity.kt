@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.activity_rotate.imageView
 import org.json.JSONArray
 import setContrast
 import java.io.ByteArrayOutputStream
+import kotlin.concurrent.thread
 
 class ContrastActivity : AppCompatActivity() {
     private lateinit var sp: SharedPreferences
@@ -70,6 +71,7 @@ class ContrastActivity : AppCompatActivity() {
     }
 
     private fun setSlider() {
+        var contrast = 1F
         slider.progress = 100
         slider.max = 200
         slider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
@@ -79,14 +81,7 @@ class ContrastActivity : AppCompatActivity() {
                 val value = 200 - progress
                 // contrastの有効範囲は0..2
                 // デフォルトは1
-                val contrast = value/100F
-                currentVal = contrast
-                imageView.setImageBitmap(
-                    decodedImg.setContrast(
-                        contrast
-                    )
-                )
-                println("progress changed: $progress")
+                contrast = value/100F
             }
 
             // つまみタッチ時に呼ばれる
@@ -97,6 +92,12 @@ class ContrastActivity : AppCompatActivity() {
             // つまみリリース時に呼ばれる
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 println("リリース")
+                currentVal = contrast
+                imageView.setImageBitmap(
+                    decodedImg.setContrast(
+                        contrast
+                    )
+                )
             }
         })
     }
