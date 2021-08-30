@@ -17,12 +17,14 @@ import kotlinx.android.synthetic.main.activity_rotate.decisionBtn
 import kotlinx.android.synthetic.main.activity_rotate.imageView
 import org.json.JSONArray
 import setContrast
+import java.io.ByteArrayOutputStream
 
 class ContrastActivity : AppCompatActivity() {
     private lateinit var sp: SharedPreferences
     private lateinit var decodedImg: Bitmap
     private lateinit var jsons: JSONArray
     private var index = 0
+    private var currentVal: Float= 0F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +53,20 @@ class ContrastActivity : AppCompatActivity() {
         }
 
         decisionBtn.setOnClickListener {
-//            setUpdatedImage()
+            setUpdatedImage()
             navToImageListScrn()
         }
+    }
+
+    private fun setUpdatedImage() {
+        decodedImg = decodedImg.setContrast(currentVal)!!
+        val baos = ByteArrayOutputStream()
+        decodedImg.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val b = baos.toByteArray()
+        val updatedImg = Base64.encodeToString(b, Base64.DEFAULT)
+        jsons.put(index, updatedImg)
+        val editor = sp.edit()
+        editor.putString(SPKEY, jsons.toString()).apply()
     }
 
     private fun setSlider() {
@@ -64,7 +77,10 @@ class ContrastActivity : AppCompatActivity() {
             // 値変更時に呼ばれる
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 val value = 200 - progress
+                // contrastの有効範囲は0..2
+                // デフォルトは1
                 val contrast = value/100F
+                currentVal = contrast
                 imageView.setImageBitmap(
                     decodedImg.setContrast(
                         contrast
