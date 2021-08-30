@@ -1,7 +1,6 @@
 package com.pengke.paper.scanner.scan
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.*
@@ -11,11 +10,9 @@ import android.util.Base64
 import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.Toast
-import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
-import com.pengke.paper.scanner.crop.CropActivity
 import com.pengke.paper.scanner.processor.Corners
 import com.pengke.paper.scanner.processor.processPicture
 import io.reactivex.Observable
@@ -43,15 +40,18 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private val mSurfaceHolder: SurfaceHolder = iView.getSurfaceView().holder
     private val executor: ExecutorService
     private val proxySchedule: Scheduler
-    private var busy: Boolean = false
+    private var isBusy: Boolean = false
     private var sp: SharedPreferences
     private var jsons = JSONArray()
+    private var matrix: Matrix
 
     init {
         mSurfaceHolder.addCallback(this)
         executor = Executors.newSingleThreadExecutor()
         proxySchedule = Schedulers.from(executor)
         sp = context.getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
+        matrix = Matrix()
+        matrix.postRotate(90F)
     }
 
     fun start() {
@@ -64,7 +64,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
     fun shut() {
-        busy = true
+        isBusy = true
         val editor = sp.edit()
         editor.putBoolean("isBusy", true).apply()
         Log.i(TAG, "try to focus")
@@ -146,7 +146,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         mCamera?.setDisplayOrientation(90)
     }
 
-    // SharedPrefに画像がある場合、変数に初期として代入
+    // SharedPrefに画像がある場合、変数に初期値として代入
     fun initJsonArray() {
         Log.i(TAG, "initJsonArray")
         val images = sp.getString(SPKEY, null)
@@ -197,7 +197,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
                     saveImage(bitmap)
 
-                    busy = false
+                    isBusy = false
                     start()
                 }
     }
@@ -212,9 +212,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
     private fun saveImage(bm: Bitmap) {
+
         // 画像を回転
-        val matrix = Matrix()
-        matrix.postRotate(90F)
         val rotatedBm = Bitmap.createBitmap(
             bm,
             0,
@@ -237,18 +236,22 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
         val editor = sp.edit()
 
-        editor.putString(SPKEY, jsons.toString())
+        if (jsons.length() == 0) {
+            editor.putString(SPKEY, null)
+        } else {
+            editor.putString(SPKEY, jsons.toString())
+        }
 
         editor.putBoolean("isBusy", false)
         editor.apply()
     }
 
     override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
-        if (busy) {
+        if (isBusy) {
             return
         }
 //        Log.i(TAG, "on process start")
-        busy = true
+        isBusy = true
         Observable.just(p0)
                 .observeOn(proxySchedule)
                 .subscribe {
@@ -275,7 +278,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
                     Observable.create<Corners> {
                         val corner = processPicture(img)
-                        busy = false
+                        isBusy = false
                         if (null != corner && corner.corners.size == 4) {
                             it.onNext(corner)
                         } else {

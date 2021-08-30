@@ -13,18 +13,16 @@ import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
 import kotlinx.android.synthetic.main.activity_rotate.*
 import org.json.JSONArray
-import java.io.ByteArrayOutputStream
 
-class RotateActivity : AppCompatActivity() {
+class ContrastActivity : AppCompatActivity() {
     private lateinit var sp: SharedPreferences
     private lateinit var decodedImg: Bitmap
     private lateinit var jsons: JSONArray
     private var index = 0
-    private val matrix = Matrix()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_rotate)
+        setContentView(R.layout.activity_contrast)
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         setImage()
         setBtnListener()
@@ -43,31 +41,14 @@ class RotateActivity : AppCompatActivity() {
     }
 
     private fun setBtnListener() {
-        val matrix = Matrix()
-        matrix.setRotate(90F, decodedImg.width/2F, decodedImg.height/2F)
-        rotateBtn.setOnClickListener {
-            decodedImg = Bitmap.createBitmap(decodedImg, 0, 0, decodedImg.width, decodedImg.height, matrix, true)
-            imageView.setImageBitmap(decodedImg)
-        }
-
         cancelBtn.setOnClickListener {
             navToImageListScrn()
         }
 
         decisionBtn.setOnClickListener {
-            setUpdatedImage()
+//            setUpdatedImage()
             navToImageListScrn()
         }
-    }
-
-    private fun setUpdatedImage() {
-        val baos = ByteArrayOutputStream()
-        decodedImg.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val b = baos.toByteArray()
-        val updatedImg = Base64.encodeToString(b, Base64.DEFAULT)
-        jsons.put(index, updatedImg)
-        val editor = sp.edit()
-        editor.putString(SPKEY, jsons.toString()).apply()
     }
 
     private fun navToImageListScrn() {

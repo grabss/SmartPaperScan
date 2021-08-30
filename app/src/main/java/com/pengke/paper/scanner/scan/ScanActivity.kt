@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
@@ -19,8 +22,11 @@ import com.pengke.paper.scanner.view.PaperRectangle
 import kotlinx.android.synthetic.main.activity_scan.*
 import org.json.JSONArray
 import org.opencv.android.OpenCVLoader
+import org.opencv.core.Mat
+import java.io.ByteArrayOutputStream
 
 const val IMAGE_COUNT_RESULT = 1000
+const val REQUEST_GALLERY_TAKE = 1
 
 class ScanActivity : BaseActivity(), IScanView.Proxy {
 
@@ -58,6 +64,16 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
         }
 
+        gallery.setOnClickListener {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                type = "image/*"
+            }
+            startActivityForResult(intent, REQUEST_GALLERY_TAKE)
+        }
+
         shut.setOnClickListener {
             val isBusy = sp.getBoolean("isBusy", false)
             if(!isBusy) {
@@ -77,6 +93,36 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
 
         latestBackPressTime = System.currentTimeMillis()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
+            if(data?.data != null) {
+                println("単体選択")
+
+                // 単体選択時
+                val imageUri = data.data!!
+                val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
+                val bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+
+                val baos = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+                val b = baos.toByteArray()
+                val image = Base64.encodeToString(b, Base64.DEFAULT)
+                saveImage(image)
+            }
+            val intent = Intent(this, ImageListActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun saveImage(image: String) {
+        val jsons = JSONArray()
+        jsons.put(image)
+        val editor = sp.edit()
+        editor.putString(SPKEY, jsons.toString()).apply()
     }
 
     // 撮影済み画像枚数取得
@@ -101,7 +147,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     override fun onStop() {
         println("onStop")
-
         super.onStop()
         mPresenter.stop()
     }
@@ -129,6 +174,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+
+
 
     override fun getDisplay(): Display = windowManager.defaultDisplay
 

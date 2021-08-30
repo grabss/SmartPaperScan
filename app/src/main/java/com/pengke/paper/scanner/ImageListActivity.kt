@@ -63,7 +63,9 @@ class ImageListActivity : FragmentActivity() {
         rotate_btn.setOnClickListener {
             navToRotateScrn()
         }
-        contrast_btn.setOnClickListener { println("tapped contrast_btn") }
+        contrast_btn.setOnClickListener {
+            navToContrastScrn()
+        }
         sort_btn.setOnClickListener { println("tapped sort_btn") }
         upload_btn.setOnClickListener {
             upload()
@@ -95,6 +97,13 @@ class ImageListActivity : FragmentActivity() {
     // 画像をスタックに積んだままの遷移はNG。
     private fun navToRotateScrn() {
         val intent = Intent(this, RotateActivity::class.java)
+        intent.putExtra(INDEX, viewPager.currentItem)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun navToContrastScrn() {
+        val intent = Intent(this, ContrastActivity::class.java)
         intent.putExtra(INDEX, viewPager.currentItem)
         startActivity(intent)
         finish()
