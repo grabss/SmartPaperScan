@@ -3,16 +3,20 @@ package com.pengke.paper.scanner
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
+import android.graphics.*
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Base64
+import android.widget.SeekBar
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
+import kotlinx.android.synthetic.main.activity_contrast.*
 import kotlinx.android.synthetic.main.activity_rotate.*
+import kotlinx.android.synthetic.main.activity_rotate.cancelBtn
+import kotlinx.android.synthetic.main.activity_rotate.decisionBtn
+import kotlinx.android.synthetic.main.activity_rotate.imageView
 import org.json.JSONArray
+import setContrast
 
 class ContrastActivity : AppCompatActivity() {
     private lateinit var sp: SharedPreferences
@@ -26,6 +30,7 @@ class ContrastActivity : AppCompatActivity() {
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         setImage()
         setBtnListener()
+        setSlider()
     }
 
     private fun setImage() {
@@ -49,6 +54,35 @@ class ContrastActivity : AppCompatActivity() {
 //            setUpdatedImage()
             navToImageListScrn()
         }
+    }
+
+    private fun setSlider() {
+        slider.progress = 100
+        slider.max = 200
+        slider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+
+            // 値変更時に呼ばれる
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val value = 200 - progress
+                val contrast = value/100F
+                imageView.setImageBitmap(
+                    decodedImg.setContrast(
+                        contrast
+                    )
+                )
+                println("progress changed: $progress")
+            }
+
+            // つまみタッチ時に呼ばれる
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+               println("ドラッグスタート")
+            }
+
+            // つまみリリース時に呼ばれる
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                println("リリース")
+            }
+        })
     }
 
     private fun navToImageListScrn() {
