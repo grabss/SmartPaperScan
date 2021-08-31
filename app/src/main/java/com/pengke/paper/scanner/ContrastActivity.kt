@@ -62,8 +62,8 @@ class ContrastActivity : AppCompatActivity() {
             disableBtns()
             thread {
                 setUpdatedImage()
+                navToImageListScrn()
             }
-            navToImageListScrn()
         }
     }
 

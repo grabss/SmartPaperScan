@@ -60,8 +60,8 @@ class RotateActivity : AppCompatActivity() {
             disableBtns()
             thread {
                 setUpdatedImage()
+                navToImageListScrn()
             }
-            navToImageListScrn()
         }
     }
 
