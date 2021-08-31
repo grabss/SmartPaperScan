@@ -17,6 +17,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.processor.SortActivity
 import kotlinx.android.synthetic.main.activity_image_list.*
 import org.json.JSONArray
 
@@ -66,7 +67,9 @@ class ImageListActivity : FragmentActivity() {
         contrast_btn.setOnClickListener {
             navToContrastScrn()
         }
-        sort_btn.setOnClickListener { println("tapped sort_btn") }
+        sort_btn.setOnClickListener {
+            navToSortScrn()
+        }
         upload_btn.setOnClickListener {
             upload()
         }
@@ -104,6 +107,13 @@ class ImageListActivity : FragmentActivity() {
 
     private fun navToContrastScrn() {
         val intent = Intent(this, ContrastActivity::class.java)
+        intent.putExtra(INDEX, viewPager.currentItem)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun navToSortScrn() {
+        val intent = Intent(this, SortActivity::class.java)
         intent.putExtra(INDEX, viewPager.currentItem)
         startActivity(intent)
         finish()
