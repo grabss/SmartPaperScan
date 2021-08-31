@@ -1,13 +1,17 @@
 package com.pengke.paper.scanner
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.*
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Base64
+import android.view.View
+import android.view.WindowManager
 import android.widget.SeekBar
+import androidx.appcompat.app.AppCompatActivity
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
 import kotlinx.android.synthetic.main.activity_contrast.*
@@ -25,7 +29,7 @@ class ContrastActivity : AppCompatActivity() {
     private lateinit var decodedImg: Bitmap
     private lateinit var jsons: JSONArray
     private var index = 0
-    private var currentVal: Float= 0F
+    private var currentVal: Float= 1F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,13 +54,22 @@ class ContrastActivity : AppCompatActivity() {
 
     private fun setBtnListener() {
         cancelBtn.setOnClickListener {
+            disableBtns()
             navToImageListScrn()
         }
 
         decisionBtn.setOnClickListener {
-            setUpdatedImage()
+            disableBtns()
+            thread {
+                setUpdatedImage()
+            }
             navToImageListScrn()
         }
+    }
+
+    private fun disableBtns() {
+        cancelBtn.isEnabled = false
+        decisionBtn.isEnabled = false
     }
 
     private fun setUpdatedImage() {

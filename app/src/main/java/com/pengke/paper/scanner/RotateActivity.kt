@@ -14,6 +14,7 @@ import com.pengke.paper.scanner.base.SPNAME
 import kotlinx.android.synthetic.main.activity_rotate.*
 import org.json.JSONArray
 import java.io.ByteArrayOutputStream
+import kotlin.concurrent.thread
 
 class RotateActivity : AppCompatActivity() {
     private lateinit var sp: SharedPreferences
@@ -51,13 +52,22 @@ class RotateActivity : AppCompatActivity() {
         }
 
         cancelBtn.setOnClickListener {
+            disableBtns()
             navToImageListScrn()
         }
 
         decisionBtn.setOnClickListener {
-            setUpdatedImage()
+            disableBtns()
+            thread {
+                setUpdatedImage()
+            }
             navToImageListScrn()
         }
+    }
+
+    private fun disableBtns() {
+        cancelBtn.isEnabled = false
+        decisionBtn.isEnabled = false
     }
 
     private fun setUpdatedImage() {
