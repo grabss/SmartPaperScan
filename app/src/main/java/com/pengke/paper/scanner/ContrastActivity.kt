@@ -1,21 +1,16 @@
 package com.pengke.paper.scanner
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.*
 import android.os.Bundle
 import android.util.Base64
-import android.view.View
-import android.view.WindowManager
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
 import kotlinx.android.synthetic.main.activity_contrast.*
-import kotlinx.android.synthetic.main.activity_rotate.*
 import kotlinx.android.synthetic.main.activity_rotate.cancelBtn
 import kotlinx.android.synthetic.main.activity_rotate.decisionBtn
 import kotlinx.android.synthetic.main.activity_rotate.imageView
@@ -54,12 +49,12 @@ class ContrastActivity : AppCompatActivity() {
 
     private fun setBtnListener() {
         cancelBtn.setOnClickListener {
-            disableBtns()
+            toDisableBtns()
             navToImageListScrn()
         }
 
         decisionBtn.setOnClickListener {
-            disableBtns()
+            toDisableBtns()
             thread {
                 setUpdatedImage()
                 navToImageListScrn()
@@ -67,7 +62,7 @@ class ContrastActivity : AppCompatActivity() {
         }
     }
 
-    private fun disableBtns() {
+    private fun toDisableBtns() {
         cancelBtn.isEnabled = false
         decisionBtn.isEnabled = false
     }

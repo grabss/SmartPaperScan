@@ -1,5 +1,6 @@
 package com.pengke.paper.scanner.scan
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -33,7 +34,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-class ScanPresenter constructor(private val context: Context, private val iView: IScanView.Proxy)
+class ScanPresenter constructor(private val context: Context, private val iView: IScanView.Proxy, private val scanActv: ScanActivity)
     : SurfaceHolder.Callback, Camera.PictureCallback, Camera.PreviewCallback {
     private val TAG: String = "ScanPresenter"
     private var mCamera: Camera? = null
@@ -65,8 +66,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
     fun shut() {
         isBusy = true
-        val editor = sp.edit()
-        editor.putBoolean("isBusy", true).apply()
         Log.i(TAG, "try to focus")
         mCamera?.autoFocus { b, _ ->
             Log.i(TAG, "focus result: " + b)
@@ -242,7 +241,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             editor.putString(SPKEY, jsons.toString())
         }
 
-        editor.putBoolean("isBusy", false)
+        scanActv.updateCount()
         editor.apply()
     }
 

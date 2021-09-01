@@ -6,6 +6,8 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Handler
+import android.os.Looper
 import android.util.Base64
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -18,8 +20,13 @@ import com.pengke.paper.scanner.base.BaseActivity
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.view.PaperRectangle
+import kotlinx.android.synthetic.main.activity_rotate.*
 
 import kotlinx.android.synthetic.main.activity_scan.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.Mat
@@ -44,7 +51,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
     override fun initPresenter() {
-        mPresenter = ScanPresenter(this, this)
+        mPresenter = ScanPresenter(this, this, this)
 
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         sp.edit().clear().apply()
@@ -75,24 +82,44 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
 
         shut.setOnClickListener {
-            val isBusy = sp.getBoolean("isBusy", false)
-            if(!isBusy) {
-                mPresenter.shut()
-                count++
-                shut.text = count.toString()
-            }
+            toDisableBtns()
+            mPresenter.shut()
         }
 
         complete.setOnClickListener {
-            val isBusy = sp.getBoolean("isBusy", false)
-            if (!isBusy && count != 0) {
-                mPresenter.complete()
-                val intent = Intent(this, ImageListActivity::class.java)
-                startActivity(intent)
-            }
+            toDisableBtns()
+            mPresenter.complete()
+            val intent = Intent(this, ImageListActivity::class.java)
+            startActivity(intent)
         }
 
         latestBackPressTime = System.currentTimeMillis()
+    }
+
+    private fun adjustBtnsState() {
+        if(count == 0) {
+            complete.isEnabled = false
+        }
+    }
+
+    private fun toDisableBtns() {
+        shut.isEnabled = false
+        complete.isEnabled = false
+    }
+
+    private fun toEnableBtns() {
+        shut.isEnabled = true
+        complete.isEnabled = true
+    }
+
+    fun updateCount() {
+        count++
+
+        // UI更新をメインスレッドで行うための記述
+        Handler(Looper.getMainLooper()).post  {
+            shut.text = count.toString()
+            toEnableBtns()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -141,6 +168,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         super.onStart()
         count = getImageCount()
         shut.text = count.toString()
+        toEnableBtns()
+        adjustBtnsState()
         mPresenter.initJsonArray()
         mPresenter.start()
     }

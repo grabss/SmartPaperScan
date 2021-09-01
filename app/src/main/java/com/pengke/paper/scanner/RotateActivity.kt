@@ -52,12 +52,12 @@ class RotateActivity : AppCompatActivity() {
         }
 
         cancelBtn.setOnClickListener {
-            disableBtns()
+            toDisableBtns()
             navToImageListScrn()
         }
 
         decisionBtn.setOnClickListener {
-            disableBtns()
+            toDisableBtns()
             thread {
                 setUpdatedImage()
                 navToImageListScrn()
@@ -65,7 +65,7 @@ class RotateActivity : AppCompatActivity() {
         }
     }
 
-    private fun disableBtns() {
+    private fun toDisableBtns() {
         cancelBtn.isEnabled = false
         decisionBtn.isEnabled = false
     }
