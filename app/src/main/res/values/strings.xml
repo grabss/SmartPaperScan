@@ -27,4 +27,5 @@
     <string name="contrast">コントラスト</string>
     <string name="sort">順番</string>
     <string name="description_zoom_touch_close">サムネイルの拡大画像</string>
+    <string name="sort_desc">長押ししてドラッグで並び替えできます。</string>
 </resources>

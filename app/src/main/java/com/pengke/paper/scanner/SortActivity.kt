@@ -7,19 +7,19 @@ import android.animation.ObjectAnimator
 import android.content.*
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
+import android.opengl.Visibility
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Base64
-import android.view.ActionMode
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.BaseAdapter
 import android.widget.GridView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.RecyclerView
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
@@ -71,13 +71,15 @@ class SortActivity : AppCompatActivity() {
                 view.tag as? CharSequence,
                 arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
                 item)
-            val myShadow = MyDragShadowBuilder(view)
+            view.setOnDragListener(dragListen)
+            val myShadow = View.DragShadowBuilder(view)
             view.startDrag(
                 dragData,
                 myShadow,
-                null,
+                view,
                 0
             )
+            view.alpha = 0f
             true
         }
 
@@ -86,6 +88,30 @@ class SortActivity : AppCompatActivity() {
         }
         shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
     }
+
+    private val dragListen = View.OnDragListener { v, event ->
+        when (event.action) {
+            DragEvent.ACTION_DRAG_STARTED -> {
+                println("ACTION_DRAG_STARTED")
+            }
+            DragEvent.ACTION_DROP -> {
+                println("ACTION_DROP")
+            }
+            DragEvent.ACTION_DRAG_ENTERED -> {
+                println("ACTION_DRAG_ENTERED")
+            }
+            DragEvent.ACTION_DRAG_ENDED -> {
+                println("ACTION_DRAG_ENDED")
+                v.alpha = 1f
+                
+                // ドラッグイベントの監視を解除
+                v.setOnDragListener(null)
+                println(v.hashCode())
+            }
+        }
+        true
+    }
+
 
     private fun zoomImageFromThumb(thumbView: View, position: Int) {
         currentAnimator?.cancel()
@@ -237,39 +263,5 @@ class SortActivity : AppCompatActivity() {
             return view
         }
 
-    }
-
-    private inner class MyDragShadowBuilder(v: View) : View.DragShadowBuilder(v) {
-
-        private val shadow = ColorDrawable(Color.LTGRAY)
-
-        // Defines a callback that sends the drag shadow dimensions and touch point back to the
-        // system.
-        override fun onProvideShadowMetrics(size: Point, touch: Point) {
-            // Sets the width of the shadow to half the width of the original View
-            val width: Int = view.width / 2
-
-            // Sets the height of the shadow to half the height of the original View
-            val height: Int = view.height / 2
-
-            // The drag shadow is a ColorDrawable. This sets its dimensions to be the same as the
-            // Canvas that the system will provide. As a result, the drag shadow will fill the
-            // Canvas.
-            shadow.setBounds(0, 0, width, height)
-
-            // Sets the size parameter's width and height values. These get back to the system
-            // through the size parameter.
-            size.set(width, height)
-
-            // Sets the touch point's position to be in the middle of the drag shadow
-            touch.set(width / 2, height / 2)
-        }
-
-        // Defines a callback that draws the drag shadow in a Canvas that the system constructs
-        // from the dimensions passed in onProvideShadowMetrics().
-        override fun onDrawShadow(canvas: Canvas) {
-            // Draws the ColorDrawable in the Canvas passed in from the system.
-            shadow.draw(canvas)
-        }
     }
 }
