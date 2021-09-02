@@ -44,7 +44,6 @@ class RotateActivity : AppCompatActivity() {
     }
 
     private fun setBtnListener() {
-        val matrix = Matrix()
         matrix.setRotate(90F, decodedImg.width/2F, decodedImg.height/2F)
         rotateBtn.setOnClickListener {
             decodedImg = Bitmap.createBitmap(decodedImg, 0, 0, decodedImg.width, decodedImg.height, matrix, true)
