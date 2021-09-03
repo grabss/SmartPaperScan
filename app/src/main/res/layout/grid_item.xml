@@ -17,15 +17,32 @@
 
     <ImageView
         android:id="@+id/gridImg"
+        android:paddingTop="5dp"
         android:layout_width="wrap_content"
-        android:layout_height="160dp"
-        android:layout_marginTop="5dp"
-        android:background="#000000"
+        android:layout_height="140dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/index"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <!-- 削除ボタン -->
+    <ImageButton
+        android:id="@+id/trash_btn"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/circle_border"
+        android:contentDescription="削除ボタン"
+        android:src="@drawable/trash_btn"
+        android:backgroundTint="@color/colorWhite"
+        android:alpha="0.7"
+        android:padding="3dp"
+        android:scaleType="centerInside"
+        android:tint="@color/colorAccent"
+        app:layout_constraintStart_toEndOf="@id/gridImg"
+        app:layout_constraintTop_toTopOf="@id/gridImg"
+        app:layout_constraintEnd_toEndOf="@id/gridImg"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
