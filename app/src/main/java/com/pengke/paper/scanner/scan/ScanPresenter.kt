@@ -11,9 +11,11 @@ import android.util.Base64
 import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.Toast
+import com.google.gson.Gson
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.Corners
 import com.pengke.paper.scanner.processor.processPicture
 import io.reactivex.Observable
@@ -43,8 +45,9 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private val proxySchedule: Scheduler
     private var isBusy: Boolean = false
     private var sp: SharedPreferences
-    private var jsons = JSONArray()
+    val images = mutableListOf<Image>()
     private var matrix: Matrix
+    private val gson = Gson()
 
     init {
         mSurfaceHolder.addCallback(this)
@@ -72,10 +75,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             mCamera?.takePicture(null, null, this)
             MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
         }
-    }
-
-    fun complete() {
-        println("completeタップ")
     }
 
     fun updateCamera() {
@@ -143,15 +142,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
         mCamera?.parameters = param
         mCamera?.setDisplayOrientation(90)
-    }
-
-    // SharedPrefに画像がある場合、変数に初期値として代入
-    fun initJsonArray() {
-        Log.i(TAG, "initJsonArray")
-        val images = sp.getString(SPKEY, null)
-        if (images != null) {
-            jsons = JSONArray(images)
-        }
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
@@ -228,21 +218,18 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         val b = baos.toByteArray()
         // Base64形式でSharedPrefに保存
         // 取り出す時->Base64.decode(image, Base64.DEFAULT)
-        val image = Base64.encodeToString(b, Base64.DEFAULT)
+        val b64 = Base64.encodeToString(b, Base64.DEFAULT)
+
+        val image = Image(b64)
 
         // 画像の配列に追加
-        jsons.put(image)
+        images.add(image)
+        val json = gson.toJson(images)
 
         val editor = sp.edit()
-
-        if (jsons.length() == 0) {
-            editor.putString(SPKEY, null)
-        } else {
-            editor.putString(SPKEY, jsons.toString())
-        }
+        editor.putString(SPKEY, json).apply()
 
         scanActv.updateCount()
-        editor.apply()
     }
 
     override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {

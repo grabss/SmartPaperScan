@@ -31,6 +31,7 @@ import org.json.JSONArray
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.Mat
 import java.io.ByteArrayOutputStream
+import java.io.Serializable
 
 const val IMAGE_COUNT_RESULT = 1000
 const val REQUEST_GALLERY_TAKE = 1
@@ -72,13 +73,14 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
 
         gallery.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-
-                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-                type = "image/*"
-            }
-            startActivityForResult(intent, REQUEST_GALLERY_TAKE)
+            // 紛らわしいのでコメントアウト
+//            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+//                addCategory(Intent.CATEGORY_OPENABLE)
+//
+//                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+//                type = "image/*"
+//            }
+//            startActivityForResult(intent, REQUEST_GALLERY_TAKE)
         }
 
         shut.setOnClickListener {
@@ -88,7 +90,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
         complete.setOnClickListener {
             toDisableBtns()
-            mPresenter.complete()
             val intent = Intent(this, ImageListActivity::class.java)
             startActivity(intent)
         }
@@ -113,53 +114,46 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     }
 
     fun updateCount() {
-        count++
-
         // UI更新をメインスレッドで行うための記述
         Handler(Looper.getMainLooper()).post  {
-            shut.text = count.toString()
+            shut.text = mPresenter.images.size.toString()
             toEnableBtns()
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
-            if(data?.data != null) {
-                println("単体選択")
-
-                // 単体選択時
-                val imageUri = data.data!!
-                val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
-                val bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
-
-                val baos = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
-                val b = baos.toByteArray()
-                val image = Base64.encodeToString(b, Base64.DEFAULT)
-                saveImage(image)
-            }
-            val intent = Intent(this, ImageListActivity::class.java)
-            startActivity(intent)
-        }
-    }
-
-    private fun saveImage(image: String) {
-        val jsons = JSONArray()
-        jsons.put(image)
-        val editor = sp.edit()
-        editor.putString(SPKEY, jsons.toString()).apply()
-    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//
+//        if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
+//            if(data?.data != null) {
+//                println("単体選択")
+//
+//                // 単体選択時
+//                val imageUri = data.data!!
+//                val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
+//                val bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+//
+//                val baos = ByteArrayOutputStream()
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+//                val b = baos.toByteArray()
+//                val image = Base64.encodeToString(b, Base64.DEFAULT)
+//                saveImage(image)
+//            }
+//            val intent = Intent(this, ImageListActivity::class.java)
+//            startActivity(intent)
+//        }
+//    }
+//
+//    private fun saveImage(image: String) {
+//        val jsons = JSONArray()
+//        jsons.put(image)
+//        val editor = sp.edit()
+//        editor.putString(SPKEY, jsons.toString()).apply()
+//    }
 
     // 撮影済み画像枚数取得
     private fun getImageCount(): Int {
-        val images: String? = sp.getString(SPKEY, null)
-        return if (images == null) {
-            0
-        } else {
-            JSONArray(images).length()
-        }
+        return mPresenter.images.size
     }
 
     // 初回カメラ起動時、画像一覧画面から戻ってきた場合にのみ呼ばれる
@@ -170,7 +164,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         shut.text = count.toString()
         toEnableBtns()
         adjustBtnsState()
-        mPresenter.initJsonArray()
         mPresenter.start()
     }
 

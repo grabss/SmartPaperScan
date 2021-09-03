@@ -10,13 +10,15 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_image_list.*
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.widget.ImageView
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.model.Image
 
 private const val ARG_PARAM1 = "params"
 
 class ImageListFragment : Fragment() {
-    private var b64Image: String? = null
+    private var image: Image? = null
     private lateinit var imageView: ImageView
     private lateinit var sp: SharedPreferences
 
@@ -24,7 +26,7 @@ class ImageListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         sp = this.requireActivity().getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         arguments?.let {
-            b64Image = it.getString(ARG_PARAM1)
+            image = it.get(ARG_PARAM1) as Image?
         }
     }
 
@@ -41,17 +43,17 @@ class ImageListFragment : Fragment() {
 
 
     private fun setImages() {
-        val imageBytes = Base64.decode(b64Image, Base64.DEFAULT)
+        val imageBytes = Base64.decode(image?.b64, Base64.DEFAULT)
         val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         imageView.setImageBitmap(decodedImg)
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(base64Image: String) =
+        fun newInstance(image: Image) =
             ImageListFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, base64Image)
+                    putSerializable(ARG_PARAM1, image)
                 }
             }
     }

@@ -10,8 +10,11 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_image_list.*
 import org.json.JSONArray
 
@@ -22,6 +25,7 @@ class ImageListActivity : FragmentActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var sp: SharedPreferences
     private lateinit var pagerAdapter: ImageListPagerAdapter
+    private val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,10 +33,11 @@ class ImageListActivity : FragmentActivity() {
 
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
-        val images: String? = sp.getString(SPKEY, null)
-        var jsons = JSONArray(images)
+        val json = sp.getString(SPKEY, null)
+        val type = object : TypeToken<ArrayList<Image>>() {}.type
+        val images = gson.fromJson<ArrayList<Image>>(json, type)
 
-        pagerAdapter = ImageListPagerAdapter(this, jsons)
+        pagerAdapter = ImageListPagerAdapter(this, images)
 
         // 編集画面からインデックスを取得
         val index = intent.getIntExtra(INDEX, 0)
@@ -119,24 +124,24 @@ class ImageListActivity : FragmentActivity() {
     }
 
 
-    private inner class ImageListPagerAdapter(fa: FragmentActivity, jsons: JSONArray) : FragmentStateAdapter(fa) {
+    private inner class ImageListPagerAdapter(fa: FragmentActivity, images: ArrayList<Image>) : FragmentStateAdapter(fa) {
         val sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)!!
-        var jsons = jsons
+        var images = images
 
-        private fun getPageIds(): Array<Long> {
-            return Array(jsons.length()) { i -> jsons.optString(i).hashCode().toLong() }
+        private fun getPageIds(): List<Long> {
+            return images.map { it.hashCode().toLong() }
         }
 
         // 要素数
-        override fun getItemCount(): Int = jsons.length()
+        override fun getItemCount(): Int = images.size
 
         // base64形式の画像を引数で渡す
         override fun createFragment(position: Int): Fragment {
-            return ImageListFragment.newInstance(jsons.optString(position))
+            return ImageListFragment.newInstance(images[position])
         }
 
         override fun getItemId(position: Int): Long {
-            return jsons[position].hashCode().toLong()
+            return images[position].hashCode().toLong()
         }
 
         override fun containsItem(itemId: Long): Boolean {
@@ -147,16 +152,16 @@ class ImageListActivity : FragmentActivity() {
         // 画像削除
         fun removeImage(newImages: JSONArray) {
             try {
-                jsons = JSONArray()
-                notifyDataSetChanged()
-                jsons = newImages
-                notifyDataSetChanged()
+//                jsons = JSONArray()
+//                notifyDataSetChanged()
+//                jsons = newImages
+//                notifyDataSetChanged()
 
             } catch(e: Exception) {
                 print(e)
             }
-            val editor = sp.edit()
-            editor.putString(SPKEY, jsons.toString()).apply()
+//            val editor = sp.edit()
+//            editor.putString(SPKEY, jsons.toString()).apply()
         }
     }
 }
