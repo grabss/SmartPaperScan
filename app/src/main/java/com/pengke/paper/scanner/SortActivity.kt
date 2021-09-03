@@ -6,20 +6,17 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.*
 import android.graphics.*
-import android.graphics.drawable.ColorDrawable
-import android.opengl.Visibility
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Base64
 import android.view.*
 import android.view.animation.DecelerateInterpolator
-import android.widget.ArrayAdapter
 import android.widget.BaseAdapter
 import android.widget.GridView
+import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.RequiresApi
-import androidx.core.view.isInvisible
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
@@ -38,6 +35,8 @@ class SortActivity : AppCompatActivity() {
     private val bmList = mutableListOf<Bitmap>()
     private var currentAnimator: Animator? = null
     private var shortAnimationDuration: Int = 0
+    private lateinit var imageAdapter: ImageAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +44,8 @@ class SortActivity : AppCompatActivity() {
         index = intent.getIntExtra(INDEX, 0)
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         setGridView()
-        setGridListener()
+        setHelper()
+        grid.layoutManager = GridLayoutManager(this, 3, RecyclerView.VERTICAL, false)
         setBtnListener()
     }
 
@@ -58,58 +58,41 @@ class SortActivity : AppCompatActivity() {
             val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             bmList.add(decodedImg)
         }
-        val adapter = ImageAdapter(grid, bmList)
-        grid.adapter = adapter
+        imageAdapter = ImageAdapter(bmList)
+        grid.adapter = imageAdapter
     }
 
-    private fun setGridListener() {
-        grid.setOnItemLongClickListener { parent, view, position, id ->
-            println("aaaaaaaa")
-            println(position)
-            val item = ClipData.Item(view.tag as? CharSequence)
-            val dragData = ClipData(
-                view.tag as? CharSequence,
-                arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
-                item)
-            view.setOnDragListener(dragListen)
-            val myShadow = View.DragShadowBuilder(view)
-            view.startDrag(
-                dragData,
-                myShadow,
-                view,
-                0
-            )
-            view.alpha = 0f
-            true
-        }
+    private fun setHelper() {
+        val helper = ItemTouchHelper(
+            object : ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT or ItemTouchHelper.UP or ItemTouchHelper.DOWN
+                , ItemTouchHelper.ANIMATION_TYPE_DRAG
+            ) {
+                override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                    println("onMove")
+                    val fromPos = viewHolder.adapterPosition
+                    val toPos = target.adapterPosition
+                    imageAdapter.notifyItemMoved(fromPos, toPos)
+                    var moto = bmList[fromPos]
+                    bmList.removeAt(fromPos)
+                    bmList.add(toPos, moto)
 
-        grid.setOnItemClickListener { parent, view, position, id ->
-            zoomImageFromThumb(view, position)
-        }
-        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
-    }
+                    if (fromPos < toPos) {
+                        println("fromPos")
+                        imageAdapter.notifyItemRangeChanged(fromPos, toPos - fromPos + 1)
+                    } else {
+                        println("toPos")
+                        imageAdapter.notifyItemRangeChanged(toPos, fromPos - toPos + 1)
+                    }
+                    return true
+                }
 
-    private val dragListen = View.OnDragListener { v, event ->
-        when (event.action) {
-            DragEvent.ACTION_DRAG_STARTED -> {
-                println("ACTION_DRAG_STARTED")
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    TODO("Not yet implemented")
+                }
             }
-            DragEvent.ACTION_DROP -> {
-                println("ACTION_DROP")
-            }
-            DragEvent.ACTION_DRAG_ENTERED -> {
-                println("ACTION_DRAG_ENTERED")
-            }
-            DragEvent.ACTION_DRAG_ENDED -> {
-                println("ACTION_DRAG_ENDED")
-                v.alpha = 1f
-                
-                // ドラッグイベントの監視を解除
-                v.setOnDragListener(null)
-                println(v.hashCode())
-            }
-        }
-        true
+        )
+        helper.attachToRecyclerView(grid)
     }
 
 
@@ -244,24 +227,31 @@ class SortActivity : AppCompatActivity() {
         finish()
     }
 
-    private inner class ImageAdapter(grid: GridView, bmList: List<Bitmap>): BaseAdapter() {
-        override fun getCount(): Int {
-            return bmList.size
+    private inner class ImageAdapter(bmList: List<Bitmap>): RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
+        var bmList = bmList
+
+        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val imageView: ImageView = view.findViewById(R.id.gridImg)
         }
 
-        override fun getItem(position: Int): Any {
-            return position
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.grid_item, parent, false)
+            return ViewHolder(view)
         }
 
-        override fun getItemId(position: Int): Long {
-            return bmList[position].hashCode().toLong()
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val view = holder.imageView
+            view.setImageBitmap(bmList[position])
+
+            view.setOnClickListener {
+                zoomImageFromThumb(view, position)
+                shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
+                true
+            }
         }
 
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val view = layoutInflater.inflate(R.layout.grid_item, parent, false)
-            view.gridImg.setImageBitmap(bmList[position])
-            return view
-        }
+        override fun getItemCount() = bmList.size
+
 
     }
 }
