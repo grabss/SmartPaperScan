@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.Corners
 import com.pengke.paper.scanner.processor.processPicture
@@ -45,7 +46,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private val proxySchedule: Scheduler
     private var isBusy: Boolean = false
     private var sp: SharedPreferences
-    val images = mutableListOf<Image>()
+    var images = mutableListOf<Image>()
     private var matrix: Matrix
     private val gson = Gson()
 
@@ -57,6 +58,16 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         matrix = Matrix()
         matrix.postRotate(90F)
     }
+
+    // SharedPrefに画像がある場合、変数に初期値として代入
+    fun initImageArray() {
+        Log.i(TAG, "initImageArray")
+        val json = sp.getString(SPKEY, null)
+        if (json != null) {
+            images = jsonToImageArray(json)
+        }
+    }
+
 
     fun start() {
         Log.i(TAG, "start")

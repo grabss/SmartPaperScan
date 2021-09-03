@@ -19,6 +19,7 @@ import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.BaseActivity
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.view.PaperRectangle
 import kotlinx.android.synthetic.main.activity_rotate.*
 
@@ -47,7 +48,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     private lateinit var sp: SharedPreferences
 
     private var count = 0
-
 
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
@@ -114,9 +114,10 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     }
 
     fun updateCount() {
+        count = getImageCount()
         // UI更新をメインスレッドで行うための記述
         Handler(Looper.getMainLooper()).post  {
-            shut.text = mPresenter.images.size.toString()
+            shut.text = count.toString()
             toEnableBtns()
         }
     }
@@ -153,7 +154,13 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     // 撮影済み画像枚数取得
     private fun getImageCount(): Int {
-        return mPresenter.images.size
+        val json = sp.getString(SPKEY, null)
+        return if (json == null) {
+            0
+        } else {
+            val images = jsonToImageArray(json)
+            images.size
+        }
     }
 
     // 初回カメラ起動時、画像一覧画面から戻ってきた場合にのみ呼ばれる
@@ -164,6 +171,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         shut.text = count.toString()
         toEnableBtns()
         adjustBtnsState()
+        mPresenter.initImageArray()
         mPresenter.start()
     }
 
@@ -196,8 +204,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
-
-
 
     override fun getDisplay(): Display = windowManager.defaultDisplay
 

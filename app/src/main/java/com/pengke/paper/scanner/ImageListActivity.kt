@@ -25,7 +25,7 @@ class ImageListActivity : FragmentActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var sp: SharedPreferences
     private lateinit var pagerAdapter: ImageListPagerAdapter
-    private val gson = Gson()
+    private lateinit var images: ArrayList<Image>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +34,7 @@ class ImageListActivity : FragmentActivity() {
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
         val json = sp.getString(SPKEY, null)
-        val type = object : TypeToken<ArrayList<Image>>() {}.type
-        val images = gson.fromJson<ArrayList<Image>>(json, type)
+        images = jsonToImageArray(json!!)
 
         pagerAdapter = ImageListPagerAdapter(this, images)
 
@@ -51,7 +50,6 @@ class ImageListActivity : FragmentActivity() {
         setBtnListener()
 
         TabLayoutMediator(indicator, viewPager) { _, _ -> }.attach()
-
     }
 
 
@@ -78,12 +76,9 @@ class ImageListActivity : FragmentActivity() {
         AlertDialog.Builder(this)
             .setTitle("削除してよろしいですか")
             .setPositiveButton("はい") { _, _ ->
-                val images: String? = sp.getString(SPKEY, null)
-                var jsons = JSONArray(images)
                 val index = viewPager.currentItem
-                jsons.remove(index)
-
-                pagerAdapter.removeImage(jsons)
+                images.removeAt(index)
+                pagerAdapter.updateData(images)
                 viewPager.post {
                     viewPager.setCurrentItem(index, true)
                 }
@@ -127,6 +122,7 @@ class ImageListActivity : FragmentActivity() {
     private inner class ImageListPagerAdapter(fa: FragmentActivity, images: ArrayList<Image>) : FragmentStateAdapter(fa) {
         val sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)!!
         var images = images
+        private val gson = Gson()
 
         private fun getPageIds(): List<Long> {
             return images.map { it.hashCode().toLong() }
@@ -149,19 +145,20 @@ class ImageListActivity : FragmentActivity() {
             return pageIds.contains(itemId)
         }
 
-        // 画像削除
-        fun removeImage(newImages: JSONArray) {
+        // データ更新
+        fun updateData(newImages: ArrayList<Image>) {
             try {
-//                jsons = JSONArray()
-//                notifyDataSetChanged()
-//                jsons = newImages
-//                notifyDataSetChanged()
+                images = ArrayList()
+                notifyDataSetChanged()
+                images = newImages
+                notifyDataSetChanged()
 
             } catch(e: Exception) {
                 print(e)
             }
-//            val editor = sp.edit()
-//            editor.putString(SPKEY, jsons.toString()).apply()
+            println("updateData: ${newImages.size}")
+            val editor = sp.edit()
+            editor.putString(SPKEY, gson.toJson(newImages)).apply()
         }
     }
 }
