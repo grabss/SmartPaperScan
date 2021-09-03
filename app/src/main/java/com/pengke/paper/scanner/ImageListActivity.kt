@@ -81,7 +81,7 @@ class ImageListActivity : FragmentActivity() {
 
                 pagerAdapter.removeImage(jsons)
                 viewPager.post {
-                    viewPager.setCurrentItem(index - 1, true)
+                    viewPager.setCurrentItem(index, true)
                 }
             }
             .setNegativeButton("キャンセル") { _, _ ->

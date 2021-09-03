@@ -212,6 +212,7 @@ class SortActivity : AppCompatActivity() {
             disableBtns()
             index = 0
             thread {
+                // SharedPrefの値を更新
                 updateData()
                 navToImageListScrn()
             }
