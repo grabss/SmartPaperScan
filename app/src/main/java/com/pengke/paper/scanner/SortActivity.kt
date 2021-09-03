@@ -26,6 +26,7 @@ import kotlinx.android.synthetic.main.activity_rotate.decisionBtn
 import kotlinx.android.synthetic.main.activity_sort.*
 import kotlinx.android.synthetic.main.grid_item.view.*
 import org.json.JSONArray
+import java.io.ByteArrayOutputStream
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -209,7 +210,9 @@ class SortActivity : AppCompatActivity() {
 
         decisionBtn.setOnClickListener {
             disableBtns()
+            index = 0
             thread {
+                updateData()
                 navToImageListScrn()
             }
         }
@@ -218,6 +221,23 @@ class SortActivity : AppCompatActivity() {
     private fun disableBtns() {
         cancelBtn.isEnabled = false
         decisionBtn.isEnabled = false
+    }
+
+    private fun updateData() {
+        var jsons = JSONArray()
+        val editor = sp.edit()
+        for(image in bmList) {
+            val baos = ByteArrayOutputStream()
+            image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+            val b = baos.toByteArray()
+            val image = Base64.encodeToString(b, Base64.DEFAULT)
+            jsons.put(image)
+        }
+        if (jsons.length() == 0) {
+            editor.putString(SPKEY, null).apply()
+        } else {
+            editor.putString(SPKEY, jsons.toString()).apply()
+        }
     }
 
     private fun navToImageListScrn() {
