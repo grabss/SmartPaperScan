@@ -72,6 +72,15 @@ class ImageListActivity : FragmentActivity() {
         }
     }
 
+    private fun toDisableBtns() {
+        trash_btn.isEnabled = false
+        rect_btn.isEnabled = false
+        rotate_btn.isEnabled = false
+        contrast_btn.isEnabled = false
+        sort_btn.isEnabled = false
+        upload_btn.isEnabled = false
+    }
+
     private fun showAlertDlg() {
         AlertDialog.Builder(this)
             .setTitle("削除してよろしいですか")
@@ -81,6 +90,9 @@ class ImageListActivity : FragmentActivity() {
                 pagerAdapter.updateData(images)
                 viewPager.post {
                     viewPager.setCurrentItem(index, true)
+                }
+                if (images.isEmpty()) {
+                    toDisableBtns()
                 }
             }
             .setNegativeButton("キャンセル") { _, _ ->
