@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.app.AlertDialog
 import android.content.*
 import android.graphics.*
 import android.os.Bundle
@@ -249,6 +250,17 @@ class SortActivity : AppCompatActivity() {
         finish()
     }
 
+    private fun showAlertDlg(position: Int) {
+        AlertDialog.Builder(this)
+            .setTitle("削除してよろしいですか")
+            .setPositiveButton("はい") { _, _ ->
+                imageAdapter.removeItem(position)
+            }
+            .setNegativeButton("キャンセル") { _, _ ->
+            }
+            .show()
+    }
+
     private inner class ImageAdapter(bmList: List<Bitmap>): RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
         private var bmList: MutableList<Bitmap> = bmList as MutableList<Bitmap>
 
@@ -272,12 +284,7 @@ class SortActivity : AppCompatActivity() {
 
             val trashBtn = holder.trashBtn
             trashBtn.setOnClickListener {
-                println("delete: $position")
-                bmList.removeAt(position)
-                notifyDataSetChanged()
-                if (bmList.isEmpty()) {
-                    disableDecisionBtn()
-                }
+                showAlertDlg(position)
             }
 
             imageView.setOnClickListener {
@@ -288,5 +295,13 @@ class SortActivity : AppCompatActivity() {
         }
 
         override fun getItemCount() = bmList.size
+
+        fun removeItem(position: Int){
+            bmList.removeAt(position)
+            notifyDataSetChanged()
+            if (bmList.isEmpty()) {
+                disableDecisionBtn()
+            }
+        }
     }
 }

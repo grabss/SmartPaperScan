@@ -73,7 +73,6 @@ class ImageListActivity : FragmentActivity() {
         AlertDialog.Builder(this)
             .setTitle("削除してよろしいですか")
             .setPositiveButton("はい") { _, _ ->
-                println("tapped yes btn")
                 val images: String? = sp.getString(SPKEY, null)
                 var jsons = JSONArray(images)
                 val index = viewPager.currentItem
@@ -85,7 +84,6 @@ class ImageListActivity : FragmentActivity() {
                 }
             }
             .setNegativeButton("キャンセル") { _, _ ->
-                println("tapped cancel btn")
             }
             .show()
     }
