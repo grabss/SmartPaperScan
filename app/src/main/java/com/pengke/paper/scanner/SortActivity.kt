@@ -10,10 +10,7 @@ import android.os.Bundle
 import android.util.Base64
 import android.view.*
 import android.view.animation.DecelerateInterpolator
-import android.widget.BaseAdapter
-import android.widget.GridView
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -219,6 +216,10 @@ class SortActivity : AppCompatActivity() {
         }
     }
 
+    private fun disableDecisionBtn() {
+        decisionBtn.isEnabled = false
+    }
+
     private fun disableBtns() {
         cancelBtn.isEnabled = false
         decisionBtn.isEnabled = false
@@ -249,11 +250,12 @@ class SortActivity : AppCompatActivity() {
     }
 
     private inner class ImageAdapter(bmList: List<Bitmap>): RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
-        var bmList = bmList
+        private var bmList: MutableList<Bitmap> = bmList as MutableList<Bitmap>
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val imageView: ImageView = view.findViewById(R.id.gridImg)
             val textView: TextView = view.findViewById(R.id.index)
+            val imageView: ImageView = view.findViewById(R.id.gridImg)
+            val trashBtn: ImageButton = view.findViewById(R.id.trashBtn)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -267,6 +269,16 @@ class SortActivity : AppCompatActivity() {
 
             val imageView = holder.imageView
             imageView.setImageBitmap(bmList[position])
+
+            val trashBtn = holder.trashBtn
+            trashBtn.setOnClickListener {
+                println("delete: $position")
+                bmList.removeAt(position)
+                notifyDataSetChanged()
+                if (bmList.isEmpty()) {
+                    disableDecisionBtn()
+                }
+            }
 
             imageView.setOnClickListener {
                 zoomImageFromThumb(imageView, position)

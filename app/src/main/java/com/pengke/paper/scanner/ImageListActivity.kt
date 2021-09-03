@@ -161,13 +161,4 @@ class ImageListActivity : FragmentActivity() {
             editor.putString(SPKEY, jsons.toString()).apply()
         }
     }
-
-//    今後使わなかったら削除
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//        if(resultCode == RESULT_OK && requestCode == 100 && intent != null) {
-//            val index = intent.getIntExtra("INDEX", 0)
-//            println(index)
-//        }
-//    }
 }
