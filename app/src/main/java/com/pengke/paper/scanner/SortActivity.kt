@@ -232,6 +232,7 @@ class SortActivity : AppCompatActivity() {
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val imageView: ImageView = view.findViewById(R.id.gridImg)
+            val textView: TextView = view.findViewById(R.id.index)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -240,18 +241,19 @@ class SortActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val view = holder.imageView
-            view.setImageBitmap(bmList[position])
+            val textView = holder.textView
+            textView.text = (position + 1).toString()
 
-            view.setOnClickListener {
-                zoomImageFromThumb(view, position)
+            val imageView = holder.imageView
+            imageView.setImageBitmap(bmList[position])
+
+            imageView.setOnClickListener {
+                zoomImageFromThumb(imageView, position)
                 shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
                 true
             }
         }
 
         override fun getItemCount() = bmList.size
-
-
     }
 }
