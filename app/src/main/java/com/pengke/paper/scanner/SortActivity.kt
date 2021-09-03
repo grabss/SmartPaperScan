@@ -61,11 +61,12 @@ class SortActivity : AppCompatActivity() {
         grid.adapter = imageAdapter
     }
 
+    // ドラッグ操作の有効化
     private fun setHelper() {
         val helper = ItemTouchHelper(
             object : ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT or ItemTouchHelper.UP or ItemTouchHelper.DOWN
-                , ItemTouchHelper.ANIMATION_TYPE_DRAG
+                , ItemTouchHelper.ACTION_STATE_SWIPE
             ) {
                 override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                     println("onMove")
@@ -94,7 +95,7 @@ class SortActivity : AppCompatActivity() {
         helper.attachToRecyclerView(grid)
     }
 
-
+    // 拡大表示
     private fun zoomImageFromThumb(thumbView: View, position: Int) {
         currentAnimator?.cancel()
 

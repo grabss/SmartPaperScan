@@ -77,6 +77,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible"
+        android:background="#000000"
+        android:backgroundTint="#000000"
         android:contentDescription="@string/description_zoom_touch_close" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
