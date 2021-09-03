@@ -16,8 +16,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_rotate.*
 import kotlinx.android.synthetic.main.activity_rotate.cancelBtn
 import kotlinx.android.synthetic.main.activity_rotate.decisionBtn
@@ -49,13 +51,14 @@ class SortActivity : AppCompatActivity() {
     }
 
     private fun setGridView() {
-        val images = sp.getString(SPKEY, null)
-        val jsons = JSONArray(images)
-
-        for(i in 0 until jsons.length()) {
-            val imageBytes = Base64.decode(jsons[i] as String, Base64.DEFAULT)
-            val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            bmList.add(decodedImg)
+        val json = sp.getString(SPKEY, null)
+        if (json != null) {
+            val images = jsonToImageArray(json)
+            for(image in images) {
+                val imageBytes = Base64.decode(image.b64, Base64.DEFAULT)
+                val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                bmList.add(decodedImg)
+            }
         }
         imageAdapter = ImageAdapter(bmList)
         grid.adapter = imageAdapter
@@ -228,19 +231,21 @@ class SortActivity : AppCompatActivity() {
     }
 
     private fun updateData() {
-        var jsons = JSONArray()
+        val gson = Gson()
+        var newImages = mutableListOf<Image>()
         val editor = sp.edit()
-        for(image in bmList) {
+        for(bm in bmList) {
             val baos = ByteArrayOutputStream()
-            image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
             val b = baos.toByteArray()
-            val image = Base64.encodeToString(b, Base64.DEFAULT)
-            jsons.put(image)
+            val b64 = Base64.encodeToString(b, Base64.DEFAULT)
+            val image = Image(b64)
+            newImages.add(image)
         }
-        if (jsons.length() == 0) {
+        if (newImages.isEmpty()) {
             editor.putString(SPKEY, null).apply()
         } else {
-            editor.putString(SPKEY, jsons.toString()).apply()
+            editor.putString(SPKEY, gson.toJson(newImages)).apply()
         }
     }
 

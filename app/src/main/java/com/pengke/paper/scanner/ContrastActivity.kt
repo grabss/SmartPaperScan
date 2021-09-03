@@ -8,8 +8,10 @@ import android.os.Bundle
 import android.util.Base64
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_contrast.*
 import kotlinx.android.synthetic.main.activity_rotate.cancelBtn
 import kotlinx.android.synthetic.main.activity_rotate.decisionBtn
@@ -22,9 +24,10 @@ import kotlin.concurrent.thread
 class ContrastActivity : AppCompatActivity() {
     private lateinit var sp: SharedPreferences
     private lateinit var decodedImg: Bitmap
-    private lateinit var jsons: JSONArray
+    private lateinit var images: ArrayList<Image>
     private var index = 0
     private var currentVal: Float= 1F
+    private val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,9 +42,9 @@ class ContrastActivity : AppCompatActivity() {
         // タップされた画像のインデックスを取得
         index = intent.getIntExtra(INDEX, 0)
 
-        val images = sp.getString(SPKEY, null)
-        jsons = JSONArray(images)
-        val b64Image = jsons[index] as String
+        val json = sp.getString(SPKEY, null)
+        images = jsonToImageArray(json!!)
+        val b64Image = images[index].b64
         val imageBytes = Base64.decode(b64Image, Base64.DEFAULT)
         decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         imageView.setImageBitmap(decodedImg)
@@ -73,9 +76,10 @@ class ContrastActivity : AppCompatActivity() {
         decodedImg.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val b = baos.toByteArray()
         val updatedImg = Base64.encodeToString(b, Base64.DEFAULT)
-        jsons.put(index, updatedImg)
+        val image = Image(updatedImg)
+        images[index] = image
         val editor = sp.edit()
-        editor.putString(SPKEY, jsons.toString()).apply()
+        editor.putString(SPKEY, gson.toJson(images)).apply()
     }
 
     private fun setSlider() {
