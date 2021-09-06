@@ -9,6 +9,7 @@ import android.content.*
 import android.graphics.*
 import android.os.Bundle
 import android.util.Base64
+import android.util.DisplayMetrics
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.*
@@ -37,7 +38,7 @@ class SortActivity : AppCompatActivity() {
     private var currentAnimator: Animator? = null
     private var shortAnimationDuration: Int = 0
     private lateinit var imageAdapter: ImageAdapter
-
+    private val dm = DisplayMetrics()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +49,7 @@ class SortActivity : AppCompatActivity() {
         setHelper()
         grid.layoutManager = GridLayoutManager(this, 3, RecyclerView.VERTICAL, false)
         setBtnListener()
+        windowManager.defaultDisplay.getRealMetrics(dm)
     }
 
     private fun setGridView() {
@@ -282,10 +284,17 @@ class SortActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            // 画面の横幅取得
+            val winW = dm.widthPixels
+            // 画像の横幅を(画面幅 * 1/3 - 100dp)にする
+            val width = (winW / 3) - 100
+
             val textView = holder.textView
+            textView.width = width
             textView.text = (position + 1).toString()
 
             val imageView = holder.imageView
+            imageView.layoutParams.width = width
             imageView.setImageBitmap(bmList[position])
 
             val trashBtn = holder.trashBtn
