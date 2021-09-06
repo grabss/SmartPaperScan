@@ -107,6 +107,7 @@
         android:id="@+id/upload_btn"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:background="@color/colorMain"
         android:backgroundTint="@color/colorMain"
         android:drawableLeft="@mipmap/upload_icon_foreground"
         android:maxLines="1"
