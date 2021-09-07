@@ -18,11 +18,12 @@
 
     <ImageView
         android:id="@+id/gridImg"
-        android:layout_width="0dp"
+        android:layout_width="200dp"
         android:layout_height="130dp"
-        android:backgroundTint="#000000"
-        android:background="@color/colorPrimary"
+        android:layout_marginTop="5dp"
         android:adjustViewBounds="true"
+        android:background="@color/colorPrimary"
+        android:backgroundTint="#000000"
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,17 +35,17 @@
         android:id="@+id/trashBtn"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:background="@drawable/circle_border"
-        android:contentDescription="削除ボタン"
-        android:src="@drawable/trash_btn"
-        android:backgroundTint="@color/colorWhite"
         android:alpha="0.7"
+        android:background="@drawable/circle_border"
+        android:backgroundTint="@color/colorWhite"
+        android:contentDescription="削除ボタン"
         android:padding="3dp"
         android:scaleType="centerInside"
+        android:src="@drawable/trash_btn"
         android:tint="@color/colorAccent"
-        app:layout_constraintStart_toEndOf="@id/gridImg"
-        app:layout_constraintTop_toTopOf="@id/gridImg"
+        app:layout_constraintBottom_toTopOf="@+id/gridImg"
         app:layout_constraintEnd_toEndOf="@id/gridImg"
-        />
+        app:layout_constraintStart_toEndOf="@id/gridImg"
+        app:layout_constraintTop_toTopOf="@id/gridImg" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
