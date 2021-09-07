@@ -20,6 +20,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
+import com.pengke.paper.scanner.base.CAN_EDIT_IMAGES
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.model.Image
@@ -36,32 +37,42 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     private lateinit var images: ArrayList<Image>
     private val dialog = ConfirmDialogFragment()
     private var index = 0
+    private val handler = Handler(Looper.getMainLooper())
+
+    private val result = object: Runnable {
+        override fun run() {
+            val result = sp.getBoolean(CAN_EDIT_IMAGES, false)
+            if (result) {
+                val json = sp.getString(IMAGE_ARRAY, null)
+                images = jsonToImageArray(json!!)
+
+                pagerAdapter = ImageListPagerAdapter(images)
+
+                // 編集画面からインデックスを取得
+                index = intent.getIntExtra(INDEX, 0)
+
+                viewPager = pager
+                viewPager.adapter = pagerAdapter
+                viewPager.setCurrentItem(index, false)
+                TabLayoutMediator(indicator, viewPager) { _, _ -> }.attach()
+                toEnableBtns()
+                return
+            } else {
+                handler.postDelayed(this, 200)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_list)
-
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
-        val json = sp.getString(IMAGE_ARRAY, null)
-        images = jsonToImageArray(json!!)
-
-        pagerAdapter = ImageListPagerAdapter(images)
-
-        // 編集画面からインデックスを取得
-        index = intent.getIntExtra(INDEX, 0)
-
-        println("index: $index")
-
-        viewPager = pager
-        viewPager.adapter = pagerAdapter
-        viewPager.setCurrentItem(index, false)
-
+        // ギャラリーから選択した画像の加工処理が終わっているかを200ミリ秒毎に確認
+        handler.post(result)
+        toDisableBtns()
         setBtnListener()
-
-        TabLayoutMediator(indicator, viewPager) { _, _ -> }.attach()
     }
-
 
     private fun setBtnListener() {
         trash_btn.setOnClickListener {
@@ -80,6 +91,16 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         upload_btn.setOnClickListener {
             upload()
         }
+        toDisableBtns()
+    }
+
+    private fun toEnableBtns() {
+        trash_btn.isEnabled = true
+        rect_btn.isEnabled = true
+        rotate_btn.isEnabled = true
+        contrast_btn.isEnabled = true
+        sort_btn.isEnabled = true
+        upload_btn.isEnabled = true
     }
 
     private fun toDisableBtns() {
@@ -142,17 +163,12 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         var images = images
         private val gson = Gson()
 
-        private fun getPageIds(): List<Long> {
-            return images.map { it.hashCode().toLong() }
-        }
-
         // 要素数
         override fun getItemCount(): Int = images.size
 
         override fun getItemId(position: Int): Long {
             return images[position].hashCode().toLong()
         }
-
 
         // データ更新
         fun updateData(newImages: ArrayList<Image>) {
@@ -176,6 +192,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
             holder.bind(images[position])
         }
     }
+
     class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
 

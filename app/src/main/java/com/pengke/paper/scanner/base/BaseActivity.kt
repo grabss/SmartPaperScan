@@ -6,6 +6,7 @@ import android.widget.Toast
 
 const val SPNAME = "images"
 const val IMAGE_ARRAY = "imageArray"
+const val CAN_EDIT_IMAGES = "canEditImages"
 
 abstract class BaseActivity : AppCompatActivity() {
 

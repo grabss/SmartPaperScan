@@ -1,26 +1,40 @@
 package com.pengke.paper.scanner.scan
 
+import android.app.ActivityManager
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.opengl.Visibility
 import android.os.Handler
 import android.os.Looper
+import android.util.Base64
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
 import android.view.Display
 import android.view.SurfaceView
+import android.view.View
+import com.google.gson.Gson
+import com.pengke.paper.scanner.ConfirmDialogFragment
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.BaseActivity
+import com.pengke.paper.scanner.base.CAN_EDIT_IMAGES
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.jsonToImageArray
+import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.view.PaperRectangle
 
 import kotlinx.android.synthetic.main.activity_scan.*
+import org.json.JSONArray
 import org.opencv.android.OpenCVLoader
+import java.io.ByteArrayOutputStream
+import kotlin.concurrent.thread
 
 const val IMAGE_COUNT_RESULT = 1000
 const val REQUEST_GALLERY_TAKE = 1
@@ -36,6 +50,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     private lateinit var sp: SharedPreferences
 
     private var count = 0
+
+    private val gson = Gson()
 
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
@@ -61,14 +77,15 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
 
         gallery.setOnClickListener {
-            // 紛らわしいのでコメントアウト
-//            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-//                addCategory(Intent.CATEGORY_OPENABLE)
-//
-//                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-//                type = "image/*"
-//            }
-//            startActivityForResult(intent, REQUEST_GALLERY_TAKE)
+            val editor = sp.edit()
+            editor.putBoolean(CAN_EDIT_IMAGES, false).apply()
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                type = "image/*"
+            }
+            startActivityForResult(intent, REQUEST_GALLERY_TAKE)
         }
 
         shut.setOnClickListener {
@@ -80,6 +97,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             toDisableBtns()
             val intent = Intent(this, ImageListActivity::class.java)
             startActivity(intent)
+            val editor = sp.edit()
+            editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
         }
 
         latestBackPressTime = System.currentTimeMillis()
@@ -110,35 +129,71 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
     }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//
-//        if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
-//            if(data?.data != null) {
-//                println("単体選択")
-//
-//                // 単体選択時
-//                val imageUri = data.data!!
-//                val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
-//                val bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
-//
-//                val baos = ByteArrayOutputStream()
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
-//                val b = baos.toByteArray()
-//                val image = Base64.encodeToString(b, Base64.DEFAULT)
-//                saveImage(image)
-//            }
-//            val intent = Intent(this, ImageListActivity::class.java)
-//            startActivity(intent)
-//        }
-//    }
-//
-//    private fun saveImage(image: String) {
-//        val jsons = JSONArray()
-//        jsons.put(image)
-//        val editor = sp.edit()
-//        editor.putString(SPKEY, jsons.toString()).apply()
-//    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
+            if (data?.clipData != null) {
+                println("複数選択")
+
+                val intent = Intent(this, ImageListActivity::class.java)
+                startActivity(intent)
+
+                thread {
+                    // 複数画像選択時
+                    val count = data.clipData!!.itemCount
+                    println("count: $count")
+                    val images = ArrayList<Image>()
+                    for (i in 0 until count) {
+                        val imageUri = data.clipData!!.getItemAt(i).uri
+                        val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
+                        val bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+                        val baos = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+                        val b = baos.toByteArray()
+                        val b64 = Base64.encodeToString(b, Base64.DEFAULT)
+                        val image = Image(b64)
+                        images.add(image)
+                    }
+                    saveImages(images)
+                }
+            } else if(data?.data != null) {
+                println("単体選択")
+                
+                thread {
+                    // 単体選択時
+                    val imageUri = data.data!!
+                    val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
+    
+                    val bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+                    val baos = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+                    val b = baos.toByteArray()
+                    val b64 = Base64.encodeToString(b, Base64.DEFAULT)
+                    val image = Image(b64)
+                    saveImage(image)
+                }
+                val intent = Intent(this, ImageListActivity::class.java)
+                startActivity(intent)
+            }
+        }
+    }
+
+    private fun saveImage(image: Image) {
+        val images = mutableListOf<Image>()
+        images.add(image)
+        val editor = sp.edit()
+        editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
+        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
+    }
+
+
+    // 複数画像
+    private fun saveImages(images: ArrayList<Image>) {
+        val editor = sp.edit()
+        editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
+        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
+    }
 
     // 撮影済み画像枚数取得
     private fun getImageCount(): Int {
