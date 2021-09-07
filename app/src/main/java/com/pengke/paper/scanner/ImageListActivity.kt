@@ -11,7 +11,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.pengke.paper.scanner.base.SPKEY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.model.Image
@@ -20,12 +19,13 @@ import org.json.JSONArray
 
 const val INDEX = "INDEX"
 
-class ImageListActivity : FragmentActivity() {
+class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
 
     private lateinit var viewPager: ViewPager2
     private lateinit var sp: SharedPreferences
     private lateinit var pagerAdapter: ImageListPagerAdapter
     private lateinit var images: ArrayList<Image>
+    private val dialog = ConfirmDialogFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +55,7 @@ class ImageListActivity : FragmentActivity() {
 
     private fun setBtnListener() {
         trash_btn.setOnClickListener {
-            showAlertDlg()
+            dialog.show(supportFragmentManager, "TAG")
         }
         rect_btn.setOnClickListener { println("tapped rect_btn") }
         rotate_btn.setOnClickListener {
@@ -79,25 +79,6 @@ class ImageListActivity : FragmentActivity() {
         contrast_btn.isEnabled = false
         sort_btn.isEnabled = false
         upload_btn.isEnabled = false
-    }
-
-    private fun showAlertDlg() {
-        AlertDialog.Builder(this)
-            .setTitle("削除してよろしいですか")
-            .setPositiveButton("はい") { _, _ ->
-                val index = viewPager.currentItem
-                images.removeAt(index)
-                pagerAdapter.updateData(images)
-                viewPager.post {
-                    viewPager.setCurrentItem(index, true)
-                }
-                if (images.isEmpty()) {
-                    toDisableBtns()
-                }
-            }
-            .setNegativeButton("キャンセル") { _, _ ->
-            }
-            .show()
     }
 
     // finish()で画像一覧画面をスタックから除外しないとエラー発生。
@@ -172,5 +153,21 @@ class ImageListActivity : FragmentActivity() {
             val editor = sp.edit()
             editor.putString(SPKEY, gson.toJson(newImages)).apply()
         }
+    }
+
+    override fun onDecisionClick() {
+        val index = viewPager.currentItem
+        images.removeAt(index)
+        pagerAdapter.updateData(images)
+        viewPager.post {
+            viewPager.setCurrentItem(index, true)
+        }
+        if (images.isEmpty()) {
+            toDisableBtns()
+        }
+    }
+
+    // ダイアログのキャンセルボタンタップ時に処理を加える場合はここに記述
+    override fun onCancelClick() {
     }
 }
