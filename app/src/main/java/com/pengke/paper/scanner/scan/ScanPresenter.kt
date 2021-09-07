@@ -1,6 +1,5 @@
 package com.pengke.paper.scanner.scan
 
-import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -13,7 +12,7 @@ import android.view.SurfaceHolder
 import android.widget.Toast
 import com.google.gson.Gson
 import com.pengke.paper.scanner.SourceManager
-import com.pengke.paper.scanner.base.SPKEY
+import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
@@ -23,7 +22,6 @@ import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import org.json.JSONArray
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -62,7 +60,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     // SharedPrefに画像がある場合、変数に初期値として代入
     fun initImageArray() {
         Log.i(TAG, "initImageArray")
-        val json = sp.getString(SPKEY, null)
+        val json = sp.getString(IMAGE_ARRAY, null)
         if (json != null) {
             images = jsonToImageArray(json)
         }
@@ -238,7 +236,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         val json = gson.toJson(images)
 
         val editor = sp.edit()
-        editor.putString(SPKEY, json).apply()
+        editor.putString(IMAGE_ARRAY, json).apply()
 
         scanActv.updateCount()
     }

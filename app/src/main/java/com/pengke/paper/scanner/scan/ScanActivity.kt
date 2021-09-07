@@ -4,11 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Looper
-import android.util.Base64
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
@@ -17,22 +14,13 @@ import android.view.SurfaceView
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.BaseActivity
-import com.pengke.paper.scanner.base.SPKEY
+import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.view.PaperRectangle
-import kotlinx.android.synthetic.main.activity_rotate.*
 
 import kotlinx.android.synthetic.main.activity_scan.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import org.opencv.android.OpenCVLoader
-import org.opencv.core.Mat
-import java.io.ByteArrayOutputStream
-import java.io.Serializable
 
 const val IMAGE_COUNT_RESULT = 1000
 const val REQUEST_GALLERY_TAKE = 1
@@ -154,7 +142,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     // 撮影済み画像枚数取得
     private fun getImageCount(): Int {
-        val json = sp.getString(SPKEY, null)
+        val json = sp.getString(IMAGE_ARRAY, null)
         return if (json == null) {
             0
         } else {

@@ -1,17 +1,26 @@
 package com.pengke.paper.scanner
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Base64
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
-import com.pengke.paper.scanner.base.SPKEY
+import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_image_list.*
@@ -26,6 +35,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     private lateinit var pagerAdapter: ImageListPagerAdapter
     private lateinit var images: ArrayList<Image>
     private val dialog = ConfirmDialogFragment()
+    private var index = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,19 +43,19 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
-        val json = sp.getString(SPKEY, null)
+        val json = sp.getString(IMAGE_ARRAY, null)
         images = jsonToImageArray(json!!)
 
-        pagerAdapter = ImageListPagerAdapter(this, images)
+        pagerAdapter = ImageListPagerAdapter(images)
 
         // 編集画面からインデックスを取得
-        val index = intent.getIntExtra(INDEX, 0)
+        index = intent.getIntExtra(INDEX, 0)
+
+        println("index: $index")
 
         viewPager = pager
         viewPager.adapter = pagerAdapter
-        viewPager.post {
-            viewPager.setCurrentItem(index, true)
-        }
+        viewPager.setCurrentItem(index, false)
 
         setBtnListener()
 
@@ -106,13 +116,28 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
     // アップロード実行。Flutterに2次元配列のbyte配列を渡す
     private fun upload() {
-        val images: String? = sp.getString(SPKEY, null)
+        val images: String? = sp.getString(IMAGE_ARRAY, null)
         val a = JSONArray(images)
         println("images length: ${a.length()}")
     }
 
 
-    private inner class ImageListPagerAdapter(fa: FragmentActivity, images: ArrayList<Image>) : FragmentStateAdapter(fa) {
+    override fun onDecisionClick() {
+        val index = viewPager.currentItem
+        images.removeAt(index)
+        pagerAdapter.updateData(images)
+        viewPager.setCurrentItem(index, false)
+        if (images.isEmpty()) {
+            toDisableBtns()
+        }
+    }
+
+    // ダイアログのキャンセルボタンタップ時に処理を加える場合はここに記述
+    override fun onCancelClick() {
+    }
+
+
+    private inner class ImageListPagerAdapter(images: ArrayList<Image>) : RecyclerView.Adapter<PagerViewHolder>() {
         val sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)!!
         var images = images
         private val gson = Gson()
@@ -124,19 +149,10 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         // 要素数
         override fun getItemCount(): Int = images.size
 
-        // base64形式の画像を引数で渡す
-        override fun createFragment(position: Int): Fragment {
-            return ImageListFragment.newInstance(images[position])
-        }
-
         override fun getItemId(position: Int): Long {
             return images[position].hashCode().toLong()
         }
 
-        override fun containsItem(itemId: Long): Boolean {
-            val pageIds = getPageIds()
-            return pageIds.contains(itemId)
-        }
 
         // データ更新
         fun updateData(newImages: ArrayList<Image>) {
@@ -149,25 +165,24 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
             } catch(e: Exception) {
                 print(e)
             }
-            println("updateData: ${newImages.size}")
             val editor = sp.edit()
-            editor.putString(SPKEY, gson.toJson(newImages)).apply()
+            editor.putString(IMAGE_ARRAY, gson.toJson(newImages)).apply()
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagerViewHolder =
+            PagerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.fragment_image_list, parent, false))
+
+        override fun onBindViewHolder(holder: PagerViewHolder, position: Int) {
+            holder.bind(images[position])
         }
     }
+    class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val imageView: ImageView = itemView.findViewById(R.id.imageView)
 
-    override fun onDecisionClick() {
-        val index = viewPager.currentItem
-        images.removeAt(index)
-        pagerAdapter.updateData(images)
-        viewPager.post {
-            viewPager.setCurrentItem(index, true)
+        fun bind(image: Image) {
+            val imageBytes = Base64.decode(image?.b64, Base64.DEFAULT)
+            val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            imageView.setImageBitmap(decodedImg)
         }
-        if (images.isEmpty()) {
-            toDisableBtns()
-        }
-    }
-
-    // ダイアログのキャンセルボタンタップ時に処理を加える場合はここに記述
-    override fun onCancelClick() {
     }
 }

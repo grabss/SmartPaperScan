@@ -9,14 +9,13 @@ import android.util.Base64
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
-import com.pengke.paper.scanner.base.SPKEY
+import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_contrast.*
 import kotlinx.android.synthetic.main.activity_rotate.cancelBtn
 import kotlinx.android.synthetic.main.activity_rotate.decisionBtn
 import kotlinx.android.synthetic.main.activity_rotate.imageView
-import org.json.JSONArray
 import setContrast
 import java.io.ByteArrayOutputStream
 import kotlin.concurrent.thread
@@ -42,7 +41,7 @@ class ContrastActivity : AppCompatActivity() {
         // タップされた画像のインデックスを取得
         index = intent.getIntExtra(INDEX, 0)
 
-        val json = sp.getString(SPKEY, null)
+        val json = sp.getString(IMAGE_ARRAY, null)
         images = jsonToImageArray(json!!)
         val b64Image = images[index].b64
         val imageBytes = Base64.decode(b64Image, Base64.DEFAULT)
@@ -79,7 +78,7 @@ class ContrastActivity : AppCompatActivity() {
         val image = Image(updatedImg)
         images[index] = image
         val editor = sp.edit()
-        editor.putString(SPKEY, gson.toJson(images)).apply()
+        editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
     }
 
     private fun setSlider() {

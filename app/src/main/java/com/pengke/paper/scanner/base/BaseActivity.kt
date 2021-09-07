@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
 
 const val SPNAME = "images"
-const val SPKEY = "imageArray"
+const val IMAGE_ARRAY = "imageArray"
 
 abstract class BaseActivity : AppCompatActivity() {
 

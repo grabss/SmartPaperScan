@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.app.AlertDialog
 import android.content.*
 import android.graphics.*
 import android.os.Bundle
@@ -13,23 +12,18 @@ import android.util.DisplayMetrics
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import com.pengke.paper.scanner.base.SPKEY
+import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.model.Image
-import kotlinx.android.synthetic.main.activity_rotate.*
 import kotlinx.android.synthetic.main.activity_rotate.cancelBtn
 import kotlinx.android.synthetic.main.activity_rotate.decisionBtn
 import kotlinx.android.synthetic.main.activity_sort.*
-import kotlinx.android.synthetic.main.grid_item.view.*
-import org.json.JSONArray
 import java.io.ByteArrayOutputStream
-import java.util.*
 import kotlin.concurrent.thread
 
 class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
@@ -56,7 +50,7 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
     }
 
     private fun setGridView() {
-        val json = sp.getString(SPKEY, null)
+        val json = sp.getString(IMAGE_ARRAY, null)
         if (json != null) {
             val images = jsonToImageArray(json)
             for(image in images) {
@@ -210,7 +204,6 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
                 start()
             }
         }
-
     }
 
     private fun setBtnListener() {
@@ -252,9 +245,9 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
             newImages.add(image)
         }
         if (newImages.isEmpty()) {
-            editor.putString(SPKEY, null).apply()
+            editor.putString(IMAGE_ARRAY, null).apply()
         } else {
-            editor.putString(SPKEY, gson.toJson(newImages)).apply()
+            editor.putString(IMAGE_ARRAY, gson.toJson(newImages)).apply()
         }
     }
 
