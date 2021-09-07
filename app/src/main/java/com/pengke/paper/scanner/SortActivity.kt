@@ -14,6 +14,7 @@ import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -31,7 +32,7 @@ import java.io.ByteArrayOutputStream
 import java.util.*
 import kotlin.concurrent.thread
 
-class SortActivity : AppCompatActivity() {
+class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
     private lateinit var sp: SharedPreferences
     private var index = 0
     private val bmList = mutableListOf<Bitmap>()
@@ -39,6 +40,8 @@ class SortActivity : AppCompatActivity() {
     private var shortAnimationDuration: Int = 0
     private lateinit var imageAdapter: ImageAdapter
     private val dm = DisplayMetrics()
+    private val dialog = ConfirmDialogFragment()
+    private var tmpIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -259,14 +262,16 @@ class SortActivity : AppCompatActivity() {
     }
 
     private fun showAlertDlg(position: Int) {
-        AlertDialog.Builder(this)
-            .setTitle("削除してよろしいですか")
-            .setPositiveButton("はい") { _, _ ->
-                imageAdapter.removeItem(position)
-            }
-            .setNegativeButton("キャンセル") { _, _ ->
-            }
-            .show()
+        tmpIndex = position
+        dialog.show(supportFragmentManager, "TAG")
+    }
+
+    override fun onDecisionClick() {
+        imageAdapter.removeItem(tmpIndex)
+    }
+
+    // ダイアログのキャンセルボタンタップ時に処理を加える場合はここに記述
+    override fun onCancelClick() {
     }
 
     private inner class ImageAdapter(bmList: List<Bitmap>): RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
