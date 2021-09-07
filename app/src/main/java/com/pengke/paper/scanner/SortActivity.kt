@@ -86,17 +86,21 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
                     bmList.add(toPos, moto)
 
                     if (fromPos < toPos) {
-                        println("fromPos")
-                        imageAdapter.notifyItemRangeChanged(fromPos, toPos - fromPos + 1)
+                        println("fromPos < toPos")
                     } else {
-                        println("toPos")
-                        imageAdapter.notifyItemRangeChanged(toPos, fromPos - toPos + 1)
+                        println("toPos < fromPos")
                     }
                     return true
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     TODO("Not yet implemented")
+                }
+
+                // ドラッグ操作終了時に呼ばれる
+                override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                    super.clearView(recyclerView, viewHolder)
+                    imageAdapter.notifyDataSetChanged()
                 }
             }
         )
