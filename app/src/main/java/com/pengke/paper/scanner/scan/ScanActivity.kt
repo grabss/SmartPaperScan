@@ -159,6 +159,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                 }
             } else if(data?.data != null) {
                 println("単体選択")
+                val intent = Intent(this, ImageListActivity::class.java)
+                startActivity(intent)
                 
                 thread {
                     // 単体選択時
@@ -173,8 +175,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     val image = Image(b64)
                     saveImage(image)
                 }
-                val intent = Intent(this, ImageListActivity::class.java)
-                startActivity(intent)
             }
         }
     }

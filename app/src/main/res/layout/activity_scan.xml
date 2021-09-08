@@ -45,8 +45,7 @@
             android:layout_height="65dp"
             android:layout_alignParentEnd="true"
             android:background="@color/colorTransparent"
-            android:text="@string/complete"
-            android:textSize="14sp" />
+            android:text="@string/complete" />
     </RelativeLayout>
 
 </RelativeLayout>

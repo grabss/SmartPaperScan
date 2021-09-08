@@ -179,8 +179,16 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     Log.i(TAG, "picture size: " + pictureSize.toString())
                     val mat = Mat(Size(pictureSize?.width?.toDouble() ?: 1920.toDouble(),
                             pictureSize?.height?.toDouble() ?: 1080.toDouble()), CvType.CV_8U)
-                    val bitmap = BitmapFactory.decodeByteArray(p0, 0, p0!!.size)
+                    var bitmap = BitmapFactory.decodeByteArray(p0, 0, p0!!.size)
+
+                    val matrix = Matrix()
+
+                    matrix.postScale(0.5f, 0.5f)
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
                     grayScale(mat, bitmap)
+
+//                    Imgproc.resize(mat, Mat(), Size( mat.size().width, mat.size().height * 0.1))
 
                     mat.put(0, 0, p0)
                     val pic = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
@@ -224,6 +232,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
         val baos = ByteArrayOutputStream()
         rotatedBm.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+
         val b = baos.toByteArray()
         // Base64形式でSharedPrefに保存
         // 取り出す時->Base64.decode(image, Base64.DEFAULT)
