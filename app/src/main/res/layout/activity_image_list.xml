@@ -16,9 +16,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/frameLayout"
-        android:layout_width="match_parent"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,15 +29,23 @@
             android:id="@+id/indicator"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_margin="0dp"
+            app:tabMaxWidth="15dp"
+            android:keepScreenOn="true"
+            app:tabPaddingBottom="0dp"
+            app:tabPaddingEnd="0dp"
+            app:tabPaddingStart="0dp"
+            app:tabPaddingTop="0dp"
+            android:clipToPadding="true"
             app:tabBackground="@drawable/indicator_selector"
             app:tabGravity="center"
             app:tabIndicatorGravity="center"
+            app:tabMode="scrollable"
             app:tabIndicatorFullWidth="true"
             app:tabIndicatorHeight="0dp"
             app:tabRippleColor="@null" />
 
-    </FrameLayout>
+    </RelativeLayout>
 
     <ImageButton
         android:id="@+id/trash_btn"

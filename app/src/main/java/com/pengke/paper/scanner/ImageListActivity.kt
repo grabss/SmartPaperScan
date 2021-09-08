@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.marginStart
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -52,6 +53,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
                 index = intent.getIntExtra(INDEX, 0)
 
                 viewPager = pager
+                viewPager.offscreenPageLimit = 5
                 viewPager.adapter = pagerAdapter
                 viewPager.setCurrentItem(index, false)
                 TabLayoutMediator(indicator, viewPager) { _, _ -> }.attach()
@@ -169,6 +171,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         override fun getItemId(position: Int): Long {
             return images[position].hashCode().toLong()
         }
+
 
         // データ更新
         fun updateData(newImages: ArrayList<Image>) {
