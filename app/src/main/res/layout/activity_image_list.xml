@@ -30,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:layout_margin="0dp"
+            android:layout_centerHorizontal="true"
             app:tabMaxWidth="15dp"
             android:keepScreenOn="true"
             app:tabPaddingBottom="0dp"
@@ -41,7 +42,6 @@
             app:tabGravity="center"
             app:tabIndicatorGravity="center"
             app:tabMode="scrollable"
-            app:tabIndicatorFullWidth="true"
             app:tabIndicatorHeight="0dp"
             app:tabRippleColor="@null" />
 

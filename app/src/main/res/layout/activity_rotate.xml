@@ -58,8 +58,6 @@
             android:text="@string/decision"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
-
     </LinearLayout>
 
     <ImageView
