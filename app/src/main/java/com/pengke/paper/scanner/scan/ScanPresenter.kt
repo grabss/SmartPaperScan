@@ -1,6 +1,7 @@
 package com.pengke.paper.scanner.scan
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.*
@@ -14,6 +15,7 @@ import com.google.gson.Gson
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.crop.CropActivity
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.Corners
@@ -256,47 +258,52 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         }
 //        Log.i(TAG, "on process start")
         isBusy = true
-        Observable.just(p0)
-                .observeOn(proxySchedule)
-                .subscribe {
-//                    Log.i(TAG, "start prepare paper")
-                    val parameters = p1?.parameters
-                    val width = parameters?.previewSize?.width
-                    val height = parameters?.previewSize?.height
-                    val yuv = YuvImage(p0, parameters?.previewFormat ?: 0, width ?: 320, height
-                            ?: 480, null)
-                    val out = ByteArrayOutputStream()
-                    yuv.compressToJpeg(Rect(0, 0, width ?: 320, height ?: 480), 100, out)
-                    val bytes = out.toByteArray()
-                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        try {
 
-                    val img = Mat()
-                    Utils.bitmapToMat(bitmap, img)
-                    bitmap.recycle()
-                    Core.rotate(img, img, Core.ROTATE_90_CLOCKWISE)
-                    try {
-                        out.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
+            Observable.just(p0)
+                    .observeOn(proxySchedule)
+                    .doOnError {}
+                    .subscribe ({
+    //                    Log.i(TAG, "start prepare paper")
+                        val parameters = p1?.parameters
+                        val width = parameters?.previewSize?.width
+                        val height = parameters?.previewSize?.height
+                        val yuv = YuvImage(p0, parameters?.previewFormat ?: 0, width ?: 320, height
+                                ?: 480, null)
+                        val out = ByteArrayOutputStream()
+                        yuv.compressToJpeg(Rect(0, 0, width ?: 320, height ?: 480), 100, out)
+                        val bytes = out.toByteArray()
+                        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 
-                    Observable.create<Corners> {
-                        val corner = processPicture(img)
-                        isBusy = false
-                        if (null != corner && corner.corners.size == 4) {
-                            it.onNext(corner)
-                        } else {
-                            it.onError(Throwable("paper not detected"))
+                        val img = Mat()
+                        Utils.bitmapToMat(bitmap, img)
+                        bitmap.recycle()
+                        Core.rotate(img, img, Core.ROTATE_90_CLOCKWISE)
+                        try {
+                            out.close()
+                        } catch (e: IOException) {
+                            e.printStackTrace()
                         }
-                    }.observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({
-                                iView.getPaperRect().onCornersDetected(it)
 
-                            }, {
-                                iView.getPaperRect().onCornersNotDetected()
-                            })
-                }
+                        Observable.create<Corners> {
+                            val corner = processPicture(img)
+                            isBusy = false
+                            if (null != corner && corner.corners.size == 4) {
+                                it.onNext(corner)
+                            } else {
+                                it.onError(Throwable("paper not detected"))
+                            }
+                        }.observeOn(AndroidSchedulers.mainThread())
+                                .subscribe({
+                                    iView.getPaperRect().onCornersDetected(it)
 
+                                }, {
+                                    iView.getPaperRect().onCornersNotDetected()
+                                })
+                }, { throwable -> Log.e(TAG, throwable.message!!)})
+        } catch (e: Exception) {
+            println(e.message)
+        }
     }
 
     private fun getMaxResolution(): Camera.Size? = mCamera?.parameters?.supportedPreviewSizes?.maxByOrNull { it.width }

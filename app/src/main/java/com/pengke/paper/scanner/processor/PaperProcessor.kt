@@ -56,7 +56,15 @@ fun enhancePicture(src: Bitmap?): Bitmap {
     val src_mat = Mat()
     Utils.bitmapToMat(src, src_mat)
     Imgproc.cvtColor(src_mat, src_mat, Imgproc.COLOR_RGBA2GRAY)
-    Imgproc.adaptiveThreshold(src_mat, src_mat, 255.0, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 15, 15.0)
+    Imgproc.adaptiveThreshold(
+        src_mat,
+        src_mat,
+        255.0,
+        Imgproc.ADAPTIVE_THRESH_MEAN_C,
+        Imgproc.THRESH_BINARY,
+        15,
+        15.0
+    )
     val result = Bitmap.createBitmap(src?.width ?: 1080, src?.height ?: 1920, Bitmap.Config.RGB_565)
     Utils.matToBitmap(src_mat, result, true)
     src_mat.release()
@@ -81,7 +89,13 @@ private fun findContours(src: Mat): ArrayList<MatOfPoint> {
     Imgproc.dilate(cannedImage, dilate, kernel)
     val contours = ArrayList<MatOfPoint>()
     val hierarchy = Mat()
-    Imgproc.findContours(dilate, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE)
+    Imgproc.findContours(
+        dilate,
+        contours,
+        hierarchy,
+        Imgproc.RETR_TREE,
+        Imgproc.CHAIN_APPROX_SIMPLE
+    )
     contours.sortByDescending { p: MatOfPoint -> Imgproc.contourArea(p) }
     hierarchy.release()
     grayImage.release()
@@ -124,7 +138,7 @@ private fun getCorners(contours: ArrayList<MatOfPoint>, size: Size): Corners? {
 private fun sortPoints(points: List<Point>): List<Point> {
     val p0 = points.minByOrNull { point -> point.x + point.y } ?: Point()
     val p1 = points.minByOrNull { point -> point.y - point.x } ?: Point()
-    val p2 = points.minByOrNull { point -> point.x + point.y } ?: Point()
-    val p3 = points.minByOrNull { point -> point.y - point.x } ?: Point()
+    val p2 = points.maxByOrNull { point -> point.x + point.y } ?: Point()
+    val p3 = points.maxByOrNull { point -> point.y - point.x } ?: Point()
     return listOf(p0, p1, p2, p3)
 }
