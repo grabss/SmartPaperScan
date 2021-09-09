@@ -25,14 +25,15 @@ import java.io.File
 import java.io.FileOutputStream
 import android.provider.MediaStore
 import android.content.ContentValues
-
+import org.opencv.core.CvType
+import org.opencv.core.Size
 
 
 const val IMAGES_DIR = "smart_scanner"
 
 class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy) {
-    private val picture: Mat? = SourceManager.pic
-
+//    private val picture: Mat? = SourceManager.pic
+    private val picture: Mat? = Mat(Size(1920.toDouble(), 1080.toDouble()), CvType.CV_8U)
     private val corners: Corners? = SourceManager.corners
     private var croppedPicture: Mat? = null
     private var enhancedPicture: Bitmap? = null

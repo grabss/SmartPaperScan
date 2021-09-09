@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -7,49 +9,61 @@
         android:id="@+id/picture_cropped"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/paper"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:adjustViewBounds="true"
-        android:scaleType="fitXY" />
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.pengke.paper.scanner.view.PaperRectangle
         android:id="@+id/paper_rect"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorTransparent" />
-
-    <TextView
-        android:id="@+id/enhance"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_alignParentEnd="true"
-        android:background="?android:selectableItemBackground"
-        android:gravity="center"
-        android:scaleType="centerCrop"
-        android:text="@string/enhance" />
+        android:layout_height="wrap_content"
+        android:background="@color/colorTransparent"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/crop"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginEnd="16dp"
-        android:layout_toStartOf="@id/enhance"
-        android:background="?android:selectableItemBackground"
-        android:gravity="center"
-        android:text="@string/crop" />
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-    <TextView
-        android:id="@+id/save"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginEnd="16dp"
-        android:layout_toStartOf="@id/crop"
-        android:background="?android:selectableItemBackground"
-        android:gravity="center"
-        android:text="@string/save" />
+        <Button
+            android:id="@+id/cancelBtn"
+            android:layout_width="0dip"
+            android:layout_height="60dp"
+            android:layout_weight=".5"
+            android:background="@color/colorCancelBtnBackground"
+            android:backgroundTint="@color/colorCancelBtnBackground"
+            android:text="@string/cancel" />
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/decisionBtn"
+            android:layout_width="0dip"
+            android:layout_height="60dp"
+            android:layout_weight=".5"
+            android:background="@color/colorMain"
+            android:backgroundTint="@color/colorMain"
+            android:text="@string/decision" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -202,7 +202,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
                     // 矩形編集画面に遷移
 //                    context.startActivity(Intent(context, CropActivity::class.java))
-
                     saveImage(bitmap)
 
                     isBusy = false
