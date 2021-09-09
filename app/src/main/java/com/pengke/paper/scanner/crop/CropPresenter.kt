@@ -37,9 +37,8 @@ import org.opencv.imgcodecs.Imgcodecs
 const val IMAGES_DIR = "smart_scanner"
 
 class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy, private val itemIndex: Int) {
-//    private val picture: Mat? = SourceManager.pic
     private var picture: Mat
-    private val corners: Corners? = SourceManager.corners
+    private var corners: Corners? = null
     private var croppedPicture: Mat? = null
     private var enhancedPicture: Bitmap? = null
     private var croppedBitmap: Bitmap? = null
@@ -48,15 +47,17 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
     private lateinit var images: ArrayList<Image>
     private lateinit var decodedImg: Bitmap
     private lateinit var imageBytes: ByteArray
+    private lateinit var image: Image
 
     init {
         val bitmap = getImage()
+        corners = image.corners
         val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
         mat.put(0, 0, imageBytes)
 //        println("picture.width: ${picture?.width()}") // 3096
 //        println("picture.height: ${picture?.height()}") // 5504
         picture = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
-        SourceManager.corners = processPicture(picture)
+        println(corners)
         mat.release()
 
         iCropView.getPaperRect().onCorners2Crop(corners, picture?.size())
@@ -67,6 +68,7 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
     private fun getImage(): Bitmap {
         val json = sp.getString(IMAGE_ARRAY, null)
         images = jsonToImageArray(json!!)
+        image = images[index]
         val b64Image = images[index].b64
         imageBytes = Base64.decode(b64Image, Base64.DEFAULT)
         decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)

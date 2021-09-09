@@ -237,8 +237,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         // Base64形式でSharedPrefに保存
         // 取り出す時->Base64.decode(image, Base64.DEFAULT)
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-
-        val image = Image(b64)
+        val image = Image(b64 = b64, corners = SourceManager.corners)
 
         // 画像の配列に追加
         images.add(image)
