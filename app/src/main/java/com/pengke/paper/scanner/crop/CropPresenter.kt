@@ -30,6 +30,7 @@ import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.*
 import org.opencv.core.CvType
+import org.opencv.core.Point
 import org.opencv.core.Size
 import org.opencv.imgcodecs.Imgcodecs
 
@@ -51,13 +52,15 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
 
     init {
         val bitmap = getImage()
-        corners = image.corners
+
+        // リサイズ処理に合わせて座標の値を1/2にしている
+        if (image.corners != null) {
+            val size = Size(bitmap.width.toDouble(), bitmap.height.toDouble())
+            corners = Corners(image.corners!!.corners.map { Point(it!!.x/2, it!!.y/2) }, size)
+        }
         val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
         mat.put(0, 0, imageBytes)
-//        println("picture.width: ${picture?.width()}") // 3096
-//        println("picture.height: ${picture?.height()}") // 5504
         picture = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
-        println(corners)
         mat.release()
 
         iCropView.getPaperRect().onCorners2Crop(corners, picture?.size())
