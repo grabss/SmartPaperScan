@@ -21,12 +21,11 @@ class CropActivity : BaseActivity(), ICropView.Proxy {
 
     private lateinit var mPresenter: CropPresenter
     private lateinit var sp: SharedPreferences
-    private var index = 0
+    var index = 0
 
     override fun prepare() {
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         setBtnListener()
-        index = intent.getIntExtra(INDEX, 0)
     }
 
     private fun setBtnListener() {
@@ -58,7 +57,8 @@ class CropActivity : BaseActivity(), ICropView.Proxy {
 
 
     override fun initPresenter() {
-        mPresenter = CropPresenter(this, this)
+        index = intent.getIntExtra(INDEX, 0)
+        mPresenter = CropPresenter(this, this, index)
     }
 
     override fun getPaper(): ImageView = paper

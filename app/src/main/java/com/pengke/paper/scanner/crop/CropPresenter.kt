@@ -25,26 +25,57 @@ import java.io.File
 import java.io.FileOutputStream
 import android.provider.MediaStore
 import android.content.ContentValues
+import android.content.SharedPreferences
+import android.graphics.BitmapFactory
+import android.util.Base64
+import com.pengke.paper.scanner.base.IMAGE_ARRAY
+import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.jsonToImageArray
+import com.pengke.paper.scanner.model.Image
 import org.opencv.core.CvType
 import org.opencv.core.Size
 
 
 const val IMAGES_DIR = "smart_scanner"
 
-class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy) {
+class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy, private val itemIndex: Int) {
 //    private val picture: Mat? = SourceManager.pic
-    private val picture: Mat? = Mat(Size(1920.toDouble(), 1080.toDouble()), CvType.CV_8U)
+    private var picture: Mat
     private val corners: Corners? = SourceManager.corners
     private var croppedPicture: Mat? = null
     private var enhancedPicture: Bitmap? = null
     private var croppedBitmap: Bitmap? = null
+    private val index = itemIndex
+    private var sp: SharedPreferences = context.getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
+    private lateinit var images: ArrayList<Image>
+    private lateinit var decodedImg: Bitmap
 
     init {
+        val bitmap = getImage()
+        println("3333333")
+
+//        println("picture.width: ${picture?.width()}") // 3096
+//        println("picture.height: ${picture?.height()}") // 5504
+
+        picture = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
+//        val bitmap = Bitmap.createBitmap(picture?.width() ?: 1080, picture?.height()
+//                ?: 1920, Bitmap.Config.ARGB_8888)
         iCropView.getPaperRect().onCorners2Crop(corners, picture?.size())
-        val bitmap = Bitmap.createBitmap(picture?.width() ?: 1080, picture?.height()
-                ?: 1920, Bitmap.Config.ARGB_8888)
+        println("4444444")
         Utils.matToBitmap(picture, bitmap, true)
+        println("555555")
         iCropView.getPaper().setImageBitmap(bitmap)
+    }
+
+    private fun getImage(): Bitmap {
+        println("11111111")
+        val json = sp.getString(IMAGE_ARRAY, null)
+        images = jsonToImageArray(json!!)
+        val b64Image = images[index].b64
+        val imageBytes = Base64.decode(b64Image, Base64.DEFAULT)
+        decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        println("22222222222")
+        return decodedImg
     }
 
     fun addImageToGallery(filePath: String, context: Context) {

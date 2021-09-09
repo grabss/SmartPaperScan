@@ -45,7 +45,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private val executor: ExecutorService
     private val proxySchedule: Scheduler
     private var isBusy: Boolean = false
-    private var sp: SharedPreferences
+    private var sp: SharedPreferences = context.getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
     var images = mutableListOf<Image>()
     private var matrix: Matrix
     private val gson = Gson()
@@ -54,7 +54,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         mSurfaceHolder.addCallback(this)
         executor = Executors.newSingleThreadExecutor()
         proxySchedule = Schedulers.from(executor)
-        sp = context.getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         matrix = Matrix()
         matrix.postRotate(90F)
     }
@@ -201,11 +200,11 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     SourceManager.pic = pic
 
                     // 矩形編集画面に遷移
-//                    context.startActivity(Intent(context, CropActivity::class.java))
-                    saveImage(bitmap)
+                    context.startActivity(Intent(context, CropActivity::class.java))
+//                    saveImage(bitmap)
 
                     isBusy = false
-                    start()
+//                    start()
                 }
     }
 
