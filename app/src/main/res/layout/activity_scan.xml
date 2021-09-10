@@ -21,6 +21,21 @@
             android:layout_marginTop="30dp"
             android:background="@color/colorTransparent"
             android:src="@drawable/ic_baseline_flash_off_24" />
+
+        <SeekBar
+            android:id="@+id/exposureSlider"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:layout_gravity="right"
+            android:layout_marginTop="150dp"
+            android:layout_marginEnd="-70dp"
+            android:layout_marginRight="5dp"
+            android:rotation="270"
+            android:progress="50"
+            android:progressDrawable="@drawable/exposure_seek_bar_style"
+            android:thumb="@drawable/ic_outline_wb_sunny_24"
+            android:thumbTint="@color/colorWhite" />
+
     </FrameLayout>
 
     <com.pengke.paper.scanner.view.PaperRectangle
