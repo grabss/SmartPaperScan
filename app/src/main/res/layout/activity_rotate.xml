@@ -63,12 +63,10 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxHeight="350dp"
+        android:layout_height="350dp"
         android:layout_marginTop="15dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
-        app:layout_constraintBottom_toTopOf="@+id/rotateBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
