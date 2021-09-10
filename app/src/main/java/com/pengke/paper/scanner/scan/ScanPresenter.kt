@@ -1,7 +1,6 @@
 package com.pengke.paper.scanner.scan
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.*
@@ -15,7 +14,6 @@ import com.google.gson.Gson
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
-import com.pengke.paper.scanner.crop.CropActivity
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.Corners
@@ -237,7 +235,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         // Base64形式でSharedPrefに保存
         // 取り出す時->Base64.decode(image, Base64.DEFAULT)
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-        val image = Image(b64 = b64, corners = SourceManager.corners)
+        val image = Image(b64 = b64, originalB64 = b64, corners = SourceManager.corners)
 
         // 画像の配列に追加
         images.add(image)

@@ -7,6 +7,6 @@ import java.io.Serializable
 
 data class Image(
     val b64: String,
-    val croppedB64: String? = null,
+    val originalB64: String,
     val corners: Corners? = null,
 ): Serializable
