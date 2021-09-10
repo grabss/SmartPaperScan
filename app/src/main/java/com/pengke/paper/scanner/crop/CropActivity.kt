@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.provider.CalendarContract
+import android.view.View
 import android.widget.ImageView
 import com.pengke.paper.scanner.INDEX
 import com.pengke.paper.scanner.ImageListActivity
@@ -14,6 +18,7 @@ import com.pengke.paper.scanner.view.PaperRectangle
 import kotlinx.android.synthetic.main.activity_crop.*
 import kotlinx.android.synthetic.main.activity_crop.cancelBtn
 import kotlinx.android.synthetic.main.activity_crop.decisionBtn
+import kotlinx.android.synthetic.main.activity_image_list.*
 import kotlinx.android.synthetic.main.activity_rotate.*
 import kotlin.concurrent.thread
 

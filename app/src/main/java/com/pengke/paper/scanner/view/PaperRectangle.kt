@@ -5,12 +5,10 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.processor.Corners
-import com.pengke.paper.scanner.processor.TAG
 import org.opencv.core.Point
 import org.opencv.core.Size
 
@@ -20,7 +18,9 @@ class PaperRectangle : View {
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
     constructor(context: Context, attributes: AttributeSet, defTheme: Int) : super(context, attributes, defTheme)
 
+
     private val rectPaint = Paint()
+    private val clearPaint = Paint()
     private val circlePaint = Paint()
     private var ratioX: Double = 1.0
     private var ratioY: Double = 1.0
@@ -35,20 +35,29 @@ class PaperRectangle : View {
     private var latestDownY = 0.0F
 
     init {
-        rectPaint.color = Color.WHITE
-        rectPaint.isAntiAlias = true
-        rectPaint.isDither = true
-        rectPaint.strokeWidth = 6F
-        rectPaint.style = Paint.Style.STROKE
-        rectPaint.strokeJoin = Paint.Join.ROUND    // set the join to round you want
-        rectPaint.strokeCap = Paint.Cap.ROUND      // set the paint cap to round too
-        rectPaint.pathEffect = CornerPathEffect(10f)
 
-        circlePaint.color = Color.LTGRAY
-        circlePaint.isDither = true
-        circlePaint.isAntiAlias = true
-        circlePaint.strokeWidth = 4F
-        circlePaint.style = Paint.Style.STROKE
+        clearPaint.apply {
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+        }
+
+        rectPaint.apply {
+            color = Color.WHITE
+            isAntiAlias = true
+            isDither = true
+            strokeWidth = 6F
+            style = Paint.Style.STROKE
+            strokeJoin = Paint.Join.ROUND    // set the join to round you want
+            strokeCap = Paint.Cap.ROUND      // set the paint cap to round too
+            pathEffect = CornerPathEffect(10f)
+        }
+
+        circlePaint.apply {
+            color = Color.WHITE
+            isDither = true
+            isAntiAlias = true
+            strokeWidth = 4F
+            style = Paint.Style.STROKE
+        }
     }
 
     fun onCornersDetected(corners: Corners) {
@@ -100,12 +109,17 @@ class PaperRectangle : View {
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        canvas?.drawPath(path, rectPaint)
+        println("onDraw")
         if (cropMode) {
+            canvas?.drawColor(Color.argb(150, 0, 0,0))
+            canvas?.drawPath(path, clearPaint)
+            canvas?.drawPath(path, rectPaint)
             canvas?.drawCircle(tl.x.toFloat(), tl.y.toFloat(), 20F, circlePaint)
             canvas?.drawCircle(tr.x.toFloat(), tr.y.toFloat(), 20F, circlePaint)
             canvas?.drawCircle(bl.x.toFloat(), bl.y.toFloat(), 20F, circlePaint)
             canvas?.drawCircle(br.x.toFloat(), br.y.toFloat(), 20F, circlePaint)
+        } else {
+            canvas?.drawPath(path, rectPaint)
         }
     }
 
@@ -114,6 +128,7 @@ class PaperRectangle : View {
         if (!cropMode) {
             return false
         }
+
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 latestDownX = event.x
@@ -126,6 +141,15 @@ class PaperRectangle : View {
                 movePoints()
                 latestDownY = event.y
                 latestDownX = event.x
+            }
+            MotionEvent.ACTION_UP -> {
+                println("action up")
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                println("action cancel")
+            }
+            MotionEvent.ACTION_DOWN -> {
+                println("action down")
             }
         }
         return true
