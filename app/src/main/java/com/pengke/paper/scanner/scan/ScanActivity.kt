@@ -34,6 +34,8 @@ import kotlinx.android.synthetic.main.activity_scan.*
 import org.json.JSONArray
 import org.opencv.android.OpenCVLoader
 import java.io.ByteArrayOutputStream
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 const val IMAGE_COUNT_RESULT = 1000
@@ -151,8 +153,9 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                         val baos = ByteArrayOutputStream()
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
                         val b = baos.toByteArray()
+                        val uuid = UUID.randomUUID().toString()
                         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-                        val image = Image(b64)
+                        val image = Image(id = uuid, b64 = b64, originalB64 = b64)
                         images.add(image)
                     }
                     saveImages(images)
@@ -171,8 +174,9 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     val baos = ByteArrayOutputStream()
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
                     val b = baos.toByteArray()
+                    val uuid = UUID.randomUUID().toString()
                     val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-                    val image = Image(b64)
+                    val image = Image(id = uuid, b64 = b64, originalB64 = b64)
                     saveImage(image)
                 }
             }

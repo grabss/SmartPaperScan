@@ -31,6 +31,7 @@ import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -235,7 +236,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         // Base64形式でSharedPrefに保存
         // 取り出す時->Base64.decode(image, Base64.DEFAULT)
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-        val image = Image(b64 = b64, originalB64 = b64, corners = SourceManager.corners)
+        val uuid = UUID.randomUUID().toString()
+        val image = Image(id = uuid, b64 = b64, originalB64 = b64, corners = SourceManager.corners)
 
         // 画像の配列に追加
         images.add(image)
