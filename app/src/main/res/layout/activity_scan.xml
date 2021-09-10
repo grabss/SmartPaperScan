@@ -4,10 +4,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <SurfaceView
-        android:id="@+id/surface"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+        <SurfaceView
+            android:id="@+id/surface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageButton
+            android:id="@+id/flashBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="right"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="30dp"
+            android:background="@color/colorTransparent"
+            android:src="@drawable/ic_baseline_flash_off_24" />
+    </FrameLayout>
 
     <com.pengke.paper.scanner.view.PaperRectangle
         android:id="@+id/paper_rect"

@@ -57,6 +57,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
+    private var needFlash = false
+
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this, this)
 
@@ -76,6 +78,18 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
         } else if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
+        }
+
+        flashBtn.setOnClickListener {
+            thread {
+                mPresenter.toggleFlashMode()
+            }
+            needFlash = !needFlash
+            if (needFlash) {
+                flashBtn.setImageResource(R.drawable.ic_baseline_flash_on_24)
+            } else {
+                flashBtn.setImageResource(R.drawable.ic_baseline_flash_off_24)
+            }
         }
 
         gallery.setOnClickListener {
@@ -214,6 +228,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     override fun onStart() {
         println("onStart")
         super.onStart()
+        needFlash = false
+        flashBtn.setImageResource(R.drawable.ic_baseline_flash_off_24)
         count = getImageCount()
         shut.text = count.toString()
         toEnableBtns()

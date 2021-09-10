@@ -40,6 +40,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     : SurfaceHolder.Callback, Camera.PictureCallback, Camera.PreviewCallback {
     private val TAG: String = "ScanPresenter"
     private var mCamera: Camera? = null
+    private var param: Camera.Parameters? = null
     private val mSurfaceHolder: SurfaceHolder = iView.getSurfaceView().holder
     private val executor: ExecutorService
     private val proxySchedule: Scheduler
@@ -110,8 +111,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             return
         }
 
-
-        val param = mCamera?.parameters
+        param = mCamera?.parameters
         val size = getMaxResolution()
         param?.setPreviewSize(size?.width ?: 1920, size?.height ?: 1080)
         val display = iView.getDisplay()
@@ -147,10 +147,19 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         } else {
             Log.d(TAG, "autofocus not available")
         }
-        param?.flashMode = Camera.Parameters.FLASH_MODE_AUTO
+        param?.flashMode = Camera.Parameters.FLASH_MODE_OFF
 
         mCamera?.parameters = param
         mCamera?.setDisplayOrientation(90)
+    }
+
+    fun toggleFlashMode() {
+        if(param?.flashMode == Camera.Parameters.FLASH_MODE_ON) {
+            param?.flashMode = Camera.Parameters.FLASH_MODE_OFF
+        } else {
+            param?.flashMode = Camera.Parameters.FLASH_MODE_ON
+        }
+        mCamera?.parameters = param
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
