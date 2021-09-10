@@ -18,8 +18,9 @@ class PaperRectangle : View {
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
     constructor(context: Context, attributes: AttributeSet, defTheme: Int) : super(context, attributes, defTheme)
 
-
     private val rectPaint = Paint()
+    private val rectPaintOnCamera = Paint()
+    private val fillRectPaint = Paint()
     private val clearPaint = Paint()
     private val circlePaint = Paint()
     private var ratioX: Double = 1.0
@@ -49,6 +50,22 @@ class PaperRectangle : View {
             strokeJoin = Paint.Join.ROUND    // set the join to round you want
             strokeCap = Paint.Cap.ROUND      // set the paint cap to round too
             pathEffect = CornerPathEffect(10f)
+        }
+
+        rectPaintOnCamera.apply {
+            color = Color.parseColor("#4284E4")
+            isAntiAlias = true
+            isDither = true
+            strokeWidth = 6F
+            style = Paint.Style.STROKE
+            strokeJoin = Paint.Join.ROUND    // set the join to round you want
+            strokeCap = Paint.Cap.ROUND      // set the paint cap to round too
+            pathEffect = CornerPathEffect(10f)
+        }
+
+        fillRectPaint.apply {
+            style = Paint.Style.FILL
+            color = Color.parseColor("#4D4284E4")
         }
 
         circlePaint.apply {
@@ -119,7 +136,8 @@ class PaperRectangle : View {
             canvas?.drawCircle(bl.x.toFloat(), bl.y.toFloat(), 20F, circlePaint)
             canvas?.drawCircle(br.x.toFloat(), br.y.toFloat(), 20F, circlePaint)
         } else {
-            canvas?.drawPath(path, rectPaint)
+            canvas?.drawPath(path, rectPaintOnCamera)
+            canvas?.drawPath(path, fillRectPaint)
         }
     }
 
