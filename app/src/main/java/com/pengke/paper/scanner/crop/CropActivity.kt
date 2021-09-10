@@ -41,6 +41,7 @@ class CropActivity : BaseActivity(), ICropView.Proxy {
         decisionBtn.setOnClickListener {
             toDisableBtns()
             thread {
+                mPresenter.crop()
                 navToImageListScrn()
             }
         }
