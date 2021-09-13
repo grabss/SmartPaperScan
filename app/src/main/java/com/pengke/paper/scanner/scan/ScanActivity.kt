@@ -62,8 +62,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     private var needFlash = false
 
-    private var currentSliderVal: Float= 1F
-
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this, this)
 
@@ -128,11 +126,12 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
     }
 
-    fun setSlider(min: Int?, max: Int?) {
-        println("min: $min")
+    fun setSlider(max: Int?) {
         println("max: $max")
-        var exposure = 1F
         exposureSlider.progress = max ?: 0
+
+        // Android8.0以上でしかminの値がセットできないため、
+        // maxの値を2倍に
         if (max != null) {
             exposureSlider.max = max * 2
         }
@@ -140,9 +139,9 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
             // 値変更時に呼ばれる
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                println("progress: $progress")
                 val value = (max ?: 0) - progress
-                exposure = value.toFloat()
+                println("value: $value")
+                mPresenter.setExposure(value)
             }
 
             // つまみタッチ時に呼ばれる
@@ -152,8 +151,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 println("リリース")
-                currentSliderVal = exposure
-                println("currentSliderVal $currentSliderVal")
             }
         })
     }

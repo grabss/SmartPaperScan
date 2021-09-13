@@ -113,11 +113,9 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
         param = mCamera?.parameters
 
-        println("==============")
         // 露光の最大値と最小値を取得して、スライダーにセット
-        val minExposure = param?.minExposureCompensation
         val maxExposure = param?.maxExposureCompensation
-        scanActv.setSlider(minExposure, maxExposure)
+        scanActv.setSlider(maxExposure)
 
         val size = getMaxResolution()
         param?.setPreviewSize(size?.width ?: 1920, size?.height ?: 1080)
@@ -166,6 +164,11 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         } else {
             param?.flashMode = Camera.Parameters.FLASH_MODE_ON
         }
+        mCamera?.parameters = param
+    }
+
+    fun setExposure(value: Int) {
+        param?.exposureCompensation = value
         mCamera?.parameters = param
     }
 
