@@ -45,11 +45,11 @@ class PaperRectangle : View {
             color = Color.WHITE
             isAntiAlias = true
             isDither = true
-            strokeWidth = 6F
+            strokeWidth = 2F
             style = Paint.Style.STROKE
             strokeJoin = Paint.Join.ROUND    // set the join to round you want
             strokeCap = Paint.Cap.ROUND      // set the paint cap to round too
-            pathEffect = CornerPathEffect(10f)
+            pathEffect = CornerPathEffect(0f)
         }
 
         rectPaintOnCamera.apply {
@@ -60,7 +60,7 @@ class PaperRectangle : View {
             style = Paint.Style.STROKE
             strokeJoin = Paint.Join.ROUND    // set the join to round you want
             strokeCap = Paint.Cap.ROUND      // set the paint cap to round too
-            pathEffect = CornerPathEffect(10f)
+            pathEffect = CornerPathEffect(0f)
         }
 
         fillRectPaint.apply {
@@ -72,7 +72,7 @@ class PaperRectangle : View {
             color = Color.WHITE
             isDither = true
             isAntiAlias = true
-            strokeWidth = 4F
+            strokeWidth = 2F
             style = Paint.Style.STROKE
         }
     }
