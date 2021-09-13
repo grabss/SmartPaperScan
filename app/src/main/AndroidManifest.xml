@@ -13,12 +13,21 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".SortActivity" />
-        <activity android:name=".ContrastActivity" />
-        <activity android:name=".RotateActivity" />
-        <activity android:name=".ImageListActivity" />
+        <activity
+            android:name=".SortActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ContrastActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".RotateActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ImageListActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".scan.ScanActivity"
+            android:screenOrientation="portrait"
             android:label="@string/scan"
             android:launchMode="singleTask">
             <intent-filter>
@@ -29,6 +38,7 @@
         </activity>
         <activity
             android:name=".crop.CropActivity"
+            android:screenOrientation="portrait"
             android:label="@string/crop"
             android:launchMode="singleTask" />
     </application>
