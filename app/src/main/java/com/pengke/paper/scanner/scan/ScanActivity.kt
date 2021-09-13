@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.Visibility
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
@@ -18,6 +19,8 @@ import android.util.Log
 import android.view.Display
 import android.view.SurfaceView
 import android.view.View
+import android.widget.SeekBar
+import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.pengke.paper.scanner.ConfirmDialogFragment
 import com.pengke.paper.scanner.ImageListActivity
@@ -59,6 +62,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     private var needFlash = false
 
+    private var currentSliderVal: Float= 1F
+
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this, this)
 
@@ -80,6 +85,11 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
         }
 
+        setBtnListener()
+        latestBackPressTime = System.currentTimeMillis()
+    }
+
+    private fun setBtnListener() {
         flashBtn.setOnClickListener {
             thread {
                 mPresenter.toggleFlashMode()
@@ -116,8 +126,36 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             val editor = sp.edit()
             editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
         }
+    }
 
-        latestBackPressTime = System.currentTimeMillis()
+    fun setSlider(min: Int?, max: Int?) {
+        println("min: $min")
+        println("max: $max")
+        var exposure = 1F
+        exposureSlider.progress = max ?: 0
+        if (max != null) {
+            exposureSlider.max = max * 2
+        }
+        exposureSlider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+
+            // 値変更時に呼ばれる
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                println("progress: $progress")
+                val value = (max ?: 0) - progress
+                exposure = value.toFloat()
+            }
+
+            // つまみタッチ時に呼ばれる
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                println("ドラッグスタート")
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                println("リリース")
+                currentSliderVal = exposure
+                println("currentSliderVal $currentSliderVal")
+            }
+        })
     }
 
     private fun adjustBtnsState() {

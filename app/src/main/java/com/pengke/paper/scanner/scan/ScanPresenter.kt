@@ -112,6 +112,13 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         }
 
         param = mCamera?.parameters
+
+        println("==============")
+        // 露光の最大値と最小値を取得して、スライダーにセット
+        val minExposure = param?.minExposureCompensation
+        val maxExposure = param?.maxExposureCompensation
+        scanActv.setSlider(minExposure, maxExposure)
+
         val size = getMaxResolution()
         param?.setPreviewSize(size?.width ?: 1920, size?.height ?: 1080)
         val display = iView.getDisplay()
