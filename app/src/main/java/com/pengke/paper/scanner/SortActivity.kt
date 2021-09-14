@@ -51,6 +51,11 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
         windowManager.defaultDisplay.getRealMetrics(dm)
     }
 
+    override fun onBackPressed() {
+        toDisableBtns()
+        navToImageListScrn()
+    }
+
     private fun setGridView() {
         val json = sp.getString(IMAGE_ARRAY, null)
         if (json != null) {
@@ -211,12 +216,12 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
 
     private fun setBtnListener() {
         cancelBtn.setOnClickListener {
-            disableBtns()
+            toDisableBtns()
             navToImageListScrn()
         }
 
         decisionBtn.setOnClickListener {
-            disableBtns()
+            toDisableBtns()
             index = 0
             thread {
                 // SharedPrefの値を更新
@@ -230,7 +235,7 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
         decisionBtn.isEnabled = false
     }
 
-    private fun disableBtns() {
+    private fun toDisableBtns() {
         cancelBtn.isEnabled = false
         decisionBtn.isEnabled = false
     }

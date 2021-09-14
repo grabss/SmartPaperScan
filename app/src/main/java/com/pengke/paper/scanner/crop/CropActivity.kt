@@ -33,6 +33,11 @@ class CropActivity : BaseActivity(), ICropView.Proxy {
         setBtnListener()
     }
 
+    override fun onBackPressed() {
+        toDisableBtns()
+        navToImageListScrn()
+    }
+
     private fun setBtnListener() {
         cancelBtn.setOnClickListener {
             toDisableBtns()
