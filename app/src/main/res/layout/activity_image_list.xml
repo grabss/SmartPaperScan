@@ -10,7 +10,7 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="450dp"
+        android:layout_height="400dp"
         android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -113,19 +113,29 @@
         app:layout_constraintStart_toEndOf="@+id/contrastBtn"
         app:layout_constraintBottom_toTopOf="@+id/uploadBtn" />
 
-    <Button
+    <LinearLayout
         android:id="@+id/uploadBtn"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:backgroundTint="@color/colorMain"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
         android:background="@color/colorMain"
-        android:drawableLeft="@mipmap/upload_icon_foreground"
-        android:maxLines="1"
-        android:paddingHorizontal="70dp"
-        android:text="@string/upload_btn"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@mipmap/upload_icon_foreground" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:maxLines="1"
+            android:textColor="@color/colorWhite"
+            android:gravity="center_vertical"
+            android:text="@string/upload_btn" />
+
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
