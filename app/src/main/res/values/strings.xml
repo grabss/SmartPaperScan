@@ -9,7 +9,7 @@
     <string name="camera_grant">grant camera!</string>
     <string name="press_again_logout">Press back again and logout</string>
 
-    <string name="crop">Crop</string>
+    <string name="crop">変形</string>
     <string name="save">Save</string>
     <string name="export">Export</string>
     <string name="delete">Delete</string>
