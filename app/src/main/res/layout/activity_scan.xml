@@ -59,9 +59,18 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/buttons"
         android:layout_width="match_parent"
-        android:layout_height="97dp"
+        android:layout_height="140dp"
         android:background="@color/appBackground"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/max_count_desc"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toTopOf="@+id/buttons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

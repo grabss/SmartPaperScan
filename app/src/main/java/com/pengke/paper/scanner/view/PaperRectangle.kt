@@ -7,6 +7,8 @@ import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageView
+import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.processor.Corners
 import org.opencv.core.Point
@@ -34,6 +36,7 @@ class PaperRectangle : View {
     private var cropMode = false
     private var latestDownX = 0.0F
     private var latestDownY = 0.0F
+    private val offset = 1F
 
     init {
 
@@ -127,8 +130,13 @@ class PaperRectangle : View {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         println("onDraw")
+        println("canvas height: ${canvas?.height}")
+        println("canvas width: ${canvas?.width}")
         if (cropMode) {
-            canvas?.drawColor(Color.argb(150, 0, 0,0))
+            canvas?.drawColor(Color.argb(100, 0, 0,0))
+            canvas?.drawRect(offset, offset,canvas?.width.minus(offset),canvas?.height.minus(offset), rectPaint)
+            println("canvas height: ${canvas?.height}")
+            println("canvas width: ${canvas?.width}")
             canvas?.drawPath(path, clearPaint)
             canvas?.drawPath(path, rectPaint)
             canvas?.drawCircle(tl.x.toFloat(), tl.y.toFloat(), 20F, circlePaint)
