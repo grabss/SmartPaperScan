@@ -13,12 +13,16 @@ import org.opencv.core.Mat
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.widget.ImageView
 import com.google.gson.Gson
+import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.*
+import com.pengke.paper.scanner.scan.ScanActivity
+import kotlinx.android.synthetic.main.activity_crop.*
 import org.opencv.core.CvType
 import org.opencv.core.Point
 import org.opencv.core.Size
@@ -43,15 +47,28 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
 
     init {
         val bitmap = getOriginalImage()
-
-        // リサイズ処理に合わせて座標の値を1/2にしている
-        if (image.corners != null) {
-            val size = Size(bitmap.width.toDouble(), bitmap.height.toDouble())
-            corners = Corners(image.corners!!.corners.map { Point(it!!.x/2, it!!.y/2) }, size)
-        }
         val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
         mat.put(0, 0, imageBytes)
         picture = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
+        println("picture size: ${picture.size()}")
+        println("picture width: ${picture.width()}")
+        println("picture height: ${picture.height()}")
+        val size = Size(bitmap.width.toDouble(), bitmap.height.toDouble())
+        println("size.width: ${size.width}")
+        println("size.height: ${size.height}")
+        if (image.corners != null) {
+            corners = processPicture(picture)
+            println("corners: $corners")
+        } else {
+            val hoge = mutableListOf<Point>()
+
+            hoge.add(Point(size.width * 0.05, size.height * 0.05))
+            hoge.add(Point(size.width * 0.95, size.height * 0.05))
+            hoge.add(Point(size.width * 0.95, size.height * 0.725))
+            hoge.add(Point(size.width * 0.05, size.height * 0.725))
+            corners = Corners(hoge, size)
+            println("not exist corners: $corners")
+        }
         mat.release()
 
         iCropView.getPaperRect().onCorners2Crop(corners, picture?.size())

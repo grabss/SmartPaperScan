@@ -17,6 +17,7 @@ import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.Corners
+import com.pengke.paper.scanner.processor.convertDpToPx
 import com.pengke.paper.scanner.processor.processPicture
 import io.reactivex.Observable
 import io.reactivex.Scheduler
@@ -124,15 +125,21 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         println("displayWidth: $displayWidth")
         val displayHeight = maxOf(point.x, point.y)
         println("displayHeight: $displayHeight")
-        val displayRatio = displayWidth.div(displayHeight.toFloat())
-        val previewRatio = size?.height?.toFloat()?.div(size.width.toFloat()) ?: displayRatio
+        val footerHeight = convertDpToPx(140f, context)
+        println("footerHeight: $footerHeight")
+        val displayRatio = displayWidth.minus(footerHeight)?.div(displayHeight.toFloat())
+        println("displayRatio: $displayRatio")
+        val previewRatio = size?.height?.minus(footerHeight)?.div(size.width.toFloat()) ?: displayRatio
+        println("previewRatio: $previewRatio")
         if (displayRatio > previewRatio) {
+            println("ここ通る")
             val surfaceParams = iView.getSurfaceView().layoutParams
             surfaceParams.height = (displayHeight / displayRatio * previewRatio).toInt()
             iView.getSurfaceView().layoutParams = surfaceParams
         }
 
         val supportPicSize = mCamera?.parameters?.supportedPictureSizes
+        println("supportPicSize: $supportPicSize")
         supportPicSize?.sortByDescending { it.width.times(it.height) }
         var pictureSize = supportPicSize?.find { it.height.toFloat().div(it.width.toFloat()) - previewRatio < 0.01 }
         println("picture size width: ${pictureSize?.width}")
@@ -159,6 +166,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         mCamera?.parameters = param
         mCamera?.setDisplayOrientation(90)
     }
+
+
 
     fun toggleFlashMode() {
         if(param?.flashMode == Camera.Parameters.FLASH_MODE_ON) {
@@ -210,11 +219,16 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     println("bitmapWidth: ${bitmap.width}")
                     println("bitmapHeight: ${bitmap.height}")
                     bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-
+                    println("bitmapWidth2: ${bitmap.width}")
+                    println("bitmapHeight2: ${bitmap.height}")
                     grayScale(mat, bitmap)
+                    println("mat size width: ${mat.size().width}")
+                    println("mat size height: ${mat.size().height}")
 
 //                    Imgproc.resize(mat, Mat(), Size( mat.size().width, mat.size().height * 0.1))
 
+                    println("mat2 size width: ${mat.size().width}")
+                    println("mat2 size height: ${mat.size().height}")
                     mat.put(0, 0, p0)
                     val pic = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
                     Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE)
