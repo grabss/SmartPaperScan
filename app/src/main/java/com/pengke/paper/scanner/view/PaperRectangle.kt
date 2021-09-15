@@ -40,6 +40,8 @@ class PaperRectangle : View {
 
     init {
 
+        path.reset()
+
         clearPaint.apply {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         }
@@ -134,6 +136,8 @@ class PaperRectangle : View {
         println("canvas width: ${canvas?.width}")
         if (cropMode) {
             canvas?.drawColor(Color.argb(100, 0, 0,0))
+
+            // 外枠
             canvas?.drawRect(offset, offset,canvas?.width.minus(offset),canvas?.height.minus(offset), rectPaint)
             println("canvas height: ${canvas?.height}")
             println("canvas width: ${canvas?.width}")

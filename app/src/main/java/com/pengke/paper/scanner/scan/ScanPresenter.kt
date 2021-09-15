@@ -114,12 +114,16 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         scanActv.setSlider(maxExposure)
 
         val size = getMaxResolution()
+        println("sizeWidth: ${size?.width}")
+        println("sizeHeight: ${size?.height}")
         param?.setPreviewSize(size?.width ?: 1920, size?.height ?: 1080)
         val display = iView.getDisplay()
         val point = Point()
         display.getRealSize(point)
         val displayWidth = minOf(point.x, point.y)
+        println("displayWidth: $displayWidth")
         val displayHeight = maxOf(point.x, point.y)
+        println("displayHeight: $displayHeight")
         val displayRatio = displayWidth.div(displayHeight.toFloat())
         val previewRatio = size?.height?.toFloat()?.div(size.width.toFloat()) ?: displayRatio
         if (displayRatio > previewRatio) {
@@ -199,6 +203,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     val matrix = Matrix()
 
                     matrix.postScale(0.5f, 0.5f)
+                    println("bitmapWidth: ${bitmap.width}")
+                    println("bitmapHeight: ${bitmap.height}")
                     bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 
                     grayScale(mat, bitmap)
@@ -279,7 +285,9 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     //                    Log.i(TAG, "start prepare paper")
                         val parameters = p1?.parameters
                         val width = parameters?.previewSize?.width
+                        println("previewSizeWidth: $width")
                         val height = parameters?.previewSize?.height
+                        println("previewSizeHeight: $height")
                         val yuv = YuvImage(p0, parameters?.previewFormat ?: 0, width ?: 320, height
                                 ?: 480, null)
                         val out = ByteArrayOutputStream()
