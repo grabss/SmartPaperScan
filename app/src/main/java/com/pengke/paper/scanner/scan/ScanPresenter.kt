@@ -135,6 +135,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         val supportPicSize = mCamera?.parameters?.supportedPictureSizes
         supportPicSize?.sortByDescending { it.width.times(it.height) }
         var pictureSize = supportPicSize?.find { it.height.toFloat().div(it.width.toFloat()) - previewRatio < 0.01 }
+        println("picture size width: ${pictureSize?.width}")
+        println("picture size height: ${pictureSize?.height}")
 
         if (null == pictureSize) {
             pictureSize = supportPicSize?.get(0)
@@ -196,6 +198,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                 .subscribe {
                     val pictureSize = p1?.parameters?.pictureSize
                     Log.i(TAG, "picture size: " + pictureSize.toString())
+                    Log.i(TAG, "picture size width: " + pictureSize?.width)
+                    Log.i(TAG, "picture size height: " + pictureSize?.height)
                     val mat = Mat(Size(pictureSize?.width?.toDouble() ?: 1920.toDouble(),
                             pictureSize?.height?.toDouble() ?: 1080.toDouble()), CvType.CV_8U)
                     var bitmap = BitmapFactory.decodeByteArray(p0, 0, p0!!.size)
