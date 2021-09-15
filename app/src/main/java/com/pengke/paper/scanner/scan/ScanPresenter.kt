@@ -85,6 +85,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
     fun updateCamera() {
+        println("updateCamera")
         if (null == mCamera) {
             return
         }
@@ -123,23 +124,31 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         display.getRealSize(point)
         val displayWidth = minOf(point.x, point.y)
         println("displayWidth: $displayWidth")
-        val displayHeight = maxOf(point.x, point.y)
+        var displayHeight = maxOf(point.x, point.y)
         println("displayHeight: $displayHeight")
-        val footerHeight = convertDpToPx(140f, context)
-        println("footerHeight: $footerHeight")
-        val displayRatio = displayWidth.minus(footerHeight)?.div(displayHeight.toFloat())
+        val displayRatio = displayWidth.div(displayHeight.toFloat())
+//        val displayRatio = displayWidth.div(displayHeight.toFloat())
         println("displayRatio: $displayRatio")
-        val previewRatio = size?.height?.minus(footerHeight)?.div(size.width.toFloat()) ?: displayRatio
+        val previewRatio = size?.height?.div(size.width?.toFloat()) ?: displayRatio
+//        val previewRatio = size?.height?.div(size.width.toFloat()) ?: displayRatio
         println("previewRatio: $previewRatio")
         if (displayRatio > previewRatio) {
-            println("ここ通る")
+            println("displayRatio > previewRatio")
             val surfaceParams = iView.getSurfaceView().layoutParams
+            println("surfaceParams: $surfaceParams")
+            println("surfaceParams height: ${surfaceParams.height}")
+            println("surfaceParams width: ${surfaceParams.width}")
             surfaceParams.height = (displayHeight / displayRatio * previewRatio).toInt()
+            println("surfaceParams height2: ${surfaceParams.height}")
             iView.getSurfaceView().layoutParams = surfaceParams
         }
 
         val supportPicSize = mCamera?.parameters?.supportedPictureSizes
-        println("supportPicSize: $supportPicSize")
+        if (supportPicSize != null) {
+            for(support in supportPicSize) {
+                println("support width: ${support.width}、support height: ${support.height}")
+            }
+        }
         supportPicSize?.sortByDescending { it.width.times(it.height) }
         var pictureSize = supportPicSize?.find { it.height.toFloat().div(it.width.toFloat()) - previewRatio < 0.01 }
         println("picture size width: ${pictureSize?.width}")
@@ -289,6 +298,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
     override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
+        println("onPreviewFrame")
         if (isBusy) {
             return
         }
