@@ -59,14 +59,12 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
         val size = Size(bitmap.width.toDouble(), bitmap.height.toDouble())
         println("size.width: ${size.width}")
         println("size.height: ${size.height}")
-        if (image.corners != null) {
-            corners = processPicture(picture)
-            println("corners: $corners")
-        } else {
-            corners = null
-            println("not exist corners: $corners")
-        }
+        corners = processPicture(picture)
+        println("corners: $corners")
         mat.release()
+
+        // 画像が四角形、もしくは横長の場合にレイアウトのパラメーターを設定
+        // 上記の場合横幅が100%になり、高さが画像サイズにより動的に変わる
         if (picture.height() <= picture.width()) {
             iCropView.getPaper().layoutParams.width = 0
             iCropView.getPaper().layoutParams.height = ConstraintLayout.LayoutParams.WRAP_CONTENT

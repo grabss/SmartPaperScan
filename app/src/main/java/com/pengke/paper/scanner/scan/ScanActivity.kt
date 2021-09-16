@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.opengl.Visibility
 import android.os.Build
 import android.os.Handler
@@ -61,11 +62,14 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
     private var needFlash = false
+    private lateinit var matrix: Matrix
 
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this, this)
 
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
+        matrix = Matrix()
+        matrix.postRotate(90F)
 //        sp.edit().clear().apply()
     }
 
@@ -198,9 +202,15 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     for (i in 0 until count) {
                         val imageUri = data.clipData!!.getItemAt(i).uri
                         val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
-                        val bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+                        var bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+
+                        // リサイズ
+                        val matrix = Matrix()
+                        matrix.postScale(0.5f, 0.5f)
+                        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                        val rotatedBm = rotate(bitmap)
                         val baos = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 50, baos)
                         val b = baos.toByteArray()
                         val uuid = UUID.randomUUID().toString()
                         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
@@ -218,10 +228,15 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     // 単体選択時
                     val imageUri = data.data!!
                     val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
-    
-                    val bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+                    var bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+
+                    // リサイズ
+                    val matrix = Matrix()
+                    matrix.postScale(0.5f, 0.5f)
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                    val rotatedBm = rotate(bitmap)
                     val baos = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 50, baos)
                     val b = baos.toByteArray()
                     val uuid = UUID.randomUUID().toString()
                     val b64 = Base64.encodeToString(b, Base64.DEFAULT)
@@ -230,6 +245,18 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                 }
             }
         }
+    }
+
+    private fun rotate(bm: Bitmap): Bitmap {
+        return Bitmap.createBitmap(
+            bm,
+            0,
+            0,
+            bm.width,
+            bm.height,
+            matrix,
+            true
+        )
     }
 
     private fun saveImage(image: Image) {

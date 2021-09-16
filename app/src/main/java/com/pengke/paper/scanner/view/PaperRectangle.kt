@@ -165,7 +165,7 @@ class PaperRectangle : View {
         println("canvas height: ${canvas?.height}")
         println("canvas width: ${canvas?.width}")
         if (cropMode) {
-            canvas?.drawColor(Color.argb(100, 0, 0,0))
+            canvas?.drawColor(Color.argb(200, 0, 0,0))
 
             // 外枠
             canvas?.drawRect(offset, offset,canvas?.width.minus(offset),canvas?.height.minus(offset), rectPaint)

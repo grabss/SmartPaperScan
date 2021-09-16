@@ -9,5 +9,6 @@ data class Image(
     val id: String,
     val b64: String,
     val originalB64: String,
+    // 不要なら削除
     val corners: Corners? = null,
 ): Serializable
