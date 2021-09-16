@@ -2,17 +2,24 @@ package com.pengke.paper.scanner.scan
 
 import android.app.ActivityManager
 import android.app.ProgressDialog
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.media.ExifInterface
+import android.net.Uri
 import android.opengl.Visibility
 import android.os.Build
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.util.Base64
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -22,6 +29,7 @@ import android.view.SurfaceView
 import android.view.View
 import android.widget.SeekBar
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.PathUtils
 import com.google.gson.Gson
 import com.pengke.paper.scanner.ConfirmDialogFragment
 import com.pengke.paper.scanner.ImageListActivity
@@ -37,7 +45,13 @@ import com.pengke.paper.scanner.view.PaperRectangle
 import kotlinx.android.synthetic.main.activity_scan.*
 import org.json.JSONArray
 import org.opencv.android.OpenCVLoader
+import org.opencv.android.Utils
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.Size
+import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
@@ -62,14 +76,11 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
     private var needFlash = false
-    private lateinit var matrix: Matrix
 
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this, this)
 
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
-        matrix = Matrix()
-        matrix.postRotate(90F)
 //        sp.edit().clear().apply()
     }
 
@@ -188,6 +199,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
+            val mat = Mat(Size(1920.toDouble(), 1080.toDouble()), CvType.CV_8U)
             if (data?.clipData != null) {
                 println("複数選択")
 
@@ -208,7 +220,16 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                         val matrix = Matrix()
                         matrix.postScale(0.5f, 0.5f)
                         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-                        val rotatedBm = rotate(bitmap)
+                        grayScale(mat, bitmap)
+                        val path = getPathFromUri(this, imageUri)
+                        val exif = ExifInterface(path!!)
+                        val rotatedBm = when (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)) {
+                            ExifInterface.ORIENTATION_ROTATE_90 -> rotate(bitmap, 90F)
+                            ExifInterface.ORIENTATION_ROTATE_180 -> rotate(bitmap, 180F)
+                            ExifInterface.ORIENTATION_ROTATE_270 -> rotate(bitmap, 270F)
+                            ExifInterface.ORIENTATION_NORMAL -> bitmap
+                            else -> bitmap
+                        }
                         val baos = ByteArrayOutputStream()
                         rotatedBm.compress(Bitmap.CompressFormat.JPEG, 50, baos)
                         val b = baos.toByteArray()
@@ -234,7 +255,16 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     val matrix = Matrix()
                     matrix.postScale(0.5f, 0.5f)
                     bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-                    val rotatedBm = rotate(bitmap)
+                    grayScale(mat, bitmap)
+                    val path = getPathFromUri(this, imageUri)
+                    val exif = ExifInterface(path!!)
+                    val rotatedBm = when (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> rotate(bitmap, 90F)
+                        ExifInterface.ORIENTATION_ROTATE_180 -> rotate(bitmap, 180F)
+                        ExifInterface.ORIENTATION_ROTATE_270 -> rotate(bitmap, 270F)
+                        ExifInterface.ORIENTATION_NORMAL -> bitmap
+                        else -> bitmap
+                    }
                     val baos = ByteArrayOutputStream()
                     rotatedBm.compress(Bitmap.CompressFormat.JPEG, 50, baos)
                     val b = baos.toByteArray()
@@ -247,7 +277,74 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
     }
 
-    private fun rotate(bm: Bitmap): Bitmap {
+    private fun getPathFromUri(context: Context, uri: Uri): String? {
+        val isAfterKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+        // DocumentProvider
+        Log.e("getPathFromUri", "uri:" + uri.authority!!)
+        if (isAfterKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+            if ("com.android.externalstorage.documents" == uri.authority) {// ExternalStorageProvider
+                val docId = DocumentsContract.getDocumentId(uri)
+                val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val type = split[0]
+                if ("primary".equals(type, ignoreCase = true))
+                {
+                    return (Environment.getExternalStorageDirectory().path + "/" + split[1])
+                } else
+                {
+                    return  "/stroage/" + type + "/" + split[1]
+                }
+            } else if ("com.android.providers.downloads.documents" == uri.authority) {// DownloadsProvider
+                val id = DocumentsContract.getDocumentId(uri)
+                val contentUri = ContentUris.withAppendedId(
+                    Uri.parse("content://downloads/public_downloads"), java.lang.Long.valueOf(id)
+                )
+                return getDataColumn(context, contentUri, null, null)
+            } else if ("com.android.providers.media.documents" == uri.authority) {// MediaProvider
+                val docId = DocumentsContract.getDocumentId(uri)
+                val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                var contentUri: Uri? = MediaStore.Files.getContentUri("external")
+                val selection = "_id=?"
+                val selectionArgs = arrayOf(split[1])
+                return getDataColumn(context, contentUri, selection, selectionArgs)
+            }
+        } else if ("content".equals(uri.scheme!!, ignoreCase = true)) {//MediaStore
+            return getDataColumn(context, uri, null, null)
+        } else if ("file".equals(uri.scheme!!, ignoreCase = true)) {// File
+            return uri.path
+        }
+        return null
+    }
+
+    private fun getDataColumn(
+        context: Context, uri: Uri?, selection: String?,
+        selectionArgs: Array<String>?
+    ): String? {
+        var cursor: Cursor? = null
+        val projection = arrayOf(MediaStore.Files.FileColumns.DATA)
+        try {
+            cursor = context.contentResolver.query(
+                uri!!, projection, selection, selectionArgs, null
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                val cindex = cursor.getColumnIndexOrThrow(projection[0])
+                return cursor.getString(cindex)
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close()
+        }
+        return null
+    }
+
+    private fun grayScale(mat: Mat, bm: Bitmap) {
+        Utils.bitmapToMat(bm, mat)
+        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY)
+        Utils.matToBitmap(mat, bm)
+    }
+
+    private fun rotate(bm: Bitmap, angle: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(angle)
         return Bitmap.createBitmap(
             bm,
             0,
