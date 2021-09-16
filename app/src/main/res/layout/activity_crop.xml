@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/appBackground"
+    android:background="@color/colorBlack"
     >
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:background="@color/appBackground"
+        android:gravity="center"
         android:text="@string/crop"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,25 +30,27 @@
 
     <ImageView
         android:id="@+id/paper"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
         android:background="@color/colorBlack"
+        android:scaleType="fitCenter"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
         tools:srcCompat="@tools:sample/avatars" />
 
     <com.pengke.paper.scanner.view.PaperRectangle
         android:id="@+id/paper_rect"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/colorTransparent"
         android:layerType="software"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView" />
+        app:layout_constraintBottom_toBottomOf="@+id/paper"
+        app:layout_constraintStart_toStartOf="@id/paper"
+        app:layout_constraintEnd_toEndOf="@id/paper"
+        app:layout_constraintTop_toTopOf="@id/paper" />
 
     <LinearLayout
         android:id="@+id/linearLayout"

@@ -2,7 +2,6 @@ package com.pengke.paper.scanner.processor
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.DisplayMetrics
 import android.util.Log
 import org.opencv.android.Utils
 import org.opencv.core.*
@@ -143,4 +142,9 @@ private fun sortPoints(points: List<Point>): List<Point> {
     val p2 = points.maxByOrNull { point -> point.x + point.y } ?: Point()
     val p3 = points.maxByOrNull { point -> point.y - point.x } ?: Point()
     return listOf(p0, p1, p2, p3)
+}
+
+fun convertDpToPx(dp: Float, context: Context): Float {
+    val metrics = context.resources.displayMetrics
+    return dp * metrics.density
 }

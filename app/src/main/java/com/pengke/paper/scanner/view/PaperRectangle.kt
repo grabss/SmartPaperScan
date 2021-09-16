@@ -11,6 +11,7 @@ import android.widget.ImageView
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.processor.Corners
+import com.pengke.paper.scanner.processor.convertDpToPx
 import org.opencv.core.Point
 import org.opencv.core.Size
 
@@ -84,8 +85,13 @@ class PaperRectangle : View {
 
     fun onCornersDetected(corners: Corners) {
         ratioX = corners.size.width.div(measuredWidth)
+//        println("ratioX: $ratioX")
+//        println("measuredWidth: $measuredWidth")
         ratioY = corners.size.height.div(measuredHeight)
+//        println("ratioY: $ratioY")
+//        println("measuredHeight: $measuredHeight")
         tl = corners.corners[0] ?: Point()
+        println("tl: $tl")
         tr = corners.corners[1] ?: Point()
         br = corners.corners[2] ?: Point()
         bl = corners.corners[3] ?: Point()
@@ -108,18 +114,32 @@ class PaperRectangle : View {
     }
 
     fun onCorners2Crop(corners: Corners?, size: Size?) {
-
+        println("onCorners2Crop")
+        println("corners: $corners")
+        println("size: $size")
         cropMode = true
         tl = corners?.corners?.get(0) ?: SourceManager.defaultTl
+        println("tl: $tl")
         tr = corners?.corners?.get(1) ?: SourceManager.defaultTr
+        println("tr: $tr")
         br = corners?.corners?.get(2) ?: SourceManager.defaultBr
+        println("br: $br")
         bl = corners?.corners?.get(3) ?: SourceManager.defaultBl
+        println("bl: $bl")
         val displayMetrics = DisplayMetrics()
         (context as Activity).windowManager.defaultDisplay.getMetrics(displayMetrics)
         //exclude status bar height
         val statusBarHeight = getStatusBarHeight(context)
+        println("statusBarHeight: $statusBarHeight")
         ratioX = size?.width?.div(displayMetrics.widthPixels) ?: 1.0
-        ratioY = size?.height?.div(displayMetrics.heightPixels - statusBarHeight) ?: 1.0
+        println("ratioX: $ratioX")
+        val titleHeight = convertDpToPx(32f, context).toInt()
+        val footerHeight = convertDpToPx(60f, context).toInt()
+        ratioY = size?.height?.div(displayMetrics.heightPixels - statusBarHeight - footerHeight - titleHeight) ?: 1.0
+        println("ratioY: $ratioY")
+        println("displayMetrics.widthPixels: ${displayMetrics.widthPixels}")
+        println("displayMetrics.heightPixels: ${displayMetrics.heightPixels}")
+        println("displayMetrics.heightPixels2: ${displayMetrics.heightPixels - statusBarHeight - 420 - 96}")
         resize()
         movePoints()
     }
@@ -141,6 +161,7 @@ class PaperRectangle : View {
             canvas?.drawRect(offset, offset,canvas?.width.minus(offset),canvas?.height.minus(offset), rectPaint)
             println("canvas height: ${canvas?.height}")
             println("canvas width: ${canvas?.width}")
+            println("path: $path")
             canvas?.drawPath(path, clearPaint)
             canvas?.drawPath(path, rectPaint)
             canvas?.drawCircle(tl.x.toFloat(), tl.y.toFloat(), 20F, circlePaint)

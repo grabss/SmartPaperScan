@@ -61,7 +61,7 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
             corners = processPicture(picture)
             println("corners: $corners")
         } else {
-            corners = processPicture(picture)
+            corners = null
             println("not exist corners: $corners")
         }
         mat.release()
