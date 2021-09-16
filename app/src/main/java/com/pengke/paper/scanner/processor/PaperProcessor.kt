@@ -89,14 +89,42 @@ private fun findContours(src: Mat): ArrayList<MatOfPoint> {
     Imgproc.Canny(grayImage, cannedImage, 75.0, 200.0)
     Imgproc.dilate(cannedImage, dilate, kernel)
     val contours = ArrayList<MatOfPoint>()
+    val tmpContours = ArrayList<MatOfPoint>()
     val hierarchy = Mat()
     Imgproc.findContours(
         dilate,
-        contours,
+        tmpContours,
         hierarchy,
         Imgproc.RETR_TREE,
         Imgproc.CHAIN_APPROX_SIMPLE
     )
+    println("dilate.size().area() / (100 * 1): ${dilate.size().area() / (100 * 1)}")
+    for(contour in tmpContours) {
+        if(Imgproc.contourArea(contour) < dilate.size().area() / (100 * 1)) {
+            continue
+        }
+        println("Imgproc.contourArea(contour): ${Imgproc.contourArea(contour)}")
+
+        val ptmat2 = MatOfPoint2f(*contour.toArray())
+        val approx = MatOfPoint2f()
+        val approxf1 = MatOfPoint()
+
+        /* 輪郭線の周囲長を取得 */
+        val arclen = Imgproc.arcLength(ptmat2, true)
+
+        /* 直線近似 */
+        Imgproc.approxPolyDP(ptmat2, approx, 0.02 * arclen, true)
+        approx.convertTo(approxf1, CvType.CV_32S)
+        println("approxf1.size().area(): ${approxf1.size().area()}")
+        if (approxf1.size().area() != 4.0) {
+            /* 四角形以外は無視 */
+            continue
+        }
+        contours.add(approxf1)
+    }
+
+    println("contours.size: ${contours.size}")
+
     contours.sortByDescending { p: MatOfPoint -> Imgproc.contourArea(p) }
     hierarchy.release()
     grayImage.release()
