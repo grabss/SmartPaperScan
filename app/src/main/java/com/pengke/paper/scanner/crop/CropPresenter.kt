@@ -15,6 +15,7 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.DisplayMetrics
 import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.gson.Gson
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
@@ -66,7 +67,10 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
             println("not exist corners: $corners")
         }
         mat.release()
-
+        if (picture.height() <= picture.width()) {
+            iCropView.getPaper().layoutParams.width = 0
+            iCropView.getPaper().layoutParams.height = ConstraintLayout.LayoutParams.WRAP_CONTENT
+        }
         iCropView.getPaperRect().onCorners2Crop(corners, picture?.size(), picWidth, picHeight)
         Utils.matToBitmap(picture, bitmap, true)
         iCropView.getPaper().setImageBitmap(bitmap)

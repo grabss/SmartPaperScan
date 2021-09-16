@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.pengke.paper.scanner.INDEX
 import com.pengke.paper.scanner.ImageListActivity
