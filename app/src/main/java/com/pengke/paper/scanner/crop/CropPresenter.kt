@@ -33,7 +33,7 @@ import java.io.ByteArrayOutputStream
 
 const val IMAGES_DIR = "smart_scanner"
 
-class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy, private val itemIndex: Int) {
+class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy, private val itemIndex: Int, private val picWidth: Int, private val picHeight: Int) {
     private var picture: Mat
     private var corners: Corners? = null
     private var croppedPicture: Mat? = null
@@ -47,6 +47,7 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
     private val gson = Gson()
 
     init {
+        println("cropPresenter")
         val bitmap = getOriginalImage()
         val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
         mat.put(0, 0, imageBytes)
@@ -66,7 +67,7 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
         }
         mat.release()
 
-        iCropView.getPaperRect().onCorners2Crop(corners, picture?.size())
+        iCropView.getPaperRect().onCorners2Crop(corners, picture?.size(), picWidth, picHeight)
         Utils.matToBitmap(picture, bitmap, true)
         iCropView.getPaper().setImageBitmap(bitmap)
     }

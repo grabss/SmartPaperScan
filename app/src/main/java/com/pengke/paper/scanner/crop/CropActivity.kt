@@ -6,9 +6,13 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
+import android.os.Bundle
 import android.provider.CalendarContract
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import com.pengke.paper.scanner.INDEX
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
@@ -66,10 +70,15 @@ class CropActivity : BaseActivity(), ICropView.Proxy {
 
     override fun provideContentViewId(): Int = R.layout.activity_crop
 
-
     override fun initPresenter() {
         index = intent.getIntExtra(INDEX, 0)
-        mPresenter = CropPresenter(this, this, index)
+        mPresenter = CropPresenter(this, this, index, 0, 0)
+        paper.viewTreeObserver.addOnGlobalLayoutListener {
+            val width = paper.width
+            val height = paper.height
+            mPresenter = CropPresenter(this, this, index, width, height)
+        }
+
     }
 
     override fun getPaper(): ImageView = paper
