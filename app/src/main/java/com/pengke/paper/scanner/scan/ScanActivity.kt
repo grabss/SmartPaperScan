@@ -231,7 +231,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                             else -> bitmap
                         }
                         val baos = ByteArrayOutputStream()
-                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 90, baos)
                         val b = baos.toByteArray()
                         val uuid = UUID.randomUUID().toString()
                         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
@@ -266,7 +266,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                         else -> bitmap
                     }
                     val baos = ByteArrayOutputStream()
-                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 90, baos)
                     val b = baos.toByteArray()
                     val uuid = UUID.randomUUID().toString()
                     val b64 = Base64.encodeToString(b, Base64.DEFAULT)
