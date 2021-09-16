@@ -13,6 +13,7 @@ import org.opencv.core.Mat
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.DisplayMetrics
 import android.widget.ImageView
 import com.google.gson.Gson
 import com.pengke.paper.scanner.R
@@ -60,13 +61,7 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
             corners = processPicture(picture)
             println("corners: $corners")
         } else {
-            val hoge = mutableListOf<Point>()
-
-            hoge.add(Point(size.width * 0.05, size.height * 0.05))
-            hoge.add(Point(size.width * 0.95, size.height * 0.05))
-            hoge.add(Point(size.width * 0.95, size.height * 0.725))
-            hoge.add(Point(size.width * 0.05, size.height * 0.725))
-            corners = Corners(hoge, size)
+            corners = processPicture(picture)
             println("not exist corners: $corners")
         }
         mat.release()

@@ -144,8 +144,3 @@ private fun sortPoints(points: List<Point>): List<Point> {
     val p3 = points.maxByOrNull { point -> point.y - point.x } ?: Point()
     return listOf(p0, p1, p2, p3)
 }
-
-fun convertDpToPx(dp: Float, context: Context): Float {
-    val metrics: DisplayMetrics = context.resources.displayMetrics
-    return dp * metrics.density
-}

@@ -17,7 +17,6 @@ import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.Corners
-import com.pengke.paper.scanner.processor.convertDpToPx
 import com.pengke.paper.scanner.processor.processPicture
 import io.reactivex.Observable
 import io.reactivex.Scheduler
