@@ -39,13 +39,10 @@ class PaperRectangle : View {
     private var latestDownX = 0.0F
     private var latestDownY = 0.0F
     private val offset = 1F
-    private var picSize: Size? = null
 
     init {
 
         println("init")
-
-        path.reset()
 
         clearPaint.apply {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
@@ -95,7 +92,6 @@ class PaperRectangle : View {
 //        println("ratioY: $ratioY")
 //        println("measuredHeight: $measuredHeight")
         tl = corners.corners[0] ?: Point()
-        println("tl: $tl")
         tr = corners.corners[1] ?: Point()
         br = corners.corners[2] ?: Point()
         bl = corners.corners[3] ?: Point()
@@ -121,15 +117,14 @@ class PaperRectangle : View {
         println("onCorners2Crop")
         println("corners: $corners")
         println("size: $size")
-        picSize = size
         cropMode = true
-        tl = corners?.corners?.get(0) ?: SourceManager.defaultTl
+        tl = corners?.corners?.get(0) ?: Point(size?.width?.times(0.05) ?: 0.0, size?.height?.times(0.05) ?: 0.0)
         println("tl: $tl")
-        tr = corners?.corners?.get(1) ?: SourceManager.defaultTr
+        tr = corners?.corners?.get(1) ?: Point(size?.width?.times(0.95) ?: 0.0, size?.height?.times(0.05) ?: 0.0)
         println("tr: $tr")
-        br = corners?.corners?.get(2) ?: SourceManager.defaultBr
+        br = corners?.corners?.get(2) ?: Point(size?.width?.times(0.95) ?: 0.0, size?.height?.times(0.95) ?: 0.0)
         println("br: $br")
-        bl = corners?.corners?.get(3) ?: SourceManager.defaultBl
+        bl = corners?.corners?.get(3) ?: Point(size?.width?.times(0.05) ?: 0.0, size?.height?.times(0.95) ?: 0.0)
         println("bl: $bl")
 
 
