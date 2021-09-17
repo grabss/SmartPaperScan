@@ -138,7 +138,7 @@ class PaperRectangle : View {
 //        ratioX = size?.width?.div(displayMetrics.widthPixels) ?: 1.0
         ratioX = size?.width?.div(picWidth) ?: 1.0
         println("ratioX: $ratioX")
-        val titleHeight = convertDpToPx(32f, context).toInt()
+        val titleHeight = convertDpToPx(40f, context).toInt()
         val footerHeight = convertDpToPx(60f, context).toInt()
 //        ratioY = size?.height?.div(displayMetrics.heightPixels - statusBarHeight - footerHeight - titleHeight) ?: 1.0
         ratioY = size?.height?.div(picHeight) ?: 1.0
