@@ -1,5 +1,6 @@
 package com.pengke.paper.scanner.crop
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
@@ -48,7 +49,7 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
     private val gson = Gson()
 
     init {
-        println("cropPresenter")
+        println("CropPresenter")
         val bitmap = getOriginalImage()
         val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
         mat.put(0, 0, imageBytes)
@@ -63,8 +64,20 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
         println("corners: $corners")
         mat.release()
 
+
+        println("=============")
+        println("pictureSize ${picture?.size()}")
+        println("picHeight $picHeight")
+        println("picWidth $picWidth")
+        println("picture.height ${picture.height()}")
+        println("=============")
+        val dm = DisplayMetrics()
+        (context as Activity).windowManager.defaultDisplay.getMetrics(dm)
+        val displayWidth = dm.widthPixels
+
         // 画像が四角形、もしくは横長の場合にレイアウトのパラメーターを設定
         // 上記の場合横幅が100%になり、高さが画像サイズにより動的に変わる
+        // TODO 算出ロジック修正
         if (picture.height() <= picture.width()) {
             iCropView.getPaper().layoutParams.width = 0
             iCropView.getPaper().layoutParams.height = ConstraintLayout.LayoutParams.WRAP_CONTENT

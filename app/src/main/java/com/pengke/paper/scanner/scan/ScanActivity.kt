@@ -199,7 +199,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
-            val mat = Mat(Size(1920.toDouble(), 1080.toDouble()), CvType.CV_8U)
             if (data?.clipData != null) {
                 println("複数選択")
 
@@ -215,6 +214,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                         val imageUri = data.clipData!!.getItemAt(i).uri
                         val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
                         var bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+                        val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
 
                         // リサイズ
                         val matrix = Matrix()
@@ -250,6 +250,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     val imageUri = data.data!!
                     val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
                     var bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
+                    val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
 
                     // リサイズ
                     val matrix = Matrix()

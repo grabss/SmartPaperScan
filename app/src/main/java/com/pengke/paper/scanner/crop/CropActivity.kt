@@ -73,13 +73,12 @@ class CropActivity : BaseActivity(), ICropView.Proxy {
 
     override fun initPresenter() {
         index = intent.getIntExtra(INDEX, 0)
-        mPresenter = CropPresenter(this, this, index, 0, 0)
+        mPresenter = CropPresenter(this, this, index, 1, 1)
         paper.viewTreeObserver.addOnGlobalLayoutListener {
             val width = paper.width
             val height = paper.height
             mPresenter = CropPresenter(this, this, index, width, height)
         }
-
     }
 
     override fun getPaper(): ImageView = paper
