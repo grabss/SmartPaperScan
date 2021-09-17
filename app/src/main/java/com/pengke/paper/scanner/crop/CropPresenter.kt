@@ -73,12 +73,34 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
         println("=============")
         val dm = DisplayMetrics()
         (context as Activity).windowManager.defaultDisplay.getMetrics(dm)
-        val displayWidth = dm.widthPixels
 
-        // 画像が四角形、もしくは横長の場合にレイアウトのパラメーターを設定
-        // 上記の場合横幅が100%になり、高さが画像サイズにより動的に変わる
-        // TODO 算出ロジック修正
-        if (picture.height() <= picture.width()) {
+        // 画像表示領域の高さ
+        val titleHeight = convertDpToPx(40f, context).toInt()
+        val footerHeight = convertDpToPx(60f, context).toInt()
+        val displayHeight = dm.heightPixels
+        val areaHeight = displayHeight - titleHeight - footerHeight
+        println("areaHeight: $areaHeight")
+
+        // 画面表示領域の幅
+        val areaWidth = dm.widthPixels
+        println("areaWidth: $areaWidth")
+
+        // 画像の高さ
+        val imageHeight = bitmap.height
+        println("imageHeight: $imageHeight")
+
+        // 画像の幅
+        val imageWidth = bitmap.width
+        println("imageWidth: $imageWidth")
+
+        // 幅に対する高さの比率を算出
+        val viewAreaRatio = areaHeight / areaWidth.toDouble()
+        println("viewAreaRatio: $viewAreaRatio")
+        val imageRatio = imageHeight / imageWidth.toDouble()
+        println("imageRatio: $imageRatio")
+        
+        // 表示領域の高さの方が高さの比率が高い場合、画像を幅いっぱいに表示
+        if (imageRatio < viewAreaRatio) {
             iCropView.getPaper().layoutParams.width = 0
             iCropView.getPaper().layoutParams.height = ConstraintLayout.LayoutParams.WRAP_CONTENT
         }
