@@ -13,6 +13,7 @@ import android.util.Base64
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.*
 import com.pengke.paper.scanner.scan.ScanActivity
+import com.pengke.paper.scanner.scan.ScanPresenter
 import org.opencv.core.Point
 import java.io.ByteArrayOutputStream
 
@@ -26,7 +27,7 @@ class BeforehandCropPresenter(val context: Context, private val corners: Corners
         picture = mat
     }
 
-    fun cropAndSave(image: Image, scanActv: ScanActivity) {
+    fun cropAndSave(image: Image, scanActv: ScanActivity? = null, scanPre: ScanPresenter? = null) {
 
         if (picture == null) {
             Log.i(TAG, "picture null?")
@@ -53,7 +54,8 @@ class BeforehandCropPresenter(val context: Context, private val corners: Corners
                 val b = baos.toByteArray()
                 val updatedB64 = Base64.encodeToString(b, Base64.DEFAULT)
                 val croppedImg = image.copy(b64 = updatedB64)
-                scanActv.saveImage(croppedImg)
+                scanActv?.saveImage(croppedImg)
+                scanPre?.addImageToList(croppedImg)
             }
     }
 }

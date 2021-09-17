@@ -14,6 +14,7 @@ import com.google.gson.Gson
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.crop.BeforehandCropPresenter
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.Corners
@@ -286,13 +287,23 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         val uuid = UUID.randomUUID().toString()
         val image = Image(id = uuid, b64 = b64, originalB64 = b64, corners = SourceManager.corners)
 
-        // 画像の配列に追加
+        val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
+        updatedMat.put(0, 0, b)
+        val editMat = Imgcodecs.imdecode(updatedMat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
+        val corners = processPicture(editMat)
+        if (corners != null) {
+            val beforeCropPresenter = BeforehandCropPresenter(context, corners, editMat)
+            beforeCropPresenter.cropAndSave(image = image, scanPre = this)
+        } else {
+            addImageToList(image)
+        }
+    }
+
+    fun addImageToList(image: Image) {
         images.add(image)
         val json = gson.toJson(images)
-
         val editor = sp.edit()
         editor.putString(IMAGE_ARRAY, json).apply()
-
         scanActv.updateCount()
     }
 

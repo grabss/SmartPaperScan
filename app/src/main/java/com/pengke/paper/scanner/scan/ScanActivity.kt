@@ -239,7 +239,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                         val corners = processPicture(editMat)
                         if (corners != null) {
                             val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
-                            beforeCropPresenter.cropAndSave(image, this)
+                            beforeCropPresenter.cropAndSave(image = image, scanActv = this)
                         } else {
                             saveImage(image)
                         }
