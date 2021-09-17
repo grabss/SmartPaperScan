@@ -70,8 +70,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     private var needFlash = false
 
-    private var images = mutableListOf<Image>()
-
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this, this)
 
@@ -192,8 +190,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        images.clear()
-        val editor = sp.edit()
 
         if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
             val editor = sp.edit()
@@ -245,10 +241,10 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                             val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
                             beforeCropPresenter.cropAndSave(image, this)
                         } else {
-                            addImageToList(image)
+                            saveImage(image)
                         }
                     }
-                    saveImagesToSharedPref()
+                    editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
                 }
             } else if(data?.data != null) {
                 println("単体選択")
@@ -382,24 +378,14 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     }
 
     fun saveImage(image: Image) {
-        val images = mutableListOf<Image>()
+        var images = mutableListOf<Image>()
+        val json = sp.getString(IMAGE_ARRAY, null)
+        if (json != null) {
+            images = jsonToImageArray(json)
+        }
         images.add(image)
         val editor = sp.edit()
         editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
-        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
-    }
-
-
-    fun addImageToList(image: Image) {
-        println("aaaaaaaaaaaaa")
-        images.add(image)
-    }
-
-    fun saveImagesToSharedPref() {
-        println("saveImagesToSharedPref")
-        val editor = sp.edit()
-        editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
-        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
     }
 
     // 撮影済み画像枚数取得
