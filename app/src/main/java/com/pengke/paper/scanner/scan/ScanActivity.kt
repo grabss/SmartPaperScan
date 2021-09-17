@@ -193,6 +193,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         images.clear()
+        val editor = sp.edit()
 
         if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
             val editor = sp.edit()
@@ -291,10 +292,11 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     if (corners != null) {
                         val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
                         beforeCropPresenter.cropAndSave(image, this)
+                        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
                     } else {
-                        addImageToList(image)
+                        saveImage(image)
+                        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
                     }
-                    saveImagesToSharedPref()
                 }
             }
         }
@@ -378,6 +380,15 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             true
         )
     }
+
+    fun saveImage(image: Image) {
+        val images = mutableListOf<Image>()
+        images.add(image)
+        val editor = sp.edit()
+        editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
+        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
+    }
+
 
     fun addImageToList(image: Image) {
         println("aaaaaaaaaaaaa")

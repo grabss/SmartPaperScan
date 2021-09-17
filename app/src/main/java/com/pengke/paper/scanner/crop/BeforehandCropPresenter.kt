@@ -53,7 +53,7 @@ class BeforehandCropPresenter(val context: Context, private val corners: Corners
                 val b = baos.toByteArray()
                 val updatedB64 = Base64.encodeToString(b, Base64.DEFAULT)
                 val croppedImg = image.copy(b64 = updatedB64)
-                scanActv.addImageToList(croppedImg)
+                scanActv.saveImage(croppedImg)
             }
     }
 }
