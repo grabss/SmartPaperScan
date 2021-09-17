@@ -1,7 +1,5 @@
 package com.pengke.paper.scanner.scan
 
-import android.app.ActivityManager
-import android.app.ProgressDialog
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -13,7 +11,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Build
 import android.os.Environment
 import android.os.Handler
@@ -26,12 +23,8 @@ import androidx.core.content.ContextCompat
 import android.util.Log
 import android.view.Display
 import android.view.SurfaceView
-import android.view.View
 import android.widget.SeekBar
-import androidx.annotation.RequiresApi
-import androidx.core.graphics.PathUtils
 import com.google.gson.Gson
-import com.pengke.paper.scanner.ConfirmDialogFragment
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.BaseActivity
@@ -45,7 +38,6 @@ import com.pengke.paper.scanner.processor.processPicture
 import com.pengke.paper.scanner.view.PaperRectangle
 
 import kotlinx.android.synthetic.main.activity_scan.*
-import org.json.JSONArray
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.CvType
@@ -54,9 +46,7 @@ import org.opencv.core.Size
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 const val IMAGE_COUNT_RESULT = 1000
@@ -79,6 +69,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
     private var needFlash = false
+
+    private var images = mutableListOf<Image>()
 
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this, this)
@@ -200,8 +192,11 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        images.clear()
 
         if (requestCode == REQUEST_GALLERY_TAKE && resultCode == RESULT_OK) {
+            val editor = sp.edit()
+            editor.clear().apply()
             if (data?.clipData != null) {
                 println("複数選択")
 
@@ -212,7 +207,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     // 複数画像選択時
                     val count = data.clipData!!.itemCount
                     println("count: $count")
-                    val images = ArrayList<Image>()
                     for (i in 0 until count) {
                         val imageUri = data.clipData!!.getItemAt(i).uri
                         val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
@@ -239,9 +233,21 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                         val uuid = UUID.randomUUID().toString()
                         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
                         val image = Image(id = uuid, b64 = b64, originalB64 = b64)
-                        images.add(image)
+                        mat.release()
+
+                        // 矩形が取得できるか確認し、取得できた場合はimageを更新する
+                        val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
+                        updatedMat.put(0, 0, b)
+                        val editMat = Imgcodecs.imdecode(updatedMat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
+                        val corners = processPicture(editMat)
+                        if (corners != null) {
+                            val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
+                            beforeCropPresenter.cropAndSave(image, this)
+                        } else {
+                            addImageToList(image)
+                        }
                     }
-                    saveImages(images)
+                    saveImagesToSharedPref()
                 }
             } else if(data?.data != null) {
                 println("単体選択")
@@ -283,12 +289,12 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     val editMat = Imgcodecs.imdecode(updatedMat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
                     val corners = processPicture(editMat)
                     if (corners != null) {
-                        println("=====kokonikuru=====")
-                        val beforeCropPresenter = BeforehandCropPresenter(this, rotatedBm, image, corners, editMat)
-                        beforeCropPresenter.crop(image, this)
+                        val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
+                        beforeCropPresenter.cropAndSave(image, this)
                     } else {
-                        saveImage(image)
+                        addImageToList(image)
                     }
+                    saveImagesToSharedPref()
                 }
             }
         }
@@ -373,17 +379,13 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         )
     }
 
-    fun saveImage(image: Image) {
-        val images = mutableListOf<Image>()
+    fun addImageToList(image: Image) {
+        println("aaaaaaaaaaaaa")
         images.add(image)
-        val editor = sp.edit()
-        editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
-        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
     }
 
-
-    // 複数画像
-    fun saveImages(images: ArrayList<Image>) {
+    fun saveImagesToSharedPref() {
+        println("saveImagesToSharedPref")
         val editor = sp.edit()
         editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
         editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
