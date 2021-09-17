@@ -38,8 +38,10 @@ import com.pengke.paper.scanner.base.BaseActivity
 import com.pengke.paper.scanner.base.CAN_EDIT_IMAGES
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.crop.BeforehandCropPresenter
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
+import com.pengke.paper.scanner.processor.processPicture
 import com.pengke.paper.scanner.view.PaperRectangle
 
 import kotlinx.android.synthetic.main.activity_scan.*
@@ -49,6 +51,7 @@ import org.opencv.android.Utils
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.Size
+import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -251,7 +254,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
                     var bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
                     val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
-
                     // リサイズ
                     val matrix = Matrix()
                     matrix.postScale(0.5f, 0.5f)
@@ -268,11 +270,25 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     }
                     val baos = ByteArrayOutputStream()
                     rotatedBm.compress(Bitmap.CompressFormat.JPEG, 90, baos)
+
                     val b = baos.toByteArray()
                     val uuid = UUID.randomUUID().toString()
                     val b64 = Base64.encodeToString(b, Base64.DEFAULT)
                     val image = Image(id = uuid, b64 = b64, originalB64 = b64)
-                    saveImage(image)
+                    mat.release()
+
+                    // 矩形が取得できるか確認し、取得できた場合はimageを更新する
+                    val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
+                    updatedMat.put(0, 0, b)
+                    val editMat = Imgcodecs.imdecode(updatedMat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
+                    val corners = processPicture(editMat)
+                    if (corners != null) {
+                        println("=====kokonikuru=====")
+                        val beforeCropPresenter = BeforehandCropPresenter(this, rotatedBm, image, corners, editMat)
+                        beforeCropPresenter.crop(image, this)
+                    } else {
+                        saveImage(image)
+                    }
                 }
             }
         }
@@ -357,7 +373,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         )
     }
 
-    private fun saveImage(image: Image) {
+    fun saveImage(image: Image) {
         val images = mutableListOf<Image>()
         images.add(image)
         val editor = sp.edit()
@@ -367,7 +383,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
 
     // 複数画像
-    private fun saveImages(images: ArrayList<Image>) {
+    fun saveImages(images: ArrayList<Image>) {
         val editor = sp.edit()
         editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
         editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
