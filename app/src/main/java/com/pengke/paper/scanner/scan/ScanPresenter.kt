@@ -285,7 +285,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         // 取り出す時->Base64.decode(image, Base64.DEFAULT)
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
         val uuid = UUID.randomUUID().toString()
-        val image = Image(id = uuid, b64 = b64, originalB64 = b64, corners = SourceManager.corners)
+        val image = Image(id = uuid, b64 = b64, originalB64 = b64)
 
         val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
         updatedMat.put(0, 0, b)
