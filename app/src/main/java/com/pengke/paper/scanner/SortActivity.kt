@@ -224,7 +224,6 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
             toDisableBtns()
             index = 0
             thread {
-                // SharedPrefの値を更新
                 updateData()
                 navToImageListScrn()
             }

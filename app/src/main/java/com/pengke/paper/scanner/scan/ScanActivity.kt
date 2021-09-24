@@ -54,16 +54,13 @@ const val REQUEST_GALLERY_TAKE = 1
 
 class ScanActivity : BaseActivity(), IScanView.Proxy {
 
+    private var latestBackPressTime: Long = 0
     private val REQUEST_CAMERA_PERMISSION = 0
     private val EXIT_TIME = 2000
-
     private lateinit var mPresenter: ScanPresenter
-
-    private var latestBackPressTime: Long = 0
     private lateinit var sp: SharedPreferences
 
     private var count = 0
-
     private val gson = Gson()
 
     override fun provideContentViewId(): Int = R.layout.activity_scan
@@ -257,6 +254,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
                     var bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
                     val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
+
                     // リサイズ
                     val matrix = Matrix()
                     matrix.postScale(0.5f, 0.5f)
@@ -280,11 +278,12 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     val image = Image(id = uuid, b64 = b64, originalB64 = b64)
                     mat.release()
 
-                    // 矩形が取得できるか確認し、取得できた場合はimageを更新する
                     val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
                     updatedMat.put(0, 0, b)
                     val editMat = Imgcodecs.imdecode(updatedMat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
                     val corners = processPicture(editMat)
+
+                    // 矩形が取得できるか確認し、取得できた場合はimageを更新する
                     if (corners != null) {
                         val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
                         beforeCropPresenter.cropAndSave(image, this)

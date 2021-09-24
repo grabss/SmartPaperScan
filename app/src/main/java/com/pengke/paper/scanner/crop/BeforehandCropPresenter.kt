@@ -23,7 +23,7 @@ class BeforehandCropPresenter(val context: Context, private val corners: Corners
     private var croppedBitmap: Bitmap? = null
 
     init {
-        println("BeforehandCropPresenter")
+        println("init BeforehandCropPresenter")
         picture = mat
     }
 

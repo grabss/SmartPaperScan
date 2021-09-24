@@ -127,10 +127,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         var displayHeight = maxOf(point.x, point.y)
         println("displayHeight: $displayHeight")
         val displayRatio = displayWidth.div(displayHeight.toFloat())
-//        val displayRatio = displayWidth.div(displayHeight.toFloat())
         println("displayRatio: $displayRatio")
         val previewRatio = size?.height?.div(size.width?.toFloat()) ?: displayRatio
-//        val previewRatio = size?.height?.div(size.width.toFloat()) ?: displayRatio
         println("previewRatio: $previewRatio")
         if (displayRatio > previewRatio) {
             println("displayRatio > previewRatio")
@@ -171,12 +169,9 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             Log.d(TAG, "autofocus not available")
         }
         param?.flashMode = Camera.Parameters.FLASH_MODE_OFF
-
         mCamera?.parameters = param
         mCamera?.setDisplayOrientation(90)
     }
-
-
 
     fun toggleFlashMode() {
         if(param?.flashMode == Camera.Parameters.FLASH_MODE_ON) {
@@ -224,6 +219,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
                     val matrix = Matrix()
 
+                    // リサイズ
                     matrix.postScale(0.5f, 0.5f)
                     println("bitmapWidth: ${bitmap.width}")
                     println("bitmapHeight: ${bitmap.height}")
@@ -233,12 +229,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     grayScale(mat, bitmap)
                     println("mat size width: ${mat.size().width}")
                     println("mat size height: ${mat.size().height}")
-
-//                    Imgproc.resize(mat, Mat(), Size( mat.size().width, mat.size().height * 0.1))
-
-                    println("mat2 size width: ${mat.size().width}")
-                    println("mat2 size height: ${mat.size().height}")
                     mat.put(0, 0, p0)
+
                     val pic = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
                     Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE)
                     SourceManager.corners = processPicture(pic)
@@ -249,7 +241,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     // 矩形編集画面に遷移
 //                    context.startActivity(Intent(context, CropActivity::class.java))
                     saveImage(bitmap)
-
                     isBusy = false
                     start()
                 }
@@ -291,6 +282,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         updatedMat.put(0, 0, b)
         val editMat = Imgcodecs.imdecode(updatedMat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
         val corners = processPicture(editMat)
+
+        // 矩形が取得できた場合、一覧に表示させる画像をクロップ済みのものにする
         if (corners != null) {
             val beforeCropPresenter = BeforehandCropPresenter(context, corners, editMat)
             beforeCropPresenter.cropAndSave(image = image, scanPre = this)

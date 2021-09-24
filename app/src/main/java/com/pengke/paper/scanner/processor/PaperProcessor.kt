@@ -28,7 +28,6 @@ fun cropPicture(picture: Mat, pts: List<Point>): Mat {
     val dw = Math.max(widthA, widthB)
     val maxWidth = java.lang.Double.valueOf(dw)!!.toInt()
 
-
     val heightA = Math.sqrt(Math.pow(tr.x - br.x, 2.0) + Math.pow(tr.y - br.y, 2.0))
     val heightB = Math.sqrt(Math.pow(tl.x - bl.x, 2.0) + Math.pow(tl.y - bl.y, 2.0))
 
@@ -51,25 +50,6 @@ fun cropPicture(picture: Mat, pts: List<Point>): Mat {
     dst_mat.release()
     Log.i(TAG, "crop finish")
     return croppedPic
-}
-
-fun enhancePicture(src: Bitmap?): Bitmap {
-    val src_mat = Mat()
-    Utils.bitmapToMat(src, src_mat)
-    Imgproc.cvtColor(src_mat, src_mat, Imgproc.COLOR_RGBA2GRAY)
-    Imgproc.adaptiveThreshold(
-        src_mat,
-        src_mat,
-        255.0,
-        Imgproc.ADAPTIVE_THRESH_MEAN_C,
-        Imgproc.THRESH_BINARY,
-        15,
-        15.0
-    )
-    val result = Bitmap.createBitmap(src?.width ?: 1080, src?.height ?: 1920, Bitmap.Config.RGB_565)
-    Utils.matToBitmap(src_mat, result, true)
-    src_mat.release()
-    return result
 }
 
 private fun findContours(src: Mat): ArrayList<MatOfPoint> {
@@ -122,16 +102,13 @@ private fun findContours(src: Mat): ArrayList<MatOfPoint> {
         }
         contours.add(approxf1)
     }
-
     println("contours.size: ${contours.size}")
-
     contours.sortByDescending { p: MatOfPoint -> Imgproc.contourArea(p) }
     hierarchy.release()
     grayImage.release()
     cannedImage.release()
     kernel.release()
     dilate.release()
-
     return contours
 }
 
@@ -160,7 +137,6 @@ private fun getCorners(contours: ArrayList<MatOfPoint>, size: Size): Corners? {
             return null
         }
     }
-
     return null
 }
 

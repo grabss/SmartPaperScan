@@ -64,13 +64,14 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
         println("corners: $corners")
         mat.release()
 
-
         println("=============")
         println("pictureSize ${picture?.size()}")
         println("picHeight $picHeight")
         println("picWidth $picWidth")
         println("picture.height ${picture.height()}")
         println("=============")
+
+        // 画面サイズ取得
         val dm = DisplayMetrics()
         (context as Activity).windowManager.defaultDisplay.getMetrics(dm)
 

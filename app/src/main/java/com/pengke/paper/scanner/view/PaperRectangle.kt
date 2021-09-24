@@ -157,8 +157,6 @@ class PaperRectangle : View {
         return listOf(tl, tr, br, bl)
     }
 
-
-
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         println("onDraw")
