@@ -224,9 +224,18 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                         val baos = ByteArrayOutputStream()
                         rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
                         val b = baos.toByteArray()
-                        val uuid = UUID.randomUUID().toString()
                         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-                        val image = Image(id = uuid, b64 = b64, originalB64 = b64)
+
+                        // サムネイル生成
+                        // ※単体表示用(0.5倍のさらに半分→オリジナルの0.25倍)
+                        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
+                        val thumbBaos = ByteArrayOutputStream()
+                        thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
+                        val thumbB = thumbBaos.toByteArray()
+                        val thumbB64 = Base64.encodeToString(thumbB, Base64.DEFAULT)
+
+                        val uuid = UUID.randomUUID().toString()
+                        val image = Image(id = uuid, b64 = b64, originalB64 = b64, thumbB64 = thumbB64)
                         mat.release()
 
                         // 矩形が取得できるか確認し、取得できた場合はimageを更新する
@@ -273,9 +282,18 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     rotatedBm.compress(Bitmap.CompressFormat.JPEG, 90, baos)
 
                     val b = baos.toByteArray()
-                    val uuid = UUID.randomUUID().toString()
                     val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-                    val image = Image(id = uuid, b64 = b64, originalB64 = b64)
+
+                    // サムネイル生成
+                    // ※単体表示用(0.5倍のさらに半分→オリジナルの0.25倍)
+                    val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
+                    val thumbBaos = ByteArrayOutputStream()
+                    thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
+                    val thumbB = thumbBaos.toByteArray()
+                    val thumbB64 = Base64.encodeToString(thumbB, Base64.DEFAULT)
+
+                    val uuid = UUID.randomUUID().toString()
+                    val image = Image(id = uuid, b64 = b64, originalB64 = b64, thumbB64 = thumbB64)
                     mat.release()
 
                     val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)

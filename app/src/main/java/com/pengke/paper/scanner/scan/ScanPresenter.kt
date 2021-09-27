@@ -275,8 +275,17 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         // Base64形式でSharedPrefに保存
         // 取り出す時->Base64.decode(image, Base64.DEFAULT)
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
+
+        // サムネイル生成
+        // ※単体表示用(0.5倍のさらに半分→オリジナルの0.25倍)
+        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
+        val thumbBaos = ByteArrayOutputStream()
+        thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
+        val thumbB = thumbBaos.toByteArray()
+        val thumbB64 = Base64.encodeToString(thumbB, Base64.DEFAULT)
+
         val uuid = UUID.randomUUID().toString()
-        val image = Image(id = uuid, b64 = b64, originalB64 = b64)
+        val image = Image(id = uuid, b64 = b64, originalB64 = b64, thumbB64 = thumbB64)
 
         val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
         updatedMat.put(0, 0, b)
