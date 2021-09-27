@@ -222,7 +222,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                             else -> bitmap
                         }
                         val baos = ByteArrayOutputStream()
-                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 90, baos)
+                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
                         val b = baos.toByteArray()
                         val uuid = UUID.randomUUID().toString()
                         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
@@ -236,7 +236,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                         val corners = processPicture(editMat)
                         if (corners != null) {
                             val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
-                            beforeCropPresenter.cropAndSave(image = image, scanActv = this)
+                            beforeCropPresenter.cropAndSave(image = image)
                         } else {
                             saveImage(image)
                         }
@@ -286,7 +286,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                     // 矩形が取得できるか確認し、取得できた場合はimageを更新する
                     if (corners != null) {
                         val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
-                        beforeCropPresenter.cropAndSave(image, this)
+                        beforeCropPresenter.cropAndSave(image = image)
                         editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
                     } else {
                         saveImage(image)
