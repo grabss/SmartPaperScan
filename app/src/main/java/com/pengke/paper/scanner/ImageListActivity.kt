@@ -210,7 +210,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
 
         fun bind(image: Image) {
-            val imageBytes = Base64.decode(image?.b64, Base64.DEFAULT)
+            val imageBytes = Base64.decode(image?.thumbB64, Base64.DEFAULT)
             val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             imageView.setImageBitmap(decodedImg)
         }

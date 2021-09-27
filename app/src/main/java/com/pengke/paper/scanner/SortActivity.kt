@@ -246,10 +246,8 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
         for(bm in bmList) {
             val baos = ByteArrayOutputStream()
             bm.bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-            val b = baos.toByteArray()
             val image = images.first { it.id == bm.id }
-            val updatedB64 = Base64.encodeToString(b, Base64.DEFAULT)
-            newImages.add(image.copy(thumbB64 = updatedB64))
+            newImages.add(image)
         }
         if (newImages.isEmpty()) {
             editor.putString(IMAGE_ARRAY, null).apply()

@@ -225,14 +225,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                         rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
                         val b = baos.toByteArray()
                         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-
-                        // サムネイル生成
-                        // ※単体表示用(0.5倍のさらに半分→オリジナルの0.25倍)
-                        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
-                        val thumbBaos = ByteArrayOutputStream()
-                        thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
-                        val thumbB = thumbBaos.toByteArray()
-                        val thumbB64 = Base64.encodeToString(thumbB, Base64.DEFAULT)
+                        val thumbB64 = getThumbB64(rotatedBm)
 
                         val uuid = UUID.randomUUID().toString()
                         val image = Image(id = uuid, b64 = b64, originalB64 = b64, thumbB64 = thumbB64)
@@ -266,7 +259,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
                     // リサイズ
                     val matrix = Matrix()
-                    matrix.postScale(0.5f, 0.5f)
+                    matrix.postScale(0.4f, 0.4f)
                     bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
                     grayScale(mat, bitmap)
                     val path = getPathFromUri(this, imageUri)
@@ -283,14 +276,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
 
                     val b = baos.toByteArray()
                     val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-
-                    // サムネイル生成
-                    // ※単体表示用(0.5倍のさらに半分→オリジナルの0.25倍)
-                    val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
-                    val thumbBaos = ByteArrayOutputStream()
-                    thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
-                    val thumbB = thumbBaos.toByteArray()
-                    val thumbB64 = Base64.encodeToString(thumbB, Base64.DEFAULT)
+                    val thumbB64 = getThumbB64(rotatedBm)
 
                     val uuid = UUID.randomUUID().toString()
                     val image = Image(id = uuid, b64 = b64, originalB64 = b64, thumbB64 = thumbB64)
@@ -313,6 +299,15 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
                 }
             }
         }
+    }
+
+    private fun getThumbB64(rotatedBm: Bitmap): String {
+        // ※単体表示用(0.4倍)のさらに半分→オリジナルの0.2倍
+        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
+        val thumbBaos = ByteArrayOutputStream()
+        thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
+        val thumbB = thumbBaos.toByteArray()
+        return Base64.encodeToString(thumbB, Base64.DEFAULT)
     }
 
     private fun getPathFromUri(context: Context, uri: Uri): String? {

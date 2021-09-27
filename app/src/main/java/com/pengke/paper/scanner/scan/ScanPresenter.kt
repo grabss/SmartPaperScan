@@ -220,7 +220,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     val matrix = Matrix()
 
                     // リサイズ
-                    matrix.postScale(0.5f, 0.5f)
+                    matrix.postScale(0.4f, 0.4f)
                     println("bitmapWidth: ${bitmap.width}")
                     println("bitmapHeight: ${bitmap.height}")
                     bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
@@ -267,22 +267,12 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             matrix,
             true
         )
-
         val baos = ByteArrayOutputStream()
         rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
-
         val b = baos.toByteArray()
-        // Base64形式でSharedPrefに保存
-        // 取り出す時->Base64.decode(image, Base64.DEFAULT)
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
 
-        // サムネイル生成
-        // ※単体表示用(0.5倍のさらに半分→オリジナルの0.25倍)
-        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
-        val thumbBaos = ByteArrayOutputStream()
-        thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
-        val thumbB = thumbBaos.toByteArray()
-        val thumbB64 = Base64.encodeToString(thumbB, Base64.DEFAULT)
+        val thumbB64 = getThumbB64(rotatedBm)
 
         val uuid = UUID.randomUUID().toString()
         val image = Image(id = uuid, b64 = b64, originalB64 = b64, thumbB64 = thumbB64)
@@ -301,13 +291,23 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         }
     }
 
-    fun addImageToList(image: Image) {
+    private fun getThumbB64(rotatedBm: Bitmap): String {
+        // ※単体表示用(0.4倍)のさらに半分→オリジナルの0.2倍
+        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
+        val thumbBaos = ByteArrayOutputStream()
+        thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
+        val thumbB = thumbBaos.toByteArray()
+        return Base64.encodeToString(thumbB, Base64.DEFAULT)
+    }
+
+     fun addImageToList(image: Image) {
         images.add(image)
         val json = gson.toJson(images)
         val editor = sp.edit()
         editor.putString(IMAGE_ARRAY, json).apply()
         scanActv.updateCount()
     }
+
 
     override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
         println("onPreviewFrame")
