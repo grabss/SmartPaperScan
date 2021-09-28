@@ -70,6 +70,7 @@
         android:layout_height="wrap_content"
         android:text="@string/max_count_desc"
         android:layout_marginTop="20dp"
+        android:textColor="@color/colorWhite"
         app:layout_constraintTop_toTopOf="@+id/buttons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
