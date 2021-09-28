@@ -27,10 +27,7 @@ import android.widget.SeekBar
 import com.google.gson.Gson
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
-import com.pengke.paper.scanner.base.BaseActivity
-import com.pengke.paper.scanner.base.CAN_EDIT_IMAGES
-import com.pengke.paper.scanner.base.IMAGE_ARRAY
-import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.base.*
 import com.pengke.paper.scanner.crop.BeforehandCropPresenter
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
@@ -182,6 +179,11 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         Handler(Looper.getMainLooper()).post  {
             shut.text = count.toString()
             toEnableBtns()
+            if (PHOTO_MAX_COUNT <= count) {
+                shut.isEnabled = false
+                shut.background = resources.getDrawable(R.drawable.reached_max_count_picture_button, null)
+                maxCountDesc.text = resources.getString(R.string.reached_max_count)
+            }
         }
     }
 
@@ -421,6 +423,14 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         shut.text = count.toString()
         toEnableBtns()
         adjustBtnsState()
+        if (PHOTO_MAX_COUNT <= count) {
+            shut.isEnabled = false
+            shut.background = resources.getDrawable(R.drawable.reached_max_count_picture_button, null)
+            maxCountDesc.text = resources.getString(R.string.reached_max_count)
+        } else {
+            shut.background = resources.getDrawable(R.drawable.picture_button, null)
+            maxCountDesc.text = resources.getString(R.string.max_count_desc)
+        }
         mPresenter.initImageArray()
         mPresenter.start()
     }

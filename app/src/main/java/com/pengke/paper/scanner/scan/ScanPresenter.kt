@@ -268,7 +268,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             true
         )
         val baos = ByteArrayOutputStream()
-        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 70, baos)
         val b = baos.toByteArray()
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
 
