@@ -7,6 +7,7 @@ import android.widget.Toast
 const val SPNAME = "images"
 const val IMAGE_ARRAY = "imageArray"
 const val CAN_EDIT_IMAGES = "canEditImages"
+const val PHOTO_MAX_COUNT = 20
 
 abstract class BaseActivity : AppCompatActivity() {
 
