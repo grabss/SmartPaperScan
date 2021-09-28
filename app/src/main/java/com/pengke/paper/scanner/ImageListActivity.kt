@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.BaseColumns
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +26,8 @@ import com.pengke.paper.scanner.base.CAN_EDIT_IMAGES
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.crop.CropActivity
+import com.pengke.paper.scanner.helper.DbHelper
+import com.pengke.paper.scanner.helper.ImageTable
 import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_image_list.*
 import org.json.JSONArray
@@ -40,6 +43,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     private val dialog = ConfirmDialogFragment()
     private var index = 0
     private val handler = Handler(Looper.getMainLooper())
+    private val dbHelper = DbHelper(this)
 
     private val result = object: Runnable {
         override fun run() {
@@ -152,6 +156,28 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         val images: String? = sp.getString(IMAGE_ARRAY, null)
         val a = JSONArray(images)
         println("images length: ${a.length()}")
+        println("=============")
+        println("=============")
+        val db = dbHelper.readableDatabase
+
+        val cursor = db.query(
+            ImageTable.TABLE_NAME,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+        )
+        with(cursor) {
+            while (moveToNext()) {
+                val hoge = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+                println(hoge)
+            }
+        }
+        println(cursor)
+        println("=============")
+        println("=============")
     }
 
 

@@ -30,6 +30,7 @@ import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.*
 import com.pengke.paper.scanner.crop.BeforehandCropPresenter
+import com.pengke.paper.scanner.helper.DbHelper
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.processPicture
@@ -66,6 +67,12 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
     private var needFlash = false
 
     private val alertDialog = AlertDialogFragment()
+    private val dbHelper = DbHelper(this)
+
+    override fun onDestroy() {
+        dbHelper.close()
+        super.onDestroy()
+    }
 
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this, this)

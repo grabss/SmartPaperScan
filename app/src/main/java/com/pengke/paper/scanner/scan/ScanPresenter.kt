@@ -1,5 +1,6 @@
 package com.pengke.paper.scanner.scan
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -15,6 +16,8 @@ import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.crop.BeforehandCropPresenter
+import com.pengke.paper.scanner.helper.DbHelper
+import com.pengke.paper.scanner.helper.ImageTable
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.Corners
@@ -51,6 +54,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private var matrix: Matrix
     private val gson = Gson()
     private val scaleSize = 1280
+    private val dbHelper = DbHelper(context)
 
     init {
         mSurfaceHolder.addCallback(this)
@@ -282,6 +286,10 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         )
         val baos = ByteArrayOutputStream()
         rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+
+        saveImageToDB(rotatedBm)
+
+
         val b = baos.toByteArray()
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
 
@@ -320,6 +328,31 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         editor.putString(IMAGE_ARRAY, json).apply()
         scanActv.updateCount()
     }
+
+    private fun saveImageToDB(bm: Bitmap) {
+        val values = getContentValues(getBinaryFromBitmap(bm))
+        val db = dbHelper.writableDatabase
+        val imageId = db.insert(ImageTable.TABLE_NAME, null, values)
+    }
+
+    //値セットを取得
+    //@param URI
+    //@return 値セット
+    private fun getContentValues(binary: ByteArray): ContentValues {
+        return ContentValues().apply {
+            put("${ImageTable.COLUMN_NAME_BITMAP}", binary)
+        }
+    }
+
+    //Binaryを取得
+    //@param Bitmap
+    //@return Binary
+    private fun getBinaryFromBitmap(bitmap:Bitmap):ByteArray{
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        return byteArrayOutputStream.toByteArray()
+    }
+
 
 
     override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
