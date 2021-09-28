@@ -23,6 +23,7 @@
     <string name="rotate">回転</string>
     <string name="cancel">キャンセル</string>
     <string name="decision">決定</string>
+    <string name="confirm">確認</string>
     <string name="gallery">ギャラリー</string>
     <string name="contrast">コントラスト</string>
     <string name="sort">順番</string>
@@ -31,4 +32,5 @@
     <string name="confirm_delete">削除してよろしいですか</string>
     <string name="max_count_desc">20枚まで撮影できます</string>
     <string name="reached_max_count">いちどに撮影できる上限に達しています</string>
+    <string name="max_count_alert">推奨枚数は最大20枚となります。\n選択枚数が多い場合、アプリが終了してしまう可能性があります。</string>
 </resources>

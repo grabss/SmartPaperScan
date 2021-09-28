@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/container"
+    tools:context=".AlertDialogFragment">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:background="@color/colorWhite"
+            android:lineHeight="20dp"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="@string/max_count_alert"
+            android:textColor="@color/colorBlack"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            app:layout_constraintBottom_toBottomOf="@id/title"
+            app:layout_constraintStart_toStartOf="@id/title">
+
+            <Button
+                android:id="@+id/confirmBtn"
+                android:layout_width="0dip"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:background="@color/colorMain"
+                android:backgroundTint="@color/colorMain"
+                android:text="@string/confirm"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

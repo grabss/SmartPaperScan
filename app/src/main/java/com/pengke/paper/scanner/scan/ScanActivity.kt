@@ -25,6 +25,7 @@ import android.view.Display
 import android.view.SurfaceView
 import android.widget.SeekBar
 import com.google.gson.Gson
+import com.pengke.paper.scanner.AlertDialogFragment
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.*
@@ -49,7 +50,7 @@ import kotlin.concurrent.thread
 const val IMAGE_COUNT_RESULT = 1000
 const val REQUEST_GALLERY_TAKE = 1
 
-class ScanActivity : BaseActivity(), IScanView.Proxy {
+class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnListener {
 
     private var latestBackPressTime: Long = 0
     private val REQUEST_CAMERA_PERMISSION = 0
@@ -63,6 +64,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
     private var needFlash = false
+
+    private val alertDialog = AlertDialogFragment()
 
     override fun initPresenter() {
         mPresenter = ScanPresenter(this, this, this)
@@ -103,15 +106,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
         }
 
         gallery.setOnClickListener {
-            val editor = sp.edit()
-            editor.putBoolean(CAN_EDIT_IMAGES, false).apply()
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-
-                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-                type = "image/*"
-            }
-            startActivityForResult(intent, REQUEST_GALLERY_TAKE)
+            alertDialog.show(supportFragmentManager, "TAG")
         }
 
         shut.setOnClickListener {
@@ -126,6 +121,18 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             val editor = sp.edit()
             editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
         }
+    }
+
+    override fun onDecisionClick() {
+        val editor = sp.edit()
+        editor.putBoolean(CAN_EDIT_IMAGES, false).apply()
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            type = "image/*"
+        }
+        startActivityForResult(intent, REQUEST_GALLERY_TAKE)
     }
 
     fun setSlider(max: Int?) {
