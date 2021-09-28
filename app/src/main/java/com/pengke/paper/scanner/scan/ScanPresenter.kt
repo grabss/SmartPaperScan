@@ -50,6 +50,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     var images = mutableListOf<Image>()
     private var matrix: Matrix
     private val gson = Gson()
+    private val scaleSize = 1280
 
     init {
         mSurfaceHolder.addCallback(this)
@@ -209,23 +210,35 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         Observable.just(p0)
                 .subscribeOn(proxySchedule)
                 .subscribe {
-                    val pictureSize = p1?.parameters?.pictureSize
+                    var pictureSize = p1?.parameters?.pictureSize
+                    Log.i(TAG, "==================")
                     Log.i(TAG, "picture size: " + pictureSize.toString())
                     Log.i(TAG, "picture size width: " + pictureSize?.width)
                     Log.i(TAG, "picture size height: " + pictureSize?.height)
-                    val mat = Mat(Size(pictureSize?.width?.toDouble() ?: 1920.toDouble(),
-                            pictureSize?.height?.toDouble() ?: 1080.toDouble()), CvType.CV_8U)
+                    Log.i(TAG, "==================")
+                    val footerSpace = pictureSize?.width?.div(10) ?: 550
+
+                    val aspect = pictureSize?.width?.div(pictureSize?.height.toDouble())
+                    pictureSize?.height = scaleSize
+                    pictureSize?.width = (scaleSize * aspect!!).toInt()
+
                     var bitmap = BitmapFactory.decodeByteArray(p0, 0, p0!!.size)
 
-                    val matrix = Matrix()
-
                     // リサイズ
-                    matrix.postScale(0.4f, 0.4f)
+//                    val matrix = Matrix()
+//                    matrix.postScale(0.4f, 0.4f)
                     println("bitmapWidth: ${bitmap.width}")
                     println("bitmapHeight: ${bitmap.height}")
-                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+//                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, pictureSize?.width!!, pictureSize?.height!!, matrix, true)
+                    bitmap = Bitmap.createScaledBitmap(bitmap, pictureSize?.width!!, pictureSize?.height!!, true)
                     println("bitmapWidth2: ${bitmap.width}")
                     println("bitmapHeight2: ${bitmap.height}")
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, pictureSize?.width!! - footerSpace, pictureSize?.height!!, null, true)
+                    println("bitmapWidth3: ${bitmap.width}")
+                    println("bitmapHeight3: ${bitmap.height}")
+                    val mat = Mat(Size(pictureSize?.width?.minus(footerSpace)?.toDouble() ?: 1920.toDouble(),
+                        pictureSize?.height?.toDouble() ?: 1080.toDouble()), CvType.CV_8U)
+
                     grayScale(mat, bitmap)
                     println("mat size width: ${mat.size().width}")
                     println("mat size height: ${mat.size().height}")
@@ -268,7 +281,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             true
         )
         val baos = ByteArrayOutputStream()
-        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 70, baos)
+        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
         val b = baos.toByteArray()
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
 
@@ -292,7 +305,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
     private fun getThumbB64(rotatedBm: Bitmap): String {
-        // ※単体表示用(0.4倍)のさらに半分→オリジナルの0.2倍
+        // ※単体表示用の半分
         val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
         val thumbBaos = ByteArrayOutputStream()
         thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
@@ -367,6 +380,5 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
     private fun getMaxResolution(): Camera.Size? = mCamera?.parameters?.supportedPreviewSizes?.maxByOrNull { it.width }
-
 
 }

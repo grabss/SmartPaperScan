@@ -187,7 +187,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
             shut.text = count.toString()
             toEnableBtns()
             if (PHOTO_MAX_COUNT <= count) {
-                shut.isEnabled = false
+//                shut.isEnabled = false
                 shut.background = resources.getDrawable(R.drawable.reached_max_count_picture_button, null)
                 maxCountDesc.text = resources.getString(R.string.reached_max_count)
             }
@@ -311,7 +311,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
     }
 
     private fun getThumbB64(rotatedBm: Bitmap): String {
-        // ※単体表示用(0.4倍)のさらに半分→オリジナルの0.2倍
+        // ※単体表示用の半分
         val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
         val thumbBaos = ByteArrayOutputStream()
         thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
@@ -431,7 +431,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
         toEnableBtns()
         adjustBtnsState()
         if (PHOTO_MAX_COUNT <= count) {
-            shut.isEnabled = false
+//            shut.isEnabled = false
             shut.background = resources.getDrawable(R.drawable.reached_max_count_picture_button, null)
             maxCountDesc.text = resources.getString(R.string.reached_max_count)
         } else {
