@@ -298,7 +298,9 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
     fun saveImageToDB(originalBm: Bitmap, thumbBm: Bitmap) {
-        val values = getContentValues(getBinaryFromBitmap(originalBm), getBinaryFromBitmap(thumbBm))
+        val original = getBinaryFromBitmap(originalBm)
+        val thumb = getBinaryFromBitmap(thumbBm)
+        val values = getContentValues(original, thumb)
         val db = dbHelper.writableDatabase
         db.insert(ImageTable.TABLE_NAME, null, values)
         scanActv.updateCount()

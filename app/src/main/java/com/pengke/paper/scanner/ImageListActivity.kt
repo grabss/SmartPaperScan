@@ -33,6 +33,7 @@ import kotlinx.android.synthetic.main.activity_image_list.*
 import org.json.JSONArray
 
 const val INDEX = "INDEX"
+const val ID = "ID"
 
 class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
 
@@ -41,6 +42,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     private lateinit var pagerAdapter: ImageListPagerAdapter
     private lateinit var images: ArrayList<Image>
     private val dialog = ConfirmDialogFragment()
+    private var id = ""
     private var index = 0
     private val handler = Handler(Looper.getMainLooper())
     private val dbHelper = DbHelper(this)
@@ -54,6 +56,9 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
                 // 編集画面からインデックスを取得
                 index = intent.getIntExtra(INDEX, 0)
+
+                // 編集画面からIDを取得
+                id = intent.getStringExtra(ID).toString()
 
                 viewPager = pager
                 viewPager.offscreenPageLimit = 5
@@ -162,7 +167,8 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     // 画像をスタックに積んだままの遷移はNG。
     private fun navToRotateScrn() {
         val intent = Intent(this, RotateActivity::class.java)
-        intent.putExtra(INDEX, viewPager.currentItem)
+        val image = images[viewPager.currentItem]
+        intent.putExtra(ID, image.id)
         startActivity(intent)
         finish()
     }
