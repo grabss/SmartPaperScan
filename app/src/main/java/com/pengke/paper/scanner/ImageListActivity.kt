@@ -215,6 +215,8 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
 
     override fun onDecisionClick() {
+        val image = images[index]
+        deleteRowFromDB(image.id)
         val index = viewPager.currentItem
         images.removeAt(index)
         pagerAdapter.updateData(images)
@@ -222,6 +224,11 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         if (images.isEmpty()) {
             toDisableBtns()
         }
+    }
+
+    fun deleteRowFromDB(id: String) {
+        val db = dbHelper.writableDatabase
+        db.delete(ImageTable.TABLE_NAME, "${BaseColumns._ID} = ?", arrayOf(id))
     }
 
     // ダイアログのキャンセルボタンタップ時に処理を加える場合はここに記述
