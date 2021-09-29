@@ -14,6 +14,7 @@ import android.widget.Toast
 import com.google.gson.Gson
 import com.pengke.paper.scanner.SourceManager
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
+import com.pengke.paper.scanner.base.SCALE_SIZE
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.crop.BeforehandCropPresenter
 import com.pengke.paper.scanner.helper.DbHelper
@@ -53,7 +54,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     var images = mutableListOf<Image>()
     private var matrix: Matrix
     private val gson = Gson()
-    private val scaleSize = 1280
     private val dbHelper = DbHelper(context)
 
     init {
@@ -223,8 +223,10 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     val footerSpace = pictureSize?.width?.div(10) ?: 550
 
                     val aspect = pictureSize?.width?.div(pictureSize?.height.toDouble())
-                    pictureSize?.height = scaleSize
-                    pictureSize?.width = (scaleSize * aspect!!).toInt()
+                    if(SCALE_SIZE < pictureSize?.height!!) {
+                        pictureSize?.height = SCALE_SIZE
+                        pictureSize?.width = (SCALE_SIZE * aspect!!).toInt()
+                    }
 
                     var bitmap = BitmapFactory.decodeByteArray(p0, 0, p0!!.size)
 
@@ -292,7 +294,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
         val b = baos.toByteArray()
         val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-
         val thumbB64 = getThumbB64(rotatedBm)
 
         val uuid = UUID.randomUUID().toString()

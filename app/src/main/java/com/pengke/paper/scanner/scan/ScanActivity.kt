@@ -221,12 +221,37 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                         val imageUri = data.clipData!!.getItemAt(i).uri
                         val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
                         var bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
-                        val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
+                        var w = bitmap.width
+                        println("w: $w")
+                        var h = bitmap.height
+                        println("h: $h")
+                        var aspect = 1.0
+                        if (w < h) {
+                            aspect = h / w.toDouble()
+                        } else if (h < w) {
+                            aspect = w / h.toDouble()
+                        }
+                        println("aspect: $aspect")
 
-                        // リサイズ
-                        val matrix = Matrix()
-                        matrix.postScale(0.5f, 0.5f)
-                        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                        // 正方形
+                        if (w == h && SCALE_SIZE < w) {
+                           w = SCALE_SIZE
+                           h = SCALE_SIZE
+                        } else if ((w < h) && (SCALE_SIZE < w)) {
+                            w = SCALE_SIZE
+                            h = (SCALE_SIZE * aspect).toInt()
+                        } else if ((h < w) && (SCALE_SIZE < h)) {
+                            h = SCALE_SIZE
+                            w = (SCALE_SIZE * aspect).toInt()
+                        }
+                        println("w2: $w")
+                        println("h2: $h")
+
+                        val mat = Mat(Size(w.toDouble(), h.toDouble()), CvType.CV_8U)
+
+                        bitmap = Bitmap.createScaledBitmap(bitmap, w, h,true)
+                        println("bitmap width: ${bitmap.width}")
+                        println("bitmap height: ${bitmap.height}")
                         grayScale(mat, bitmap)
                         val path = getPathFromUri(this, imageUri)
                         val exif = ExifInterface(path!!)
@@ -271,12 +296,37 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                     val imageUri = data.data!!
                     val byte = this.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
                     var bitmap = BitmapFactory.decodeByteArray(byte, 0, byte!!.size)
-                    val mat = Mat(Size(bitmap.width.toDouble(), bitmap.height.toDouble()), CvType.CV_8U)
+                    var w = bitmap.width
+                    println("w: $w")
+                    var h = bitmap.height
+                    println("h: $h")
+                    var aspect = 1.0
+                    if (w < h) {
+                        aspect = h / w.toDouble()
+                    } else if (h < w) {
+                        aspect = w / h.toDouble()
+                    }
+                    println("aspect: $aspect")
 
-                    // リサイズ
-                    val matrix = Matrix()
-                    matrix.postScale(0.4f, 0.4f)
-                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                    // 正方形
+                    if (w == h && SCALE_SIZE < w) {
+                        w = SCALE_SIZE
+                        h = SCALE_SIZE
+                    } else if ((w < h) && (SCALE_SIZE < w)) {
+                        w = SCALE_SIZE
+                        h = (SCALE_SIZE * aspect).toInt()
+                    } else if ((h < w) && (SCALE_SIZE < h)) {
+                        h = SCALE_SIZE
+                        w = (SCALE_SIZE * aspect).toInt()
+                    }
+                    println("w2: $w")
+                    println("h2: $h")
+
+                    val mat = Mat(Size(w.toDouble(), h.toDouble()), CvType.CV_8U)
+
+                    bitmap = Bitmap.createScaledBitmap(bitmap, w, h,true)
+                    println("bitmap width: ${bitmap.width}")
+                    println("bitmap height: ${bitmap.height}")
                     grayScale(mat, bitmap)
                     val path = getPathFromUri(this, imageUri)
                     val exif = ExifInterface(path!!)
