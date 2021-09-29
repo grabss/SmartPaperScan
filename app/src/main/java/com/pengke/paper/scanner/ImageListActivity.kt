@@ -49,8 +49,10 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         override fun run() {
             val result = sp.getBoolean(CAN_EDIT_IMAGES, false)
             if (result) {
-                val json = sp.getString(IMAGE_ARRAY, null)
-                images = jsonToImageArray(json!!)
+//                val json = sp.getString(IMAGE_ARRAY, null)
+//                images = jsonToImageArray(json!!)
+
+                images = getImagesFromDB()
 
                 pagerAdapter = ImageListPagerAdapter(images)
 
@@ -75,10 +77,43 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         setContentView(R.layout.activity_image_list)
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
+        getImagesFromDB()
+
         // ギャラリーから選択した画像の加工処理が終わっているかを200ミリ秒毎に確認
         handler.post(result)
         toDisableBtns()
         setBtnListener()
+    }
+
+    fun getImagesFromDB(): ArrayList<Image> {
+        val db = dbHelper.readableDatabase
+
+        val cursor = db.query(
+            ImageTable.TABLE_NAME,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+        )
+        val imageList = ArrayList<Image>()
+        with(cursor) {
+            while (moveToNext()) {
+                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID)).toString()
+                val blob = getBlob(getColumnIndexOrThrow(ImageTable.COLUMN_NAME_BITMAP))
+                val bm = BitmapFactory.decodeByteArray(blob, 0, blob.size)
+                val image = Image(id = id, bm = bm)
+                imageList.add(image)
+            }
+        }
+        return imageList
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+//        val db = dbHelper.writableDatabase
+//        db.delete(ImageTable.TABLE_NAME, null, null)
     }
 
     private fun setBtnListener() {
@@ -153,9 +188,9 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
     // アップロード実行。Flutterに2次元配列のbyte配列を渡す
     private fun upload() {
-        val images: String? = sp.getString(IMAGE_ARRAY, null)
-        val a = JSONArray(images)
-        println("images length: ${a.length()}")
+//        val images: String? = sp.getString(IMAGE_ARRAY, null)
+//        val a = JSONArray(images)
+//        println("images length: ${a.length()}")
         println("=============")
         println("=============")
         val db = dbHelper.readableDatabase
@@ -169,10 +204,14 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
             null,
             null,
         )
+        println("column count: ${cursor.columnCount}")
+        println("count: ${cursor.count}")
         with(cursor) {
             while (moveToNext()) {
                 val hoge = getLong(getColumnIndexOrThrow(BaseColumns._ID))
                 println(hoge)
+                val fuga = getBlob(getColumnIndexOrThrow(ImageTable.COLUMN_NAME_BITMAP))
+                println(fuga)
             }
         }
         println(cursor)
@@ -236,9 +275,9 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
 
         fun bind(image: Image) {
-            val imageBytes = Base64.decode(image?.b64, Base64.DEFAULT)
-            val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            imageView.setImageBitmap(decodedImg)
+//            val imageBytes = Base64.decode(image?.b64, Base64.DEFAULT)
+//            val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            imageView.setImageBitmap(image.bm)
         }
     }
 }

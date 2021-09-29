@@ -78,7 +78,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
         mPresenter = ScanPresenter(this, this, this)
 
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
-//        sp.edit().clear().apply()
+        sp.edit().clear().apply()
     }
 
     override fun prepare() {
@@ -468,13 +468,14 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
 
     // 撮影済み画像枚数取得
     private fun getImageCount(): Int {
-        val json = sp.getString(IMAGE_ARRAY, null)
-        return if (json == null) {
-            0
-        } else {
-            val images = jsonToImageArray(json)
-            images.size
-        }
+        return 0
+//        val json = sp.getString(IMAGE_ARRAY, null)
+//        return if (json == null) {
+//            0
+//        } else {
+//            val images = jsonToImageArray(json)
+//            images.size
+//        }
     }
 
     // 初回カメラ起動時、画像一覧画面から戻ってきた場合にのみ呼ばれる

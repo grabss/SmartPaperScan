@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.Camera
 import android.media.MediaActionSound
+import android.provider.BaseColumns
 import android.util.Base64
 import android.util.Log
 import android.view.SurfaceHolder
@@ -230,12 +231,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
                     var bitmap = BitmapFactory.decodeByteArray(p0, 0, p0!!.size)
 
-                    // リサイズ
-//                    val matrix = Matrix()
-//                    matrix.postScale(0.4f, 0.4f)
                     println("bitmapWidth: ${bitmap.width}")
                     println("bitmapHeight: ${bitmap.height}")
-//                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, pictureSize?.width!!, pictureSize?.height!!, matrix, true)
                     bitmap = Bitmap.createScaledBitmap(bitmap, pictureSize?.width!!, pictureSize?.height!!, true)
                     println("bitmapWidth2: ${bitmap.width}")
                     println("bitmapHeight2: ${bitmap.height}")
@@ -252,10 +249,10 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
                     val pic = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
                     Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE)
-                    SourceManager.corners = processPicture(pic)
+//                    SourceManager.corners = processPicture(pic)
                     mat.release()
 
-                    SourceManager.pic = pic
+//                    SourceManager.pic = pic
 
                     // 矩形編集画面に遷移
 //                    context.startActivity(Intent(context, CropActivity::class.java))
@@ -287,7 +284,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             true
         )
         val baos = ByteArrayOutputStream()
-        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 90, baos)
 
         saveImageToDB(rotatedBm)
 
@@ -302,15 +299,15 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
         updatedMat.put(0, 0, b)
         val editMat = Imgcodecs.imdecode(updatedMat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
-        val corners = processPicture(editMat)
+//        val corners = processPicture(editMat)
 
         // 矩形が取得できた場合、一覧に表示させる画像をクロップ済みのものにする
-        if (corners != null) {
-            val beforeCropPresenter = BeforehandCropPresenter(context, corners, editMat)
-            beforeCropPresenter.cropAndSave(image = image, scanPre = this)
-        } else {
+//        if (corners != null) {
+//            val beforeCropPresenter = BeforehandCropPresenter(context, corners, editMat)
+//            beforeCropPresenter.cropAndSave(image = image, scanPre = this)
+//        } else {
             addImageToList(image)
-        }
+//        }
     }
 
     private fun getThumbB64(rotatedBm: Bitmap): String {
@@ -323,10 +320,10 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     }
 
      fun addImageToList(image: Image) {
-        images.add(image)
-        val json = gson.toJson(images)
-        val editor = sp.edit()
-        editor.putString(IMAGE_ARRAY, json).apply()
+//        images.add(image)
+//        val json = gson.toJson(images)
+//        val editor = sp.edit()
+//        editor.putString(IMAGE_ARRAY, json).apply()
         scanActv.updateCount()
     }
 
@@ -342,6 +339,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private fun getContentValues(binary: ByteArray): ContentValues {
         return ContentValues().apply {
             put("${ImageTable.COLUMN_NAME_BITMAP}", binary)
+            put("${ImageTable.COLUMN_NAME_INDEX}", images.size + 1)
         }
     }
 

@@ -8,10 +8,13 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.BaseColumns
 import android.util.Base64
 import com.google.gson.Gson
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.helper.DbHelper
+import com.pengke.paper.scanner.helper.ImageTable
 import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_rotate.*
 import java.io.ByteArrayOutputStream
@@ -25,6 +28,7 @@ class RotateActivity : AppCompatActivity() {
     private var index = 0
     private val matrix = Matrix()
     private val gson = Gson()
+    private val dbHelper = DbHelper(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,8 +59,30 @@ class RotateActivity : AppCompatActivity() {
     private fun setBtnListener() {
         matrix.setRotate(90F, decodedImg.width/2F, decodedImg.height/2F)
         rotateBtn.setOnClickListener {
-            decodedImg = Bitmap.createBitmap(decodedImg, 0, 0, decodedImg.width, decodedImg.height, matrix, true)
-            imageView.setImageBitmap(decodedImg)
+//            decodedImg = Bitmap.createBitmap(decodedImg, 0, 0, decodedImg.width, decodedImg.height, matrix, true)
+//            imageView.setImageBitmap(decodedImg)
+            val db = dbHelper.readableDatabase
+
+            val cursor = db.query(
+                ImageTable.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+            )
+            with(cursor) {
+                while (moveToNext()) {
+                    val hoge = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+                    println(hoge)
+                    val fuga = getBlob(getColumnIndexOrThrow(ImageTable.COLUMN_NAME_BITMAP))
+                    println(fuga)
+                    val bm = BitmapFactory.decodeByteArray(fuga, 0, fuga.size)
+                    imageView.setImageBitmap(bm)
+                    return@with
+                }
+            }
         }
 
         cancelBtn.setOnClickListener {
