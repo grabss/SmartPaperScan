@@ -49,11 +49,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         override fun run() {
             val result = sp.getBoolean(CAN_EDIT_IMAGES, false)
             if (result) {
-//                val json = sp.getString(IMAGE_ARRAY, null)
-//                images = jsonToImageArray(json!!)
-
                 images = getImagesFromDB()
-
                 pagerAdapter = ImageListPagerAdapter(images)
 
                 // 編集画面からインデックスを取得
@@ -76,8 +72,6 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_list)
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
-
-        getImagesFromDB()
 
         // ギャラリーから選択した画像の加工処理が終わっているかを200ミリ秒毎に確認
         handler.post(result)
@@ -112,8 +106,8 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
     override fun onDestroy() {
         super.onDestroy()
-        val db = dbHelper.writableDatabase
-        db.delete(ImageTable.TABLE_NAME, null, null)
+//        val db = dbHelper.writableDatabase
+//        db.delete(ImageTable.TABLE_NAME, null, null)
     }
 
     private fun setBtnListener() {

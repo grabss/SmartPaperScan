@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.BaseColumns
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Base64
@@ -31,6 +32,7 @@ import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.*
 import com.pengke.paper.scanner.crop.BeforehandCropPresenter
 import com.pengke.paper.scanner.helper.DbHelper
+import com.pengke.paper.scanner.helper.ImageTable
 import com.pengke.paper.scanner.jsonToImageArray
 import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.processPicture
@@ -467,16 +469,18 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
     }
 
     // 撮影済み画像枚数取得
-    // TODO DBのレコード数取得
     private fun getImageCount(): Int {
-        return 0
-//        val json = sp.getString(IMAGE_ARRAY, null)
-//        return if (json == null) {
-//            0
-//        } else {
-//            val images = jsonToImageArray(json)
-//            images.size
-//        }
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(
+            ImageTable.TABLE_NAME,
+            arrayOf(BaseColumns._ID),
+            null,
+            null,
+            null,
+            null,
+            null,
+        )
+        return cursor.count
     }
 
     // 初回カメラ起動時、画像一覧画面から戻ってきた場合にのみ呼ばれる
