@@ -249,10 +249,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
 
                     val pic = Imgcodecs.imdecode(mat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
                     Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE)
-//                    SourceManager.corners = processPicture(pic)
                     mat.release()
-
-//                    SourceManager.pic = pic
 
                     // 矩形編集画面に遷移
 //                    context.startActivity(Intent(context, CropActivity::class.java))
@@ -298,13 +295,13 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         } else {
             saveImageToDB(rotatedBm, thumbBm)
         }
-        scanActv.updateCount()
     }
 
     fun saveImageToDB(originalBm: Bitmap, thumbBm: Bitmap) {
         val values = getContentValues(getBinaryFromBitmap(originalBm), getBinaryFromBitmap(thumbBm))
         val db = dbHelper.writableDatabase
-        val imageId = db.insert(ImageTable.TABLE_NAME, null, values)
+        db.insert(ImageTable.TABLE_NAME, null, values)
+        scanActv.updateCount()
     }
 
     //値セットを取得
@@ -314,7 +311,29 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         return ContentValues().apply {
             put("${ImageTable.COLUMN_NAME_BITMAP}", originBinary)
             put("${ImageTable.COLUMN_NAME_THUMB_BITMAP}", thumbBinary)
-            put("${ImageTable.COLUMN_NAME_INDEX}", images.size + 1)
+            put("${ImageTable.COLUMN_NAME_ORDER_INDEX}", getMaxOrderIndex() + 1)
+        }
+    }
+
+    private fun getMaxOrderIndex(): Int {
+        val db = dbHelper.readableDatabase
+        val order = "${ImageTable.COLUMN_NAME_ORDER_INDEX} DESC"
+        val cursor = db.query(
+            ImageTable.TABLE_NAME,
+            arrayOf(ImageTable.COLUMN_NAME_ORDER_INDEX),
+            null,
+            null,
+            null,
+            null,
+            order,
+        )
+        return if (cursor.count == 0) {
+            0
+        } else {
+            cursor.moveToFirst()
+            val max = cursor.getInt(cursor.getColumnIndexOrThrow(ImageTable.COLUMN_NAME_ORDER_INDEX))
+            println("max: $max")
+            max
         }
     }
 

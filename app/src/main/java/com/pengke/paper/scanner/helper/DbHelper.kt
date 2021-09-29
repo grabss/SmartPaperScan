@@ -10,15 +10,15 @@ object ImageTable: BaseColumns {
     const val TABLE_NAME = "images"
     const val COLUMN_NAME_BITMAP = "bitmap"
     const val COLUMN_NAME_THUMB_BITMAP = "thumbnail"
-    const val COLUMN_NAME_INDEX = "order_index"
+    const val COLUMN_NAME_ORDER_INDEX = "order_index"
 }
 
 // テーブル作成
-private const val SQL_CREATE_IMAGE = "CREATE TABLE IF NOT EXISTS ${ImageTable.TABLE_NAME}" +
+private const val SQL_CREATE_IMAGE = "CREATE TABLE ${ImageTable.TABLE_NAME}" +
         " (${BaseColumns._ID} INTEGER PRIMARY KEY," +
         " ${ImageTable.COLUMN_NAME_BITMAP} BLOB NOT NULL," +
         " ${ImageTable.COLUMN_NAME_THUMB_BITMAP} BLOB NOT NULL," +
-        " ${ImageTable.COLUMN_NAME_INDEX} INTEGER NOT NULL)"
+        " ${ImageTable.COLUMN_NAME_ORDER_INDEX} INTEGER NOT NULL)"
 
 // 削除
 private const val SQL_DELETE_IMAGE = "DROP TABLE IF EXISTS ${ImageTable.TABLE_NAME}"

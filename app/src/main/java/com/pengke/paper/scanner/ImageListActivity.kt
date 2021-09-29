@@ -81,6 +81,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
     fun getImagesFromDB(): ArrayList<Image> {
         val db = dbHelper.readableDatabase
+        val order = "${ImageTable.COLUMN_NAME_ORDER_INDEX} ASC"
 
         val cursor = db.query(
             ImageTable.TABLE_NAME,
@@ -89,7 +90,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
             null,
             null,
             null,
-            null,
+            order,
         )
         val imageList = ArrayList<Image>()
         with(cursor) {
@@ -200,15 +201,15 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         )
         println("column count: ${cursor.columnCount}")
         println("count: ${cursor.count}")
-        with(cursor) {
-            while (moveToNext()) {
-                val hoge = getLong(getColumnIndexOrThrow(BaseColumns._ID))
-                println(hoge)
-                val fuga = getBlob(getColumnIndexOrThrow(ImageTable.COLUMN_NAME_BITMAP))
-                println(fuga)
-            }
-        }
-        println(cursor)
+//        with(cursor) {
+//            while (moveToNext()) {
+//                val hoge = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+//                println(hoge)
+//                val fuga = getBlob(getColumnIndexOrThrow(ImageTable.COLUMN_NAME_BITMAP))
+//                println(fuga)
+//            }
+//        }
+//        println(cursor)
         println("=============")
         println("=============")
     }
@@ -276,8 +277,6 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
 
         fun bind(image: Image) {
-//            val imageBytes = Base64.decode(image?.b64, Base64.DEFAULT)
-//            val decodedImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             imageView.setImageBitmap(image.bm)
         }
     }

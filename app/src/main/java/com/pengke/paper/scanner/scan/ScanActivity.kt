@@ -487,10 +487,12 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
     override fun onStart() {
         println("onStart")
         super.onStart()
+        count = getImageCount()
+        Handler(Looper.getMainLooper()).post {
+            shut.text = count.toString()
+        }
         needFlash = false
         flashBtn.setImageResource(R.drawable.ic_baseline_flash_off_24)
-        count = getImageCount()
-        shut.text = count.toString()
         toEnableBtns()
         adjustBtnsState()
         if (PHOTO_MAX_COUNT <= count) {

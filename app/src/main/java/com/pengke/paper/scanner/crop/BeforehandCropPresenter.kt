@@ -58,16 +58,6 @@ class BeforehandCropPresenter(val context: Context, private val corners: Corners
                 croppedBitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
                 val thumbBm = Bitmap.createScaledBitmap(croppedBitmap!!, croppedBitmap!!.width/2, croppedBitmap!!.height/2, false)
                 scanPre?.saveImageToDB(croppedBitmap!!, thumbBm)
-//                val b = baos.toByteArray()
-//                val croppedB64 = Base64.encodeToString(b, Base64.DEFAULT)
-
-                // サムネイル生成
-                // ※単体表示用(0.5倍のさらに半分→オリジナルの0.25倍)
-//                val croppedThumbB64 = getThumbB64(croppedBitmap!!)
-//
-//                val croppedImg = image.copy(b64 = croppedB64, thumbB64 = croppedThumbB64)
-//                saveImage(croppedImg)
-//                scanPre?.addImageToList(croppedImg)
             }
     }
 
