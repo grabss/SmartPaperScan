@@ -265,9 +265,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private fun grayScale(mat: Mat, bm: Bitmap) {
         Utils.bitmapToMat(bm, mat)
         Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY)
-
-        // 記事ではこの記述も必要と書かれているが、クラッシュする
-//        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2RGBA, 4)
         Utils.matToBitmap(mat, bm)
     }
 
@@ -284,51 +281,28 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             true
         )
         val baos = ByteArrayOutputStream()
-        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 90, baos)
-
-        saveImageToDB(rotatedBm)
-
+        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
 
         val b = baos.toByteArray()
-        val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-        val thumbB64 = getThumbB64(rotatedBm)
-
-        val uuid = UUID.randomUUID().toString()
-        val image = Image(id = uuid, b64 = b64, originalB64 = b64, thumbB64 = thumbB64)
 
         val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
         updatedMat.put(0, 0, b)
         val editMat = Imgcodecs.imdecode(updatedMat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
-//        val corners = processPicture(editMat)
+        val corners = processPicture(editMat)
 
         // 矩形が取得できた場合、一覧に表示させる画像をクロップ済みのものにする
-//        if (corners != null) {
-//            val beforeCropPresenter = BeforehandCropPresenter(context, corners, editMat)
-//            beforeCropPresenter.cropAndSave(image = image, scanPre = this)
-//        } else {
-            addImageToList(image)
-//        }
-    }
-
-    private fun getThumbB64(rotatedBm: Bitmap): String {
-        // ※単体表示用の半分
-        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
-        val thumbBaos = ByteArrayOutputStream()
-        thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
-        val thumbB = thumbBaos.toByteArray()
-        return Base64.encodeToString(thumbB, Base64.DEFAULT)
-    }
-
-     fun addImageToList(image: Image) {
-//        images.add(image)
-//        val json = gson.toJson(images)
-//        val editor = sp.edit()
-//        editor.putString(IMAGE_ARRAY, json).apply()
+        if (corners != null) {
+            val beforeCropPresenter = BeforehandCropPresenter(context, corners, editMat)
+            beforeCropPresenter.cropAndSave(this)
+        } else {
+            saveImageToDB(rotatedBm, thumbBm)
+        }
         scanActv.updateCount()
     }
 
-    private fun saveImageToDB(bm: Bitmap) {
-        val values = getContentValues(getBinaryFromBitmap(bm))
+    fun saveImageToDB(originalBm: Bitmap, thumbBm: Bitmap) {
+        val values = getContentValues(getBinaryFromBitmap(originalBm), getBinaryFromBitmap(thumbBm))
         val db = dbHelper.writableDatabase
         val imageId = db.insert(ImageTable.TABLE_NAME, null, values)
     }
@@ -336,9 +310,10 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     //値セットを取得
     //@param URI
     //@return 値セット
-    private fun getContentValues(binary: ByteArray): ContentValues {
+    private fun getContentValues(originBinary: ByteArray, thumbBinary: ByteArray): ContentValues {
         return ContentValues().apply {
-            put("${ImageTable.COLUMN_NAME_BITMAP}", binary)
+            put("${ImageTable.COLUMN_NAME_BITMAP}", originBinary)
+            put("${ImageTable.COLUMN_NAME_THUMB_BITMAP}", thumbBinary)
             put("${ImageTable.COLUMN_NAME_INDEX}", images.size + 1)
         }
     }
@@ -346,13 +321,11 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     //Binaryを取得
     //@param Bitmap
     //@return Binary
-    private fun getBinaryFromBitmap(bitmap:Bitmap):ByteArray{
+    private fun getBinaryFromBitmap(bitmap: Bitmap): ByteArray{
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         return byteArrayOutputStream.toByteArray()
     }
-
-
 
     override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
         println("onPreviewFrame")

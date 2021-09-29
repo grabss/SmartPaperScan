@@ -9,6 +9,7 @@ import android.provider.BaseColumns
 object ImageTable: BaseColumns {
     const val TABLE_NAME = "images"
     const val COLUMN_NAME_BITMAP = "bitmap"
+    const val COLUMN_NAME_THUMB_BITMAP = "thumbnail"
     const val COLUMN_NAME_INDEX = "order_index"
 }
 
@@ -16,6 +17,7 @@ object ImageTable: BaseColumns {
 private const val SQL_CREATE_IMAGE = "CREATE TABLE IF NOT EXISTS ${ImageTable.TABLE_NAME}" +
         " (${BaseColumns._ID} INTEGER PRIMARY KEY," +
         " ${ImageTable.COLUMN_NAME_BITMAP} BLOB NOT NULL," +
+        " ${ImageTable.COLUMN_NAME_THUMB_BITMAP} BLOB NOT NULL," +
         " ${ImageTable.COLUMN_NAME_INDEX} INTEGER NOT NULL)"
 
 // 削除
@@ -37,6 +39,6 @@ class DbHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
 
     companion object {
         private const val DATABASE_NAME = "Image.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
     }
 }

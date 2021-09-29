@@ -78,7 +78,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
         mPresenter = ScanPresenter(this, this, this)
 
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
-        sp.edit().clear().apply()
+//        sp.edit().clear().apply()
     }
 
     override fun prepare() {
@@ -279,7 +279,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                         val corners = processPicture(editMat)
                         if (corners != null) {
                             val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
-                            beforeCropPresenter.cropAndSave(image = image)
+                            beforeCropPresenter.cropAndSave()
                         } else {
                             saveImage(image)
                         }
@@ -356,7 +356,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                     // 矩形が取得できるか確認し、取得できた場合はimageを更新する
                     if (corners != null) {
                         val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
-                        beforeCropPresenter.cropAndSave(image = image)
+                        beforeCropPresenter.cropAndSave()
                         editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
                     } else {
                         saveImage(image)
@@ -467,6 +467,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
     }
 
     // 撮影済み画像枚数取得
+    // TODO DBのレコード数取得
     private fun getImageCount(): Int {
         return 0
 //        val json = sp.getString(IMAGE_ARRAY, null)

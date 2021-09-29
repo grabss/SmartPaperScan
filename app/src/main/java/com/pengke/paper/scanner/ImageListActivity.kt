@@ -112,8 +112,8 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
     override fun onDestroy() {
         super.onDestroy()
-//        val db = dbHelper.writableDatabase
-//        db.delete(ImageTable.TABLE_NAME, null, null)
+        val db = dbHelper.writableDatabase
+        db.delete(ImageTable.TABLE_NAME, null, null)
     }
 
     private fun setBtnListener() {
