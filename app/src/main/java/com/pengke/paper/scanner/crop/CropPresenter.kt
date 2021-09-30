@@ -18,7 +18,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.pengke.paper.scanner.helper.DbHelper
 import com.pengke.paper.scanner.helper.ImageTable
 import com.pengke.paper.scanner.processor.*
-import kotlinx.android.synthetic.main.activity_crop.*
 import org.opencv.core.CvType
 import org.opencv.core.Size
 import org.opencv.imgcodecs.Imgcodecs

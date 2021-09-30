@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.pengke.paper.scanner.base.ID
 import com.pengke.paper.scanner.helper.DbHelper
 import com.pengke.paper.scanner.helper.ImageTable
 import com.pengke.paper.scanner.model.Image

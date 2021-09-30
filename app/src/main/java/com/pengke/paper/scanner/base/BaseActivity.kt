@@ -9,6 +9,7 @@ const val IMAGE_ARRAY = "imageArray"
 const val CAN_EDIT_IMAGES = "canEditImages"
 const val PHOTO_MAX_COUNT = 50
 const val SCALE_SIZE = 1280
+const val ID = "ID"
 
 abstract class BaseActivity : AppCompatActivity() {
 

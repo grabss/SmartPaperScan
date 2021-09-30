@@ -1,21 +1,15 @@
 package com.pengke.paper.scanner
 
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.*
 import android.os.Bundle
 import android.provider.BaseColumns
-import android.util.Base64
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
-import com.google.gson.Gson
-import com.pengke.paper.scanner.base.IMAGE_ARRAY
-import com.pengke.paper.scanner.base.SPNAME
+import com.pengke.paper.scanner.base.ID
 import com.pengke.paper.scanner.helper.DbHelper
 import com.pengke.paper.scanner.helper.ImageTable
-import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_contrast.*
 import kotlinx.android.synthetic.main.activity_rotate.cancelBtn
 import kotlinx.android.synthetic.main.activity_rotate.decisionBtn

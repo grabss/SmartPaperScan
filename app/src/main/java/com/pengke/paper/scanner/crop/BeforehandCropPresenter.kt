@@ -1,7 +1,6 @@
 package com.pengke.paper.scanner.crop
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.util.Log
 import io.reactivex.Observable
@@ -10,12 +9,6 @@ import io.reactivex.schedulers.Schedulers
 import org.opencv.android.Utils
 
 import org.opencv.core.Mat
-import android.util.Base64
-import com.google.gson.Gson
-import com.pengke.paper.scanner.base.IMAGE_ARRAY
-import com.pengke.paper.scanner.base.SPNAME
-import com.pengke.paper.scanner.jsonToImageArray
-import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.*
 import com.pengke.paper.scanner.scan.ScanPresenter
 import org.opencv.core.Point

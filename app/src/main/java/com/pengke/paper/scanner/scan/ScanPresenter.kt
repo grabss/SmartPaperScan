@@ -2,26 +2,17 @@ package com.pengke.paper.scanner.scan
 
 import android.content.ContentValues
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.Camera
 import android.media.MediaActionSound
-import android.provider.BaseColumns
-import android.util.Base64
 import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.Toast
-import com.google.gson.Gson
-import com.pengke.paper.scanner.SourceManager
-import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SCALE_SIZE
-import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.crop.BeforehandCropPresenter
 import com.pengke.paper.scanner.helper.DbHelper
 import com.pengke.paper.scanner.helper.ImageTable
-import com.pengke.paper.scanner.jsonToImageArray
-import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.Corners
 import com.pengke.paper.scanner.processor.processPicture
 import io.reactivex.Observable
@@ -37,7 +28,6 @@ import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -51,10 +41,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private val executor: ExecutorService
     private val proxySchedule: Scheduler
     private var isBusy: Boolean = false
-    private var sp: SharedPreferences = context.getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
-    var images = mutableListOf<Image>()
     private var matrix: Matrix
-    private val gson = Gson()
     private val dbHelper = DbHelper(context)
 
     init {
@@ -64,16 +51,6 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         matrix = Matrix()
         matrix.postRotate(90F)
     }
-
-    // SharedPrefに画像がある場合、変数に初期値として代入
-    fun initImageArray() {
-        Log.i(TAG, "initImageArray")
-        val json = sp.getString(IMAGE_ARRAY, null)
-        if (json != null) {
-            images = jsonToImageArray(json)
-        }
-    }
-
 
     fun start() {
         Log.i(TAG, "start")

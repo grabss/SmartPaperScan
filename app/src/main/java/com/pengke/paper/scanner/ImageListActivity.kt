@@ -19,6 +19,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.pengke.paper.scanner.base.CAN_EDIT_IMAGES
+import com.pengke.paper.scanner.base.ID
 import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.crop.CropActivity
@@ -26,9 +27,6 @@ import com.pengke.paper.scanner.helper.DbHelper
 import com.pengke.paper.scanner.helper.ImageTable
 import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_image_list.*
-
-const val INDEX = "INDEX"
-const val ID = "ID"
 
 class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
 
