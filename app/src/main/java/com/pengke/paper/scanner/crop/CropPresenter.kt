@@ -142,10 +142,9 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
                     val baos = ByteArrayOutputStream()
                     croppedBm!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
                     val thumbBm = Bitmap.createScaledBitmap(croppedBm!!, croppedBm!!.width/2, croppedBm!!.height/2, false)
-                    val original = getBinaryFromBitmap(bm)
-                    val thumb = getBinaryFromBitmap(thumbBm)
                     val cropped = getBinaryFromBitmap(croppedBm!!)
-                    val values = getContentValues(original, thumb, cropped)
+                    val thumb = getBinaryFromBitmap(thumbBm)
+                    val values = getContentValues(cropped, thumb)
                     val selection = "${BaseColumns._ID} = ?"
                     db.update(
                         ImageTable.TABLE_NAME,
@@ -156,11 +155,10 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
                 }
     }
 
-    private fun getContentValues(originBinary: ByteArray, thumbBinary: ByteArray, croppedBinary: ByteArray): ContentValues {
+    private fun getContentValues(croppedBinary: ByteArray, thumbBinary: ByteArray): ContentValues {
         return ContentValues().apply {
-            put("${ImageTable.COLUMN_NAME_ORIGINAL_BITMAP}", originBinary)
-            put("${ImageTable.COLUMN_NAME_THUMB_BITMAP}", thumbBinary)
             put("${ImageTable.COLUMN_NAME_BITMAP}", croppedBinary)
+            put("${ImageTable.COLUMN_NAME_THUMB_BITMAP}", thumbBinary)
         }
     }
 

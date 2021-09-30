@@ -18,14 +18,12 @@ import android.os.Looper
 import android.provider.BaseColumns
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.util.Base64
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
 import android.view.Display
 import android.view.SurfaceView
 import android.widget.SeekBar
-import com.google.gson.Gson
 import com.pengke.paper.scanner.AlertDialogFragment
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
@@ -37,10 +35,6 @@ import com.pengke.paper.scanner.processor.processPicture
 import com.pengke.paper.scanner.view.PaperRectangle
 
 import kotlinx.android.synthetic.main.activity_scan.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.CvType
@@ -268,7 +262,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                         }
                         mat.release()
                         val baos = ByteArrayOutputStream()
-                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
                         val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
                         val b = baos.toByteArray()
 
@@ -339,7 +333,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                     }
                     mat.release()
                     val baos = ByteArrayOutputStream()
-                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
                     val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
                     val b = baos.toByteArray()
 

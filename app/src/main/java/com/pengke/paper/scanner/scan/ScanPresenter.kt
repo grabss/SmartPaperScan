@@ -256,7 +256,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         )
         val baos = ByteArrayOutputStream()
         rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
+        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/3, rotatedBm.height/3, false)
         val b = baos.toByteArray()
         val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
         updatedMat.put(0, 0, b)

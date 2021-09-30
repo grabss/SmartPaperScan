@@ -82,9 +82,9 @@ class RotateActivity : AppCompatActivity() {
     private fun update() {
         val db = dbHelper.writableDatabase
         val thumbBm = Bitmap.createScaledBitmap(bm, bm.width/2, bm.height/2, false)
-        val original = getBinaryFromBitmap(bm)
+        val edited = getBinaryFromBitmap(bm)
         val thumb = getBinaryFromBitmap(thumbBm)
-        val values = getContentValues(original, thumb)
+        val values = getContentValues(edited, thumb)
         val selection = "${BaseColumns._ID} = ?"
         db.update(
             ImageTable.TABLE_NAME,
@@ -94,9 +94,9 @@ class RotateActivity : AppCompatActivity() {
         )
     }
 
-    private fun getContentValues(originBinary: ByteArray, thumbBinary: ByteArray): ContentValues {
+    private fun getContentValues(editedBinary: ByteArray, thumbBinary: ByteArray): ContentValues {
         return ContentValues().apply {
-            put("${ImageTable.COLUMN_NAME_ORIGINAL_BITMAP}", originBinary)
+            put("${ImageTable.COLUMN_NAME_BITMAP}", editedBinary)
             put("${ImageTable.COLUMN_NAME_THUMB_BITMAP}", thumbBinary)
         }
     }
