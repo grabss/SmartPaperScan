@@ -44,7 +44,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
             val result = sp.getBoolean(CAN_EDIT_IMAGES, false)
             if (result) {
                 images = getImagesFromDB()
-                updateFirstImage()
+                updateFirstAndSecondImage()
                 pagerAdapter = ImageListPagerAdapter(images)
 
                 // 編集画面からIDを取得
@@ -77,30 +77,32 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
                     return
                 }
 
-                // 表示中の画像のみハイクオリティ画像に差し替え
-                val image = getHighQualityImage(position)
-                images[position] = image
+                // 表示中の画像をハイクオリティ画像に差し替え
+//                val currentImage = getHighQualityImage(position)
+//                images[position] = currentImage
+
+                // 表示中の前後画像を差し替え
+                if (images.size >= 1 && position >= 1) {
+                    images[position - 1] = getHighQualityImage(position - 1)
+                }
+                if (images.size >= 1 && images.size - 2 >= position) {
+                    images[position + 1] = getHighQualityImage(position + 1)
+                }
 
                 // 非表示の画像をサムネイルに戻す
-                // 画像が1枚以下の場合は何もしない
-                if (images.size <= 1) {
-                    return
+                if (images.size >= 3 && position <= images.size - 3) {
+                    images[position + 2] = getThumb(position + 2)
                 }
 
-                if (position == 0) {
-                    // index1を元に戻す
-                    images[1] = getThumb(1)
-                } else if (position == images.size - 1) {
-                    // size-2を元に戻す
-                    images[position - 1] = getThumb(position - 1)
-                } else {
-                    // 前後を元に戻す
-                    images[position - 1]  = getThumb(position - 1)
-                    images[position + 1]  = getThumb(position + 1)
+                if (images.size >= 3 && position >= 2) {
+                    images[position - 2] = getThumb(position - 2)
                 }
+
                 Handler(Looper.getMainLooper()).post {
                     pagerAdapter.updateData(images)
+//                    viewPager.setCurrentItem(position, false)
                 }
+
             }
 
             override fun onPageSelected(position: Int) {
@@ -199,9 +201,13 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         return imageList
     }
 
-    private fun updateFirstImage() {
+    private fun updateFirstAndSecondImage() {
         val firstImage = getHighQualityImage(0)
         images[0] = firstImage
+        if (images.size > 1) {
+            val secondImage = getHighQualityImage(1)
+            images[1] = secondImage
+        }
     }
 
     override fun onDestroy() {
