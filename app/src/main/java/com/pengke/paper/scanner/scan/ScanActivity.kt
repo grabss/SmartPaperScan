@@ -33,8 +33,6 @@ import com.pengke.paper.scanner.base.*
 import com.pengke.paper.scanner.crop.BeforehandCropPresenter
 import com.pengke.paper.scanner.helper.DbHelper
 import com.pengke.paper.scanner.helper.ImageTable
-import com.pengke.paper.scanner.jsonToImageArray
-import com.pengke.paper.scanner.model.Image
 import com.pengke.paper.scanner.processor.processPicture
 import com.pengke.paper.scanner.view.PaperRectangle
 
@@ -47,7 +45,6 @@ import org.opencv.core.Size
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
-import java.util.*
 import kotlin.concurrent.thread
 
 const val IMAGE_COUNT_RESULT = 1000
@@ -62,7 +59,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
     private lateinit var sp: SharedPreferences
 
     private var count = 0
-    private val gson = Gson()
 
     override fun provideContentViewId(): Int = R.layout.activity_scan
 
@@ -115,7 +111,18 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
         }
 
         gallery.setOnClickListener {
-            alertDialog.show(supportFragmentManager, "TAG")
+//            alertDialog.show(supportFragmentManager, "TAG")
+            val db = dbHelper.writableDatabase
+            db.delete(ImageTable.TABLE_NAME, null, null)
+            val editor = sp.edit()
+            editor.putBoolean(CAN_EDIT_IMAGES, false).apply()
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                type = "image/*"
+            }
+            startActivityForResult(intent, REQUEST_GALLERY_TAKE)
         }
 
         shut.setOnClickListener {
@@ -133,15 +140,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
     }
 
     override fun onDecisionClick() {
-        val editor = sp.edit()
-        editor.putBoolean(CAN_EDIT_IMAGES, false).apply()
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-
-            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            type = "image/*"
-        }
-        startActivityForResult(intent, REQUEST_GALLERY_TAKE)
     }
 
     fun setSlider(max: Int?) {
@@ -264,15 +262,11 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                             ExifInterface.ORIENTATION_NORMAL -> bitmap
                             else -> bitmap
                         }
-                        val baos = ByteArrayOutputStream()
-                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
-                        val b = baos.toByteArray()
-                        val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-                        val thumbB64 = getThumbB64(rotatedBm)
-
-                        val uuid = UUID.randomUUID().toString()
-                        val image = Image(id = uuid)
                         mat.release()
+                        val baos = ByteArrayOutputStream()
+                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
+                        val b = baos.toByteArray()
 
                         // 矩形が取得できるか確認し、取得できた場合はimageを更新する
                         val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
@@ -283,7 +277,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                             val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
                             beforeCropPresenter.cropAndSave(originalBm = rotatedBm)
                         } else {
-                            saveImage(image)
+                            mPresenter.saveImageToDB(originalBm = rotatedBm, thumbBm = thumbBm, croppedBm = rotatedBm)
                         }
                     }
                     editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
@@ -339,31 +333,24 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                         ExifInterface.ORIENTATION_NORMAL -> bitmap
                         else -> bitmap
                     }
-                    val baos = ByteArrayOutputStream()
-                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 90, baos)
-
-                    val b = baos.toByteArray()
-                    val b64 = Base64.encodeToString(b, Base64.DEFAULT)
-                    val thumbB64 = getThumbB64(rotatedBm)
-
-                    val uuid = UUID.randomUUID().toString()
-                    val image = Image(id = uuid)
                     mat.release()
+                    val baos = ByteArrayOutputStream()
+                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                    val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
+                    val b = baos.toByteArray()
 
+                    // 矩形が取得できるか確認し、取得できた場合はimageを更新する
                     val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)
                     updatedMat.put(0, 0, b)
                     val editMat = Imgcodecs.imdecode(updatedMat, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED)
                     val corners = processPicture(editMat)
-
-                    // 矩形が取得できるか確認し、取得できた場合はimageを更新する
                     if (corners != null) {
                         val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
                         beforeCropPresenter.cropAndSave(originalBm = rotatedBm)
-                        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
                     } else {
-                        saveImage(image)
-                        editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
+                        mPresenter.saveImageToDB(originalBm = rotatedBm, thumbBm = thumbBm, croppedBm = rotatedBm)
                     }
+                    editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
                 }
             }
         }
@@ -457,17 +444,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
         )
     }
 
-    fun saveImage(image: Image) {
-        var images = mutableListOf<Image>()
-        val json = sp.getString(IMAGE_ARRAY, null)
-        if (json != null) {
-            images = jsonToImageArray(json)
-        }
-        images.add(image)
-        val editor = sp.edit()
-        editor.putString(IMAGE_ARRAY, gson.toJson(images)).apply()
-    }
-
     // 撮影済み画像枚数取得
     private fun getImageCount(): Int {
         val db = dbHelper.readableDatabase
@@ -503,7 +479,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
             shut.background = resources.getDrawable(R.drawable.picture_button, null)
             maxCountDesc.text = resources.getString(R.string.max_count_desc)
         }
-        mPresenter.initImageArray()
         mPresenter.start()
     }
 
