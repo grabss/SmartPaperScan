@@ -45,7 +45,6 @@ class BeforehandCropPresenter(val context: Context, private val corners: Corners
                 Log.i(TAG, "cropped picture: " + pc.toString())
                 croppedPicture = pc
                 croppedBitmap = Bitmap.createBitmap(pc.width(), pc.height(), Bitmap.Config.ARGB_8888)
-
                 Utils.matToBitmap(pc, croppedBitmap)
                 val baos = ByteArrayOutputStream()
                 croppedBitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)

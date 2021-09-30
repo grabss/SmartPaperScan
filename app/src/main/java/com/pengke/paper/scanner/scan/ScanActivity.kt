@@ -74,7 +74,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
         mPresenter = ScanPresenter(this, this, this)
 
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
-//        sp.edit().clear().apply()
+        sp.edit().clear().apply()
     }
 
     override fun prepare() {

@@ -15,11 +15,8 @@ import android.widget.ImageView
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.model.Image
 
-private const val ARG_PARAM1 = "params"
-
 class ImageListFragment : Fragment() {
     private lateinit var imageView: ImageView
-    private lateinit var sp: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

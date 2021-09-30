@@ -20,7 +20,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.pengke.paper.scanner.base.CAN_EDIT_IMAGES
 import com.pengke.paper.scanner.base.ID
-import com.pengke.paper.scanner.base.IMAGE_ARRAY
 import com.pengke.paper.scanner.base.SPNAME
 import com.pengke.paper.scanner.crop.CropActivity
 import com.pengke.paper.scanner.helper.DbHelper
@@ -208,12 +207,6 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
             val secondImage = getHighQualityImage(1)
             images[1] = secondImage
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-//        val db = dbHelper.writableDatabase
-//        db.delete(ImageTable.TABLE_NAME, null, null)
     }
 
     private fun setBtnListener() {

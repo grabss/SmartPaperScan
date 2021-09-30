@@ -55,7 +55,6 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
     private fun setGridView() {
         val db = dbHelper.readableDatabase
         val order = "${ImageTable.COLUMN_NAME_ORDER_INDEX} ASC"
-
         val cursor = db.query(
             ImageTable.TABLE_NAME,
             arrayOf(BaseColumns._ID, ImageTable.COLUMN_NAME_THUMB_BITMAP, ImageTable.COLUMN_NAME_ORDER_INDEX),
