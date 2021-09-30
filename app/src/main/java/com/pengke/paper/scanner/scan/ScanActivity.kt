@@ -262,8 +262,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                         }
                         mat.release()
                         val baos = ByteArrayOutputStream()
-                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
-                        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
+                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/3, rotatedBm.height/3, false)
                         val b = baos.toByteArray()
 
                         // 矩形が取得できるか確認し、取得できた場合はimageを更新する
@@ -333,7 +333,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                     }
                     mat.release()
                     val baos = ByteArrayOutputStream()
-                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
                     val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
                     val b = baos.toByteArray()
 
