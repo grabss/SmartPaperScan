@@ -291,16 +291,17 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         // 矩形が取得できた場合、一覧に表示させる画像をクロップ済みのものにする
         if (corners != null) {
             val beforeCropPresenter = BeforehandCropPresenter(context, corners, editMat)
-            beforeCropPresenter.cropAndSave(this)
+            beforeCropPresenter.cropAndSave(this, rotatedBm)
         } else {
-            saveImageToDB(rotatedBm, thumbBm)
+            saveImageToDB(originalBm = rotatedBm, thumbBm = thumbBm, croppedBm = rotatedBm)
         }
     }
 
-    fun saveImageToDB(originalBm: Bitmap, thumbBm: Bitmap) {
+    fun saveImageToDB(originalBm: Bitmap, thumbBm: Bitmap, croppedBm: Bitmap) {
         val original = getBinaryFromBitmap(originalBm)
         val thumb = getBinaryFromBitmap(thumbBm)
-        val values = getContentValues(original, thumb)
+        val cropped = getBinaryFromBitmap(croppedBm)
+        val values = getContentValues(originBinary = original, thumbBinary = thumb, croppedBinary = cropped)
         val db = dbHelper.writableDatabase
         db.insert(ImageTable.TABLE_NAME, null, values)
         scanActv.updateCount()
@@ -309,10 +310,11 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     //値セットを取得
     //@param URI
     //@return 値セット
-    private fun getContentValues(originBinary: ByteArray, thumbBinary: ByteArray): ContentValues {
+    private fun getContentValues(originBinary: ByteArray, thumbBinary: ByteArray, croppedBinary: ByteArray): ContentValues {
         return ContentValues().apply {
-            put("${ImageTable.COLUMN_NAME_BITMAP}", originBinary)
+            put("${ImageTable.COLUMN_NAME_ORIGINAL_BITMAP}", originBinary)
             put("${ImageTable.COLUMN_NAME_THUMB_BITMAP}", thumbBinary)
+            put("${ImageTable.COLUMN_NAME_BITMAP}", croppedBinary)
             put("${ImageTable.COLUMN_NAME_ORDER_INDEX}", getMaxOrderIndex() + 1)
         }
     }

@@ -103,7 +103,7 @@ class RotateActivity : AppCompatActivity() {
 
     private fun getContentValues(originBinary: ByteArray, thumbBinary: ByteArray): ContentValues {
         return ContentValues().apply {
-            put("${ImageTable.COLUMN_NAME_BITMAP}", originBinary)
+            put("${ImageTable.COLUMN_NAME_ORIGINAL_BITMAP}", originBinary)
             put("${ImageTable.COLUMN_NAME_THUMB_BITMAP}", thumbBinary)
         }
     }

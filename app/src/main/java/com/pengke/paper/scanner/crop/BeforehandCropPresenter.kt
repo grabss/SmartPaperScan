@@ -31,7 +31,7 @@ class BeforehandCropPresenter(val context: Context, private val corners: Corners
         picture = mat
     }
 
-    fun cropAndSave(scanPre: ScanPresenter? = null) {
+    fun cropAndSave(scanPre: ScanPresenter? = null, originalBm: Bitmap) {
 
         if (picture == null) {
             Log.i(TAG, "picture null?")
@@ -57,7 +57,7 @@ class BeforehandCropPresenter(val context: Context, private val corners: Corners
                 val baos = ByteArrayOutputStream()
                 croppedBitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
                 val thumbBm = Bitmap.createScaledBitmap(croppedBitmap!!, croppedBitmap!!.width/2, croppedBitmap!!.height/2, false)
-                scanPre?.saveImageToDB(croppedBitmap!!, thumbBm)
+                scanPre?.saveImageToDB(originalBm, thumbBm, croppedBitmap!!)
             }
     }
 

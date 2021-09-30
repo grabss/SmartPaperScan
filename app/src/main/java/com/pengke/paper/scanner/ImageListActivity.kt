@@ -3,22 +3,18 @@ package com.pengke.paper.scanner
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.database.CursorWindow
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.BaseColumns
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
-import androidx.core.view.marginStart
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
@@ -30,7 +26,6 @@ import com.pengke.paper.scanner.helper.DbHelper
 import com.pengke.paper.scanner.helper.ImageTable
 import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_image_list.*
-import org.json.JSONArray
 
 const val INDEX = "INDEX"
 const val ID = "ID"
@@ -80,6 +75,12 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_list)
+
+        // CursorWindowの設定値増加(上限100MB)
+        val field = CursorWindow::class.java.getDeclaredField("sCursorWindowSize")
+        field.isAccessible = true
+        field.set(null, 100 * 1024 * 1024)
+
         sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
         // ギャラリーから選択した画像の加工処理が終わっているかを200ミリ秒毎に確認
@@ -162,7 +163,8 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
     private fun navToCropScrn() {
         val intent = Intent(this, CropActivity::class.java)
-        intent.putExtra(INDEX, viewPager.currentItem)
+        val image = images[viewPager.currentItem]
+        intent.putExtra(ID, image.id)
         startActivity(intent)
         finish()
     }

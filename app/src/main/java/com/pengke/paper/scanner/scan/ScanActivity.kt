@@ -281,7 +281,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                         val corners = processPicture(editMat)
                         if (corners != null) {
                             val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
-                            beforeCropPresenter.cropAndSave()
+                            beforeCropPresenter.cropAndSave(originalBm = rotatedBm)
                         } else {
                             saveImage(image)
                         }
@@ -358,7 +358,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                     // 矩形が取得できるか確認し、取得できた場合はimageを更新する
                     if (corners != null) {
                         val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
-                        beforeCropPresenter.cropAndSave()
+                        beforeCropPresenter.cropAndSave(originalBm = rotatedBm)
                         editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
                     } else {
                         saveImage(image)

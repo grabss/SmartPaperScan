@@ -14,6 +14,7 @@ import android.view.ViewTreeObserver
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.pengke.paper.scanner.ID
 import com.pengke.paper.scanner.INDEX
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
@@ -30,11 +31,9 @@ import kotlin.concurrent.thread
 class CropActivity : BaseActivity(), ICropView.Proxy {
 
     private lateinit var mPresenter: CropPresenter
-    private lateinit var sp: SharedPreferences
-    var index = 0
+    var id = ""
 
     override fun prepare() {
-        sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
         setBtnListener()
     }
 
@@ -64,7 +63,7 @@ class CropActivity : BaseActivity(), ICropView.Proxy {
 
     private fun navToImageListScrn() {
         val intent = Intent(this, ImageListActivity::class.java)
-        intent.putExtra(INDEX, index)
+        intent.putExtra(ID, id)
         startActivityForResult(intent, 100)
         finish()
     }
@@ -72,12 +71,12 @@ class CropActivity : BaseActivity(), ICropView.Proxy {
     override fun provideContentViewId(): Int = R.layout.activity_crop
 
     override fun initPresenter() {
-        index = intent.getIntExtra(INDEX, 0)
-        mPresenter = CropPresenter(this, this, index, 1, 1)
+        id = intent.getStringExtra(ID).toString()
+        mPresenter = CropPresenter(this, this, id, 1, 1)
         paper.viewTreeObserver.addOnGlobalLayoutListener {
             val width = paper.width
             val height = paper.height
-            mPresenter = CropPresenter(this, this, index, width, height)
+            mPresenter = CropPresenter(this, this, id, width, height)
         }
     }
 
