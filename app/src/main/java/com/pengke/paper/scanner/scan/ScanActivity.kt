@@ -37,6 +37,10 @@ import com.pengke.paper.scanner.processor.processPicture
 import com.pengke.paper.scanner.view.PaperRectangle
 
 import kotlinx.android.synthetic.main.activity_scan.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.CvType
@@ -194,7 +198,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
             shut.text = count.toString()
             toEnableBtns()
             if (PHOTO_MAX_COUNT <= count) {
-//                shut.isEnabled = false
+                shut.isEnabled = false
                 shut.background = resources.getDrawable(R.drawable.reached_max_count_picture_button, null)
                 maxCountDesc.text = resources.getString(R.string.reached_max_count)
             }
@@ -275,7 +279,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                         val corners = processPicture(editMat)
                         if (corners != null) {
                             val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
-                            beforeCropPresenter.cropAndSave(originalBm = rotatedBm)
+                            beforeCropPresenter.cropAndSave(scanPre = mPresenter, originalBm = rotatedBm)
                         } else {
                             mPresenter.saveImageToDB(originalBm = rotatedBm, thumbBm = thumbBm, croppedBm = rotatedBm)
                         }
@@ -346,7 +350,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                     val corners = processPicture(editMat)
                     if (corners != null) {
                         val beforeCropPresenter = BeforehandCropPresenter(this, corners, editMat)
-                        beforeCropPresenter.cropAndSave(originalBm = rotatedBm)
+                        beforeCropPresenter.cropAndSave(scanPre = mPresenter, originalBm = rotatedBm)
                     } else {
                         mPresenter.saveImageToDB(originalBm = rotatedBm, thumbBm = thumbBm, croppedBm = rotatedBm)
                     }
@@ -354,15 +358,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                 }
             }
         }
-    }
-
-    private fun getThumbB64(rotatedBm: Bitmap): String {
-        // ※単体表示用の半分
-        val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/2, rotatedBm.height/2, false)
-        val thumbBaos = ByteArrayOutputStream()
-        thumbBm.compress(Bitmap.CompressFormat.JPEG, 100, thumbBaos)
-        val thumbB = thumbBaos.toByteArray()
-        return Base64.encodeToString(thumbB, Base64.DEFAULT)
     }
 
     private fun getPathFromUri(context: Context, uri: Uri): String? {
@@ -472,7 +467,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
         toEnableBtns()
         adjustBtnsState()
         if (PHOTO_MAX_COUNT <= count) {
-//            shut.isEnabled = false
+            shut.isEnabled = false
             shut.background = resources.getDrawable(R.drawable.reached_max_count_picture_button, null)
             maxCountDesc.text = resources.getString(R.string.reached_max_count)
         } else {
