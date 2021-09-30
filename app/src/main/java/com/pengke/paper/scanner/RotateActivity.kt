@@ -41,7 +41,7 @@ class RotateActivity : AppCompatActivity() {
     }
 
     private fun setImage() {
-        // タップされた画像のインデックスを取得
+        // タップされた画像のIDを取得
         id = intent.getStringExtra(ID).toString()
         val db = dbHelper.readableDatabase
         val selection = "${BaseColumns._ID} = ?"
@@ -108,9 +108,6 @@ class RotateActivity : AppCompatActivity() {
         }
     }
 
-    //Binaryを取得
-    //@param Bitmap
-    //@return Binary
     private fun getBinaryFromBitmap(bitmap: Bitmap): ByteArray{
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)

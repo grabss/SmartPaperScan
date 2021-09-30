@@ -60,6 +60,10 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
                 // 編集画面からIDを取得
                 id = intent.getStringExtra(ID).toString()
 
+                index = images.indexOfFirst {
+                    it.id == id
+                }
+
                 viewPager = pager
                 viewPager.offscreenPageLimit = 5
                 viewPager.adapter = pagerAdapter
@@ -175,7 +179,8 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
     private fun navToContrastScrn() {
         val intent = Intent(this, ContrastActivity::class.java)
-        intent.putExtra(INDEX, viewPager.currentItem)
+        val image = images[viewPager.currentItem]
+        intent.putExtra(ID, image.id)
         startActivity(intent)
         finish()
     }
@@ -233,7 +238,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         }
     }
 
-    fun deleteRowFromDB(id: String) {
+    private fun deleteRowFromDB(id: String) {
         val db = dbHelper.writableDatabase
         db.delete(ImageTable.TABLE_NAME, "${BaseColumns._ID} = ?", arrayOf(id))
     }
