@@ -271,7 +271,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                         val thumbB64 = getThumbB64(rotatedBm)
 
                         val uuid = UUID.randomUUID().toString()
-                        val image = Image(id = uuid, b64 = b64, originalB64 = b64, thumbB64 = thumbB64)
+                        val image = Image(id = uuid)
                         mat.release()
 
                         // 矩形が取得できるか確認し、取得できた場合はimageを更新する
@@ -347,7 +347,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                     val thumbB64 = getThumbB64(rotatedBm)
 
                     val uuid = UUID.randomUUID().toString()
-                    val image = Image(id = uuid, b64 = b64, originalB64 = b64, thumbB64 = thumbB64)
+                    val image = Image(id = uuid)
                     mat.release()
 
                     val updatedMat = Mat(Size(rotatedBm.width.toDouble(), rotatedBm.height.toDouble()), CvType.CV_8U)

@@ -8,10 +8,8 @@ import java.io.Serializable
 
 data class Image(
     val id: String = "",
-    val b64: String? = null,
-    val originalB64: String? = null,
-    val thumbB64: String? = null,
     val bm: Bitmap? = null,
     val thumbBm: Bitmap? = null,
+    val originalBm: Bitmap? = null,
     val orderIndex: Int = 0
 ): Serializable

@@ -38,7 +38,6 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     private lateinit var images: ArrayList<Image>
     private val dialog = ConfirmDialogFragment()
     private var id = ""
-    private var index = 0
     private val handler = Handler(Looper.getMainLooper())
     private val dbHelper = DbHelper(this)
 
@@ -49,13 +48,10 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
                 images = getImagesFromDB()
                 pagerAdapter = ImageListPagerAdapter(images)
 
-                // 編集画面からインデックスを取得
-                index = intent.getIntExtra(INDEX, 0)
-
                 // 編集画面からIDを取得
                 id = intent.getStringExtra(ID).toString()
 
-                index = images.indexOfFirst {
+                val index = images.indexOfFirst {
                     it.id == id
                 }
 
@@ -75,13 +71,12 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_list)
+        sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
         // CursorWindowの設定値増加(上限100MB)
         val field = CursorWindow::class.java.getDeclaredField("sCursorWindowSize")
         field.isAccessible = true
         field.set(null, 100 * 1024 * 1024)
-
-        sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
 
         // ギャラリーから選択した画像の加工処理が終わっているかを200ミリ秒毎に確認
         handler.post(result)
@@ -95,7 +90,7 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
         val cursor = db.query(
             ImageTable.TABLE_NAME,
-            null,
+            arrayOf(BaseColumns._ID, ImageTable.COLUMN_NAME_BITMAP, ImageTable.COLUMN_NAME_ORDER_INDEX),
             null,
             null,
             null,
@@ -189,16 +184,14 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
 
     private fun navToSortScrn() {
         val intent = Intent(this, SortActivity::class.java)
-        intent.putExtra(INDEX, viewPager.currentItem)
+        val image = images[viewPager.currentItem]
+        intent.putExtra(ID, image.id)
         startActivity(intent)
         finish()
     }
 
     // アップロード実行。Flutterに2次元配列のbyte配列を渡す
     private fun upload() {
-//        val images: String? = sp.getString(IMAGE_ARRAY, null)
-//        val a = JSONArray(images)
-//        println("images length: ${a.length()}")
         println("=============")
         println("=============")
         val db = dbHelper.readableDatabase
@@ -214,24 +207,15 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         )
         println("column count: ${cursor.columnCount}")
         println("count: ${cursor.count}")
-//        with(cursor) {
-//            while (moveToNext()) {
-//                val hoge = getLong(getColumnIndexOrThrow(BaseColumns._ID))
-//                println(hoge)
-//                val fuga = getBlob(getColumnIndexOrThrow(ImageTable.COLUMN_NAME_BITMAP))
-//                println(fuga)
-//            }
-//        }
-//        println(cursor)
         println("=============")
         println("=============")
     }
 
 
     override fun onDecisionClick() {
+        val index = viewPager.currentItem
         val image = images[index]
         deleteRowFromDB(image.id)
-        val index = viewPager.currentItem
         images.removeAt(index)
         pagerAdapter.updateData(images)
         viewPager.setCurrentItem(index, false)
