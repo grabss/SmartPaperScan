@@ -8,6 +8,7 @@ import android.content.*
 import android.graphics.*
 import android.os.Bundle
 import android.provider.BaseColumns
+import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -23,6 +24,7 @@ import com.pengke.paper.scanner.model.Image
 import kotlinx.android.synthetic.main.activity_rotate.cancelBtn
 import kotlinx.android.synthetic.main.activity_rotate.decisionBtn
 import kotlinx.android.synthetic.main.activity_sort.*
+import org.opencv.android.Utils
 import kotlin.concurrent.thread
 
 class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
@@ -35,6 +37,7 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
     private val dialog = ConfirmDialogFragment()
     private var index = 0
     private val dbHelper = DbHelper(this)
+    private val idList = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +48,11 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
         grid.layoutManager = GridLayoutManager(this, 3, RecyclerView.VERTICAL, false)
         setBtnListener()
         windowManager.defaultDisplay.getRealMetrics(dm)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dbHelper.close()
     }
 
     override fun onBackPressed() {
@@ -249,6 +257,9 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
     private fun updateData() {
         val db = dbHelper.writableDatabase
         var i = 1
+        println("imageListSize  : ${imageList.size}")
+        val args = TextUtils.join(", ", idList)
+        db.execSQL(String.format("DELETE FROM ${ImageTable.TABLE_NAME} WHERE ${BaseColumns._ID} IN (%s)", args))
         for(img in imageList) {
             val values = getContentValues(i)
             val selection = "${BaseColumns._ID} = ?"
@@ -331,9 +342,7 @@ class SortActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener {
         override fun getItemCount() = imageList.size
 
         fun removeItem(position: Int) {
-            val db = dbHelper.writableDatabase
-            val image = imageList[position]
-            db.delete(ImageTable.TABLE_NAME, "${BaseColumns._ID} = ?", arrayOf(image.id))
+            idList.add(imageList[position].id)
             imageList.removeAt(position)
             notifyDataSetChanged()
             if (imageList.isEmpty()) {
