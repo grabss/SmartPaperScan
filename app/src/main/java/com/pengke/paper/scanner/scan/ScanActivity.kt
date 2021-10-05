@@ -116,7 +116,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
             editor.putBoolean(CAN_EDIT_IMAGES, false).apply()
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
-
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                 type = "image/*"
                 putExtra(Intent.EXTRA_LOCAL_ONLY, true)
@@ -262,8 +261,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                             else -> bitmap
                         }
                         mat.release()
-                        val baos = ByteArrayOutputStream()
-                        rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
                         val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/3, rotatedBm.height/3, false)
                         mPresenter.saveImageToDB(originalBm = rotatedBm, thumbBm = thumbBm, croppedBm = rotatedBm)
                     }
@@ -321,8 +318,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
                         else -> bitmap
                     }
                     mat.release()
-                    val baos = ByteArrayOutputStream()
-                    rotatedBm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
                     val thumbBm = Bitmap.createScaledBitmap(rotatedBm, rotatedBm.width/3, rotatedBm.height/3, false)
                     mPresenter.saveImageToDB(originalBm = rotatedBm, thumbBm = thumbBm, croppedBm = rotatedBm)
                     editor.putBoolean(CAN_EDIT_IMAGES, true).apply()
