@@ -119,6 +119,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
 
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                 type = "image/*"
+                putExtra(Intent.EXTRA_LOCAL_ONLY, true)
             }
             startActivityForResult(intent, REQUEST_GALLERY_TAKE)
         }
