@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.database.CursorWindow
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
@@ -38,13 +39,17 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     private val handler = Handler(Looper.getMainLooper())
     private val dbHelper = DbHelper(this)
 
+    override fun onDestroy() {
+        super.onDestroy()
+        dbHelper.close()
+    }
+
     private val result = object: Runnable {
         override fun run() {
             val result = sp.getBoolean(CAN_EDIT_IMAGES, false)
             if (result) {
                 images = getImagesFromDB()
-                updateFirstAndSecondImage()
-                pagerAdapter = ImageListPagerAdapter(images)
+                pagerAdapter = ImageListPagerAdapter(images, applicationContext)
 
                 // 編集画面からIDを取得
                 id = intent.getStringExtra(ID).toString()
@@ -54,108 +59,15 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
                 }
 
                 viewPager = pager
-                viewPager.offscreenPageLimit = 5
                 viewPager.adapter = pagerAdapter
                 viewPager.setCurrentItem(index, false)
                 TabLayoutMediator(indicator, viewPager) { _, _ -> }.attach()
                 toEnableBtns()
-                setViewPagerListener()
                 return
             } else {
                 handler.postDelayed(this, 200)
             }
         }
-    }
-
-    private fun setViewPagerListener() {
-        viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-                println("onPageScrolled position: $position")
-                if (images.isEmpty()) {
-                    return
-                }
-
-                // 表示中の画像をハイクオリティ画像に差し替え
-//                val currentImage = getHighQualityImage(position)
-//                images[position] = currentImage
-
-                // 表示中の前後画像を差し替え
-                if (images.size >= 1 && position >= 1) {
-                    images[position - 1] = getHighQualityImage(position - 1)
-                }
-                if (images.size >= 1 && images.size - 2 >= position) {
-                    images[position + 1] = getHighQualityImage(position + 1)
-                }
-
-                // 非表示の画像をサムネイルに戻す
-                if (images.size >= 3 && position <= images.size - 3) {
-                    images[position + 2] = getThumb(position + 2)
-                }
-
-                if (images.size >= 3 && position >= 2) {
-                    images[position - 2] = getThumb(position - 2)
-                }
-
-                Handler(Looper.getMainLooper()).post {
-                    pagerAdapter.updateData(images)
-//                    viewPager.setCurrentItem(position, false)
-                }
-
-            }
-
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                println("onPageSelected position: $position")
-            }
-
-            override fun onPageScrollStateChanged(state: Int) {
-                super.onPageScrollStateChanged(state)
-                println("onPageScrollStateChanged state: $state")
-            }
-        })
-    }
-
-    private fun getHighQualityImage(position: Int): Image{
-        val db = dbHelper.readableDatabase
-        val image = images[position]
-        val selection = "${BaseColumns._ID} = ?"
-        val cursor = db.query(
-            ImageTable.TABLE_NAME,
-            arrayOf(ImageTable.COLUMN_NAME_BITMAP, ImageTable.COLUMN_NAME_ORDER_INDEX),
-            selection,
-            arrayOf(image.id),
-            null,
-            null,
-            null,
-        )
-        cursor.moveToFirst()
-        val blob = cursor.getBlob(0)
-        val bm = BitmapFactory.decodeByteArray(blob, 0, blob.size)
-
-        // 一覧表示用に正規画像を取得
-        return image.copy(thumbBm = bm)
-    }
-
-    private fun getThumb(position: Int): Image{
-        val db = dbHelper.readableDatabase
-        val image = images[position]
-        val selection = "${BaseColumns._ID} = ?"
-        val cursor = db.query(
-            ImageTable.TABLE_NAME,
-            arrayOf(ImageTable.COLUMN_NAME_THUMB_BITMAP, ImageTable.COLUMN_NAME_ORDER_INDEX),
-            selection,
-            arrayOf(image.id),
-            null,
-            null,
-            null,
-        )
-        cursor.moveToFirst()
-        val blob = cursor.getBlob(0)
-        val thumb = BitmapFactory.decodeByteArray(blob, 0, blob.size)
-
-        // 一覧表示用に正規画像を取得
-        return image.copy(thumbBm = thumb)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -198,15 +110,6 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
             }
         }
         return imageList
-    }
-
-    private fun updateFirstAndSecondImage() {
-        val firstImage = getHighQualityImage(0)
-        images[0] = firstImage
-        if (images.size > 1) {
-            val secondImage = getHighQualityImage(1)
-            images[1] = secondImage
-        }
     }
 
     private fun setBtnListener() {
@@ -327,8 +230,9 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     }
 
 
-    private inner class ImageListPagerAdapter(images: ArrayList<Image>) : RecyclerView.Adapter<PagerViewHolder>() {
+    private inner class ImageListPagerAdapter(images: ArrayList<Image>, context: Context) : RecyclerView.Adapter<PagerViewHolder>() {
         var images = images
+        val context = context
 
         // 要素数
         override fun getItemCount(): Int = images.size
@@ -350,18 +254,38 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagerViewHolder =
-            PagerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.fragment_image_list, parent, false))
+            PagerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.fragment_image_list, parent, false), context)
 
         override fun onBindViewHolder(holder: PagerViewHolder, position: Int) {
             holder.bind(images[position])
         }
     }
 
-    class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class PagerViewHolder(itemView: View, context: Context) : RecyclerView.ViewHolder(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
+        private val dbHelper = DbHelper(itemView.context)
 
         fun bind(image: Image) {
-            imageView.setImageBitmap(image.thumbBm)
+            println("bind")
+            val highQualityBm = getHighQualityBm(image)
+            imageView.setImageBitmap(highQualityBm)
+        }
+
+        private fun getHighQualityBm(image: Image): Bitmap {
+            val db = dbHelper.readableDatabase
+            val selection = "${BaseColumns._ID} = ?"
+            val cursor = db.query(
+                ImageTable.TABLE_NAME,
+                arrayOf(ImageTable.COLUMN_NAME_BITMAP, ImageTable.COLUMN_NAME_ORDER_INDEX),
+                selection,
+                arrayOf(image.id),
+                null,
+                null,
+                null,
+            )
+            cursor.moveToFirst()
+            val blob = cursor.getBlob(0)
+            return BitmapFactory.decodeByteArray(blob, 0, blob.size)
         }
     }
 }
