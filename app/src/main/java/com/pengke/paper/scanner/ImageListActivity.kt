@@ -39,6 +39,22 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
     private val handler = Handler(Looper.getMainLooper())
     private val dbHelper = DbHelper(this)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_image_list)
+        sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
+
+        // CursorWindowの設定値増加(上限500MB)
+        val field = CursorWindow::class.java.getDeclaredField("sCursorWindowSize")
+        field.isAccessible = true
+        field.set(null, 500 * 1024 * 1024)
+
+        // ギャラリーから選択した画像の加工処理が終わっているかを200ミリ秒毎に確認
+        handler.post(result)
+        toDisableBtns()
+        setBtnListener()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         dbHelper.close()
@@ -68,22 +84,6 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
                 handler.postDelayed(this, 200)
             }
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_image_list)
-        sp = getSharedPreferences(SPNAME, Context.MODE_PRIVATE)
-
-        // CursorWindowの設定値増加(上限500MB)
-        val field = CursorWindow::class.java.getDeclaredField("sCursorWindowSize")
-        field.isAccessible = true
-        field.set(null, 500 * 1024 * 1024)
-
-        // ギャラリーから選択した画像の加工処理が終わっているかを200ミリ秒毎に確認
-        handler.post(result)
-        toDisableBtns()
-        setBtnListener()
     }
 
     fun getImagesFromDB(): ArrayList<Image> {
