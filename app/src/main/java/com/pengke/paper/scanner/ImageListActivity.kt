@@ -70,13 +70,17 @@ class ImageListActivity : FragmentActivity(), ConfirmDialogFragment.BtnListener 
                 // 編集画面からIDを取得
                 id = intent.getStringExtra(ID).toString()
 
+                println("id: $id")
+
                 val index = images.indexOfFirst {
                     it.id == id
                 }
 
                 viewPager = pager
                 viewPager.adapter = pagerAdapter
-                viewPager.setCurrentItem(index, false)
+                viewPager.post {
+                    viewPager.setCurrentItem(index, false)
+                }
                 TabLayoutMediator(indicator, viewPager) { _, _ -> }.attach()
                 toEnableBtns()
                 return
