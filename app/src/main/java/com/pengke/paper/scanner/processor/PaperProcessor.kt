@@ -56,7 +56,7 @@ private fun findContours(src: Mat): ArrayList<MatOfPoint> {
 
     val grayImage: Mat
     val cannedImage: Mat
-    val kernel: Mat = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(9.0, 9.0))
+    val kernel: Mat = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(3.0, 3.0))
     val dilate: Mat
     val size = Size(src.size().width, src.size().height)
     grayImage = Mat(size, CvType.CV_8UC4)
@@ -91,10 +91,12 @@ private fun findContours(src: Mat): ArrayList<MatOfPoint> {
 
         /* 輪郭線の周囲長を取得 */
         val arclen = Imgproc.arcLength(ptmat2, true)
+        println("arclen: $arclen")
 
         /* 直線近似 */
         Imgproc.approxPolyDP(ptmat2, approx, 0.02 * arclen, true)
         approx.convertTo(approxf1, CvType.CV_32S)
+        println("approxf1.size(): ${approxf1.size()}")
         println("approxf1.size().area(): ${approxf1.size().area()}")
         if (approxf1.size().area() != 4.0) {
             /* 四角形以外は無視 */
