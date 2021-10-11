@@ -1,6 +1,8 @@
 package com.pengke.paper.scanner.crop
 
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.widget.ImageView
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
@@ -50,8 +52,10 @@ class CropActivity : BaseActivity(), ICropView.Proxy {
     private fun navToImageListScrn() {
         val intent = Intent(this, ImageListActivity::class.java)
         intent.putExtra(ID, id)
-        startActivityForResult(intent, 100)
-        finish()
+        Handler(Looper.getMainLooper()).postDelayed({
+            startActivityForResult(intent, 100)
+            finish()
+        }, 500)
     }
 
     override fun provideContentViewId(): Int = R.layout.activity_crop
