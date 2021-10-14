@@ -3,17 +3,15 @@ package com.pengke.paper.scanner
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.synthetic.main.fragment_confirm_dialog.*
 
-class CameraPermissionAlertDialogFragment : DialogFragment() {
+class PermissionAlertDialogFragment(val title: String) : DialogFragment() {
     private lateinit var listener: BtnListener
+    val text = title
 
     interface BtnListener {
         fun onDecisionClick()
@@ -32,9 +30,12 @@ class CameraPermissionAlertDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater
-        val view = inflater.inflate(R.layout.fragment_camera_permission_alert_dialog, container, false)
+        val view = inflater.inflate(R.layout.fragment_permission_alert_dialog, container, false)
+        val title = view.findViewById<TextView>(R.id.title)
         val cancelBtn = view.findViewById<Button>(R.id.cancelBtn)
         val decisionBtn = view.findViewById<Button>(R.id.decisionBtn)
+
+        title.text = text
 
         builder.setView(view)
         this.isCancelable = false

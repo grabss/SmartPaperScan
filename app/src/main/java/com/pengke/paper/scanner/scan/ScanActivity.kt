@@ -25,7 +25,7 @@ import android.util.Log
 import android.view.Display
 import android.view.SurfaceView
 import android.widget.SeekBar
-import com.pengke.paper.scanner.CameraPermissionAlertDialogFragment
+import com.pengke.paper.scanner.PermissionAlertDialogFragment
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.*
@@ -41,15 +41,15 @@ import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import kotlin.concurrent.thread
-import kotlin.system.exitProcess
 
 const val IMAGE_COUNT_RESULT = 1000
 const val REQUEST_GALLERY_TAKE = 1
+const val REQUEST_CAMERA_PERMISSION = 0
+const val REQUEST_READ_GALLERY_PERMISSION = 1
 
-class ScanActivity : BaseActivity(), IScanView.Proxy, CameraPermissionAlertDialogFragment.BtnListener {
+class ScanActivity : BaseActivity(), IScanView.Proxy, PermissionAlertDialogFragment.BtnListener {
 
     private var latestBackPressTime: Long = 0
-    private val REQUEST_CAMERA_PERMISSION = 0
     private val EXIT_TIME = 2000
     private lateinit var mPresenter: ScanPresenter
     private lateinit var sp: SharedPreferences
@@ -60,7 +60,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, CameraPermissionAlertDialo
 
     private var needFlash = false
 
-    private val cameraPermissionDlg = CameraPermissionAlertDialogFragment()
     private val dbHelper = DbHelper(this)
 
     override fun onDestroy() {
@@ -86,15 +85,11 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, CameraPermissionAlertDialo
         } else if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
         } else if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_READ_GALLERY_PERMISSION)
         }
 
         setBtnListener()
         latestBackPressTime = System.currentTimeMillis()
-    }
-
-    fun showAlertDlg() {
-        cameraPermissionDlg.show(supportFragmentManager, "TAG")
     }
 
     private fun setBtnListener() {
@@ -119,6 +114,8 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, CameraPermissionAlertDialo
                 addCategory(Intent.CATEGORY_OPENABLE)
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                 type = "image/*"
+                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 putExtra(Intent.EXTRA_LOCAL_ONLY, true)
             }
             startActivityForResult(intent, REQUEST_GALLERY_TAKE)
@@ -485,6 +482,14 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, CameraPermissionAlertDialo
             showMessage(R.string.camera_grant)
             mPresenter.initCamera()
             mPresenter.updateCamera()
+        }
+        if (requestCode == REQUEST_CAMERA_PERMISSION && (grantResults[permissions.indexOf(android.Manifest.permission.CAMERA)] == PackageManager.PERMISSION_DENIED)) {
+            val cameraPermissionDlg = PermissionAlertDialogFragment("カメラの使用が許可されていません。\n設定で許可してください。")
+            cameraPermissionDlg.show(supportFragmentManager, "TAG")
+        }
+        if (requestCode == REQUEST_READ_GALLERY_PERMISSION && (grantResults[permissions.indexOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)] == PackageManager.PERMISSION_DENIED)) {
+            val cameraPermissionDlg = PermissionAlertDialogFragment("写真へのアクセスが許可されていません。\n設定で許可してください。")
+            cameraPermissionDlg.show(supportFragmentManager, "TAG")
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }

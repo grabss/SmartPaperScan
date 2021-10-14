@@ -92,9 +92,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         try {
             mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK)
         } catch (e: RuntimeException) {
-            scanActv.showAlertDlg()
             e.stackTrace
-
             Toast.makeText(context, "cannot open camera, please grant camera", Toast.LENGTH_SHORT).show()
             return
         }
