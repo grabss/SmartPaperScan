@@ -18,20 +18,19 @@ import android.os.Looper
 import android.provider.BaseColumns
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
 import android.view.Display
 import android.view.SurfaceView
 import android.widget.SeekBar
-import com.pengke.paper.scanner.AlertDialogFragment
+import com.pengke.paper.scanner.CameraPermissionAlertDialogFragment
 import com.pengke.paper.scanner.ImageListActivity
 import com.pengke.paper.scanner.R
 import com.pengke.paper.scanner.base.*
-import com.pengke.paper.scanner.crop.BeforehandCropPresenter
 import com.pengke.paper.scanner.helper.DbHelper
 import com.pengke.paper.scanner.helper.ImageTable
-import com.pengke.paper.scanner.processor.processPicture
 import com.pengke.paper.scanner.view.PaperRectangle
 
 import kotlinx.android.synthetic.main.activity_scan.*
@@ -40,15 +39,14 @@ import org.opencv.android.Utils
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.Size
-import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
-import java.io.ByteArrayOutputStream
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 const val IMAGE_COUNT_RESULT = 1000
 const val REQUEST_GALLERY_TAKE = 1
 
-class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnListener {
+class ScanActivity : BaseActivity(), IScanView.Proxy, CameraPermissionAlertDialogFragment.BtnListener {
 
     private var latestBackPressTime: Long = 0
     private val REQUEST_CAMERA_PERMISSION = 0
@@ -62,7 +60,7 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
 
     private var needFlash = false
 
-    private val alertDialog = AlertDialogFragment()
+    private val cameraPermissionDlg = CameraPermissionAlertDialogFragment()
     private val dbHelper = DbHelper(this)
 
     override fun onDestroy() {
@@ -95,6 +93,10 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
         latestBackPressTime = System.currentTimeMillis()
     }
 
+    fun showAlertDlg() {
+        cameraPermissionDlg.show(supportFragmentManager, "TAG")
+    }
+
     private fun setBtnListener() {
         flashBtn.setOnClickListener {
             thread {
@@ -109,7 +111,6 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
         }
 
         gallery.setOnClickListener {
-//            alertDialog.show(supportFragmentManager, "TAG")
             val db = dbHelper.writableDatabase
             db.delete(ImageTable.TABLE_NAME, null, null)
             val editor = sp.edit()
@@ -138,6 +139,21 @@ class ScanActivity : BaseActivity(), IScanView.Proxy, AlertDialogFragment.BtnLis
     }
 
     override fun onDecisionClick() {
+        val intent = Intent()
+        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        val packageName = packageName ?: ""
+        val uri = Uri.fromParts(
+            "package",
+            packageName,
+            null
+        )
+        intent.data = uri
+        startActivity(intent)
+        finish()
+    }
+
+    override fun onCancelClick() {
+        finish()
     }
 
     fun setSlider(max: Int?) {

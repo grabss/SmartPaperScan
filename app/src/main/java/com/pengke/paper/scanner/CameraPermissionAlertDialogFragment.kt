@@ -12,11 +12,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.synthetic.main.fragment_confirm_dialog.*
 
-class AlertDialogFragment : DialogFragment() {
+class CameraPermissionAlertDialogFragment : DialogFragment() {
     private lateinit var listener: BtnListener
 
     interface BtnListener {
         fun onDecisionClick()
+        fun onCancelClick()
     }
 
     override fun onAttach(context: Context) {
@@ -31,14 +32,21 @@ class AlertDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater
-        val view = inflater.inflate(R.layout.fragment_alert_dialog, container, false)
-        val confirmBtn = view.findViewById<Button>(R.id.confirmBtn)
+        val view = inflater.inflate(R.layout.fragment_camera_permission_alert_dialog, container, false)
+        val cancelBtn = view.findViewById<Button>(R.id.cancelBtn)
+        val decisionBtn = view.findViewById<Button>(R.id.decisionBtn)
 
         builder.setView(view)
+        this.isCancelable = false
         val dialog = builder.create()
         dialog.show()
 
-        confirmBtn.setOnClickListener {
+        cancelBtn.setOnClickListener {
+            dialog.dismiss()
+            listener.onCancelClick()
+        }
+
+        decisionBtn.setOnClickListener {
             dialog.dismiss()
             listener.onDecisionClick()
         }

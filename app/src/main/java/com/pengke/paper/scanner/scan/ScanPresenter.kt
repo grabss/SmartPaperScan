@@ -2,13 +2,18 @@ package com.pengke.paper.scanner.scan
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.Camera
 import android.media.MediaActionSound
+import android.net.Uri
+import android.provider.Settings
 import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.Toast
+import androidx.core.content.ContextCompat.startActivity
+import com.pengke.paper.scanner.ConfirmDialogFragment
 import com.pengke.paper.scanner.base.SCALE_SIZE
 import com.pengke.paper.scanner.crop.BeforehandCropPresenter
 import com.pengke.paper.scanner.helper.DbHelper
@@ -87,7 +92,9 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         try {
             mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK)
         } catch (e: RuntimeException) {
+            scanActv.showAlertDlg()
             e.stackTrace
+
             Toast.makeText(context, "cannot open camera, please grant camera", Toast.LENGTH_SHORT).show()
             return
         }

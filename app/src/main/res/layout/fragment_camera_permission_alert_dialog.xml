@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/container"
-    tools:context=".AlertDialogFragment">
+    tools:context=".CameraPermissionAlertDialogFragment">
 
 
     <LinearLayout
@@ -22,7 +22,7 @@
             android:lineHeight="20dp"
             android:gravity="center"
             android:padding="10dp"
-            android:text="@string/max_count_alert"
+            android:text="@string/camera_permission_alert"
             android:textColor="@color/colorBlack"
             android:textSize="16sp" />
 
@@ -36,15 +36,27 @@
             app:layout_constraintStart_toStartOf="@id/title">
 
             <Button
-                android:id="@+id/confirmBtn"
+                android:id="@+id/cancelBtn"
                 android:layout_width="0dip"
                 android:layout_height="60dp"
-                android:layout_weight="1"
-                android:background="@color/colorMain"
-                android:backgroundTint="@color/colorMain"
-                android:text="@string/confirm"
+                android:layout_weight=".5"
+                android:background="@color/colorCancelBtnBackground"
+                android:backgroundTint="@color/colorCancelBtnBackground"
+                android:text="@string/cancel"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                android:id="@+id/decisionBtn"
+                android:layout_width="0dip"
+                android:layout_height="60dp"
+                android:layout_weight=".5"
+                android:background="@color/colorMain"
+                android:backgroundTint="@color/colorMain"
+                android:text="@string/decision"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

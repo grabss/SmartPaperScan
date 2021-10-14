@@ -32,5 +32,5 @@
     <string name="confirm_delete">削除してよろしいですか</string>
     <string name="max_count_desc">50枚まで撮影できます</string>
     <string name="reached_max_count">いちどに撮影できる上限に達しています</string>
-    <string name="max_count_alert">推奨枚数は最大50枚となります。\n選択枚数が多い場合、アプリが終了してしまう可能性があります。</string>
+    <string name="camera_permission_alert">カメラの使用が許可されていません。\n設定で許可してください。</string>
 </resources>
