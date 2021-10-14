@@ -7,7 +7,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.fragment_confirm_dialog.*
+import kotlinx.android.synthetic.main.fragment_permission_alert_dialog.*
 
 class PermissionAlertDialogFragment(val title: String) : DialogFragment() {
     private lateinit var listener: BtnListener

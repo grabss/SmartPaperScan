@@ -42,7 +42,7 @@
                 android:layout_weight=".5"
                 android:background="@color/colorCancelBtnBackground"
                 android:backgroundTint="@color/colorCancelBtnBackground"
-                android:text="@string/cancel"
+                android:text="@string/back"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -53,7 +53,7 @@
                 android:layout_weight=".5"
                 android:background="@color/colorMain"
                 android:backgroundTint="@color/colorMain"
-                android:text="@string/decision"
+                android:text="@string/setting"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
